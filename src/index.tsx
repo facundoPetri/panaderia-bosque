@@ -1,30 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import Recetas from './pages/Recetas';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-  },
-  {
-    path: "/recetas",
-    element: <Recetas title="Recetas" />,
-  },
-]);
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Main from "./Main";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-     <RouterProvider router={router} />
+    <Main />
   </React.StrictMode>
 );
