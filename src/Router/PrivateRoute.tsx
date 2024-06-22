@@ -1,14 +1,15 @@
-import { ComponentType, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { ComponentType, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 
 interface PrivateRouteProps {
-  component: ComponentType<any>;
+  component: ComponentType<any>
 }
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   component: Component,
 }) => {
-  const [logged, setLogged] = useState(true);
-  return logged ? <Component /> : <Navigate to={"/auth/"} />;
-};
+  const [logged, setLogged] = useState(true)
 
-export default PrivateRoute;
+  return logged ? <Component /> : <Navigate to={'/auth/'} />
+}
+
+export default PrivateRoute

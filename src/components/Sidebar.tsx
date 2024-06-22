@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import clsx from 'clsx'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
@@ -6,25 +8,33 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import List from '@material-ui/core/List'
-import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import UserIcon from '@material-ui/icons/People'
-import LibraryBooks from '@material-ui/icons/LibraryBooks'
-import Apple from '@material-ui/icons/Apple'
-import Home from '@material-ui/icons/Home'
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
+import {
+  Box,
+  Collapse,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from '@material-ui/core'
 
-import { useNavigate } from 'react-router-dom'
-import { Box, Collapse } from '@material-ui/core'
-import { Business } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faBars,
+  faChevronLeft,
+  faChevronRight,
+  faChevronDown,
+  faChevronUp,
+  faHouse,
+  faUser,
+  faList,
+  faBuilding,
+  faBlender,
+  faEgg,
+} from '@fortawesome/free-solid-svg-icons'
+
+import logo from '../assets/logo.png'
+
 const drawerWidth = 240
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,6 +94,13 @@ const useStyles = makeStyles((theme) => ({
   nested: {
     paddingLeft: theme.spacing(4),
   },
+  logo: {
+    width: '4rem',
+    height: '4rem',
+    position: 'absolute',
+    left: '50%',
+    cursor: 'pointer',
+  },
 }))
 interface LinkItem {
   name: string
@@ -104,35 +121,89 @@ const Sidebar = () => {
     setOpen(false)
   }
   const routes: LinkItem[] = [
-    { name: 'Inicio', path: '/', icon: <Home /> },
-    { name: 'Insumos', path: '/insumos', icon: <Apple /> },
-    { name: 'Usuarios', path: '/usuarios', icon: <UserIcon /> },
-    { name: 'Recetas', path: '/recetas', icon: <LibraryBooks /> },
-    { name: 'Proveedores', path: '/proveedores', icon: <Business /> },
-    { name: 'Maquinarias', path: '/maquinarias', icon: <LibraryBooks /> },
+    { name: 'Inicio', path: '/', icon: <FontAwesomeIcon icon={faHouse} /> },
+    {
+      name: 'Insumos',
+      path: '/supplies',
+      icon: <FontAwesomeIcon icon={faEgg} />,
+    },
+    {
+      name: 'Usuarios',
+      path: '/users',
+      icon: <FontAwesomeIcon icon={faUser} />,
+    },
+    {
+      name: 'Recetas',
+      path: '/recipes',
+      icon: <FontAwesomeIcon icon={faList} />,
+    },
+    {
+      name: 'Proveedores',
+      path: '/providers',
+      icon: <FontAwesomeIcon icon={faBuilding} />,
+    },
+    {
+      name: 'Maquinarias',
+      path: '/machinery',
+      icon: <FontAwesomeIcon icon={faBlender} />,
+    },
   ]
   const hideExpand = ['Inicio']
   const navigate = useNavigate()
-  const handleOpenView = (path: string = '/') => navigate(path)
   const handleExpanded = (name: string) => {
     setExpandedMenuItem((prev) => (prev === name ? '' : name))
   }
   const insumosRoutes: LinkItem[] = [
-    { name: 'Consulta de insumos', path: '/insumos' },
+    { name: 'Consulta de insumos', path: '/supplies' },
     {
       name: 'Insumos con vencimiento próx.',
-      path: '/insumos',
+      path: '/supplies/expiring',
     },
-    { name: 'Insumos con bajo stock', path: '/insumos' },
+    { name: 'Insumos con bajo stock', path: '/supplies/lowStock' },
+    { name: 'Registro de uso de insumos', path: '/supplies/usageLog' },
+    { name: 'Desperdicio de inventario', path: '/supplies/inventoryWaste' },
+    {
+      name: 'Eficiencia de producción',
+      path: '/supplies/productionEfficiency',
+    },
+  ]
+  const usuariosRoutes: LinkItem[] = [
+    { name: 'Consulta de usuarios', path: '/users' },
+  ]
+  const recetasRoutes: LinkItem[] = [
+    { name: 'Consulta de recetas', path: '/recipes' },
+  ]
+  const proveedoresRoutes: LinkItem[] = [
+    { name: 'Listado de proveedores', path: '/providers' },
+    {
+      name: 'Pedidos a proveedores',
+      path: '/providers/orders',
+    },
+    {
+      name: 'Consulta de calidad y puntualidad de materia prima',
+      path: '/providers/qualityAndPunctuality',
+    },
+  ]
+  const maquinariasRoutes: LinkItem[] = [
+    { name: 'Gestión y mantenimiento de maquinarias', path: '/machinery' },
   ]
   const getSubmenuItems = (name: string) => {
     switch (name) {
       case 'Insumos':
         return insumosRoutes
-
+      case 'Usuarios':
+        return usuariosRoutes
+      case 'Recetas':
+        return recetasRoutes
+      case 'Proveedores':
+        return proveedoresRoutes
       default:
-        return insumosRoutes
+        return maquinariasRoutes
     }
+  }
+  const handleNavigatePath = (path: string) => {
+    navigate(path)
+    handleDrawerClose()
   }
   return (
     <div className={classes.root}>
@@ -151,11 +222,14 @@ const Sidebar = () => {
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
           >
-            <MenuIcon />
+            <FontAwesomeIcon icon={faBars} color="white" />
           </IconButton>
-          <Typography variant="h6" noWrap>
-            Panaderia Bosque
-          </Typography>
+          <img
+            onClick={() => handleNavigatePath('/')}
+            src={logo}
+            alt="Logo Panaderia Bosque"
+            className={classes.logo}
+          />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -170,25 +244,33 @@ const Sidebar = () => {
         <div className={classes.drawerHeader}>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? (
-              <ChevronLeftIcon />
+              <FontAwesomeIcon icon={faChevronLeft} />
             ) : (
-              <ChevronRightIcon />
+              <FontAwesomeIcon icon={faChevronRight} />
             )}
           </IconButton>
         </div>
         <Divider />
         <List>
-          {routes.map((item: LinkItem) => (
+          {routes.map((item: LinkItem, index) => (
             <Box key={item.name}>
-              <ListItem button onClick={() => handleExpanded(item.name)}>
+              <ListItem
+                button
+                onClick={() =>
+                  index === 0
+                    ? handleNavigatePath(item.path)
+                    : !hideExpand.includes(item.name) &&
+                      handleExpanded(item.name)
+                }
+              >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.name} />
                 {hideExpand.includes(
                   item.name
                 ) ? undefined : expandedMenuItem === item.name ? (
-                  <ExpandLess />
+                  <FontAwesomeIcon icon={faChevronUp} />
                 ) : (
-                  <ExpandMore />
+                  <FontAwesomeIcon icon={faChevronDown} />
                 )}
               </ListItem>
               <Collapse
@@ -198,7 +280,12 @@ const Sidebar = () => {
               >
                 <List component="div" disablePadding>
                   {getSubmenuItems(expandedMenuItem).map((item) => (
-                    <ListItem button className={classes.nested} key={item.name}>
+                    <ListItem
+                      button
+                      className={classes.nested}
+                      key={item.name}
+                      onClick={() => handleNavigatePath(item.path)}
+                    >
                       {item.icon ? (
                         <ListItemIcon>{item.icon}</ListItemIcon>
                       ) : undefined}

@@ -1,18 +1,18 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from 'react-router-dom'
 
-import { CssBaseline, makeStyles } from "@material-ui/core";
+import { CssBaseline, makeStyles } from '@material-ui/core'
 
-import Sidebar from "../Sidebar";
-import Home from "./Home";
-import Recipes from "../pages/Recipes";
+import Sidebar from '../components/Sidebar'
+import Home from '../pages/Home'
+import Recipes from '../pages/Recipes'
 const useStyles = makeStyles({
   wrapper: {
-    marginTop: "2rem",
+    marginTop: '2rem',
   },
-});
+})
 
 const AppPage = () => {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <div>
       <CssBaseline />
@@ -24,7 +24,7 @@ const AppPage = () => {
         </Routes>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AppPage;
+export default AppPage
