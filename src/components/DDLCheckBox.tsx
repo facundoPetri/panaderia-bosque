@@ -5,8 +5,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import Checkbox from '@material-ui/core/Checkbox';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import { faSquare, faSquareCheck } from '@fortawesome/free-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Option {
   title: string;
@@ -17,8 +17,8 @@ interface CheckboxDropdownProps {
   onSelectionChange: (selectedOption: Option | null, searchText: string) => void;
 }
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+const icon = <FontAwesomeIcon icon={faSquare} />;
+const checkedIcon = <FontAwesomeIcon icon={faSquareCheck} />;
 
 const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectionChange }) => {
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
