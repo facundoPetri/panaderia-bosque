@@ -96,6 +96,7 @@ export default function MachinesMaintenance() {
                 data={data}
                 dropdownOptions={dropdownOptions} // Agrege dropdownOptions
                 onView={handleView}
+                showDropdown={false}
             />
         </div>
     );

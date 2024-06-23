@@ -47,14 +47,13 @@ const data: StockUsage[] = [
   }
 ];
 
-
 const dropdownOptions = columns.map(column => ({
   title: column.label,
 }));
 
 export default function StocksUsage() {
   const [selectedStockUsage, setSelectedStockUsage] = useState<StockUsage | null>(null);
-  //Modal
+
   const handleView = (stockUsage: StockUsage) => {
     setSelectedStockUsage(stockUsage);
   };
@@ -69,8 +68,9 @@ export default function StocksUsage() {
       <GenericTable
         columns={columns}
         data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        dropdownOptions={dropdownOptions}
         onView={handleView}
+        showDropdown={false}
       />
     </div>
   );

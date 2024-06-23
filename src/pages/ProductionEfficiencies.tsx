@@ -78,6 +78,7 @@ export default function ProductionEfficiencies() {
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
         onView={handleView}
+        showDropdown={false}
       />
     </div>
   );

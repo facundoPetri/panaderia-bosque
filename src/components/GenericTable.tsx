@@ -18,7 +18,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons'
 import CheckboxDropdown from './DDLCheckBox';
 
-
 interface Column<T> {
   id: keyof T;
   label: string;
@@ -30,6 +29,7 @@ interface GenericTableProps<T extends object> {
   data: T[];
   onView: (row: T) => void;
   dropdownOptions: { title: string }[];
+  showDropdown?: boolean; // Nueva propiedad opcional
 }
 
 const useStyles = makeStyles({
@@ -38,7 +38,7 @@ const useStyles = makeStyles({
   },
 });
 
-const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions }: GenericTableProps<T>) => {
+const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions, showDropdown = true }: GenericTableProps<T>) => { // Valor por defecto true
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -109,12 +109,14 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
 
   return (
     <TableContainer component={Paper}>
-      <Box style={{ paddingTop: '25px' }}>
-        <CheckboxDropdown
-          options={dropdownOptions}
-          onSelectionChange={handleSelectionChange}
-        />
-      </Box>
+      {showDropdown && ( // Mostrar u ocultar el Dropdown basado en la propiedad showDropdown
+        <Box style={{ paddingTop: '25px' }}>
+          <CheckboxDropdown
+            options={dropdownOptions}
+            onSelectionChange={handleSelectionChange}
+          />
+        </Box>
+      )}
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
