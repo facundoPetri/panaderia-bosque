@@ -1,0 +1,13 @@
+// pages/index.js
+export { default as Recipes } from './Recipes'
+export { default as Supplies } from './Supplies'
+export { default as ExpiringSupply } from './ExpiringSupply'
+export { default as MachinesMaintenance } from './MachinesMaintenance'
+export { default as OrdersProviders } from './OrdersProviders'
+export { default as ProductionEfficiencies } from './ProductionEfficiencies'
+export { default as Providers } from './Providers'
+export { default as QualityAndPunctualityReport } from './QualityAndPunctualityReport'
+export { default as SuppliesWithLowStock } from './SuppliesWithLowStock'
+export { default as Users } from './Users'
+export { default as WasteReports } from './WasteReports'
+export { default as StocksUsage } from './StocksUsage'
