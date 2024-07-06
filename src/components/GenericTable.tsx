@@ -14,8 +14,9 @@ import {
   Box,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSquarePlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { faSquare, faSquareCheck } from '@fortawesome/free-regular-svg-icons';
 import CheckboxDropdown from './DDLCheckBox';
 
 interface Column<T> {
@@ -38,7 +39,13 @@ const useStyles = makeStyles({
   },
 });
 
-const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions, showDropdown = true }: GenericTableProps<T>) => { // Valor por defecto true
+const GenericTable = <T extends object>({
+  columns,
+  data,
+  onView,
+  dropdownOptions,
+  showDropdown = true,
+}: GenericTableProps<T>) => {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -46,6 +53,7 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
   const [orderBy, setOrderBy] = useState<keyof T | null>(null);
   const [selectedOption, setSelectedOption] = useState<{ title: string } | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const handleRequestSort = (property: keyof T) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -107,6 +115,21 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
     setSearchText(search);
   };
 
+  const handleCheckboxClick = (index: number) => {
+    const currentIndex = selectedRows.indexOf(index);
+    const newSelectedRows = [...selectedRows];
+
+    if (currentIndex === -1) {
+      newSelectedRows.push(index);
+    } else {
+      newSelectedRows.splice(currentIndex, 1);
+    }
+
+    setSelectedRows(newSelectedRows);
+  };
+
+  const isSelected = (index: number) => selectedRows.indexOf(index) !== -1;
+
   return (
     <TableContainer component={Paper}>
       {showDropdown && ( // Mostrar u ocultar el Dropdown basado en la propiedad showDropdown
@@ -120,6 +143,7 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox"></TableCell>
             {columns.map((column) => (
               <TableCell key={column.id as string}>
                 {column.sortable !== false ? (
@@ -142,6 +166,13 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
           {paginatedData.length > 0 ? (
             paginatedData.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
+                <TableCell padding="checkbox">
+                  <IconButton onClick={() => handleCheckboxClick(rowIndex)}>
+                    <FontAwesomeIcon
+                      icon={isSelected(rowIndex) ? faSquareCheck : faSquare}
+                    />
+                  </IconButton>
+                </TableCell>
                 {columns.map((column) => (
                   <TableCell key={column.id as string}>
                     {String(row[column.id])}
@@ -156,7 +187,7 @@ const GenericTable = <T extends object>({ columns, data, onView, dropdownOptions
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length + 1} align="center">
+              <TableCell colSpan={columns.length + 2} align="center">
                 No hay resultados
               </TableCell>
             </TableRow>
