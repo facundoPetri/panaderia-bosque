@@ -1,4 +1,3 @@
-// GenericTable.tsx
 import React, { useState } from 'react';
 import {
   Table,
@@ -12,10 +11,16 @@ import {
   TablePagination,
   TableSortLabel,
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { faSquarePlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { faSquare, faSquareCheck } from '@fortawesome/free-regular-svg-icons';
 import CheckboxDropdown from './DDLCheckBox';
 
@@ -23,19 +28,27 @@ interface Column<T> {
   id: keyof T;
   label: string;
   sortable?: boolean;
+  hidden?: boolean; // Propiedad para ocultar la columna
 }
-
 interface GenericTableProps<T extends object> {
   columns: Column<T>[];
   data: T[];
   onView: (row: T) => void;
+  onAdd?: () => void;
+  onDelete: (id: number) => void;
   dropdownOptions: { title: string }[];
-  showDropdown?: boolean; // Nueva propiedad opcional
+  showDropdown?: boolean;
+  nameColumnId: keyof T; // Columna para mostrar en el mensaje de eliminación
 }
 
 const useStyles = makeStyles({
   tableBody: {
     backgroundColor: '#BEBEBE',
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '10px',
   },
 });
 
@@ -43,8 +56,11 @@ const GenericTable = <T extends object>({
   columns,
   data,
   onView,
+  onAdd,
+  onDelete,
   dropdownOptions,
   showDropdown = true,
+  nameColumnId,
 }: GenericTableProps<T>) => {
   const classes = useStyles();
   const [page, setPage] = useState(0);
@@ -54,6 +70,8 @@ const GenericTable = <T extends object>({
   const [selectedOption, setSelectedOption] = useState<{ title: string } | null>(null);
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
   const handleRequestSort = (property: keyof T) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -130,9 +148,29 @@ const GenericTable = <T extends object>({
 
   const isSelected = (index: number) => selectedRows.indexOf(index) !== -1;
 
+  const handleDeleteClick = () => {
+    if (selectedRows.length === 1) {
+      const selectedIndex = selectedRows[0];
+      const selectedRow = paginatedData[selectedIndex];
+      setSelectedRow(selectedRow);
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedRow) {
+      console.log(selectedRow[columns[0].id]);
+      const id = selectedRow[columns[0].id];
+      onDelete(Number(id));
+      setDeleteDialogOpen(false);
+      setSelectedRows([]);
+      setSelectedRow(null);
+    }
+  };
+
   return (
     <TableContainer component={Paper}>
-      {showDropdown && ( // Mostrar u ocultar el Dropdown basado en la propiedad showDropdown
+      {showDropdown && (
         <Box style={{ paddingTop: '25px' }}>
           <CheckboxDropdown
             options={dropdownOptions}
@@ -140,25 +178,49 @@ const GenericTable = <T extends object>({
           />
         </Box>
       )}
+      <Box className={classes.buttonContainer}>
+        {onAdd && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={onAdd}
+            startIcon={<FontAwesomeIcon icon={faSquarePlus} />}
+            style={{ marginRight: '10px' }}
+          >
+            Agregar
+          </Button>
+        )}
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleDeleteClick}
+          disabled={selectedRows.length !== 1}
+          startIcon={<FontAwesomeIcon icon={faTrashAlt} />}
+        >
+          Eliminar
+        </Button>
+      </Box>
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
             <TableCell padding="checkbox"></TableCell>
-            {columns.map((column) => (
-              <TableCell key={column.id as string}>
-                {column.sortable !== false ? (
-                  <TableSortLabel
-                    active={orderBy === column.id}
-                    direction={orderBy === column.id ? order : 'asc'}
-                    onClick={() => handleRequestSort(column.id)}
-                  >
-                    {column.label}
-                  </TableSortLabel>
-                ) : (
-                  column.label
-                )}
-              </TableCell>
-            ))}
+            {columns.map((column) =>
+              column.hidden ? null : (
+                <TableCell key={column.id as string}>
+                  {column.sortable !== false ? (
+                    <TableSortLabel
+                      active={orderBy === column.id}
+                      direction={orderBy === column.id ? order : 'asc'}
+                      onClick={() => handleRequestSort(column.id)}
+                    >
+                      {column.label}
+                    </TableSortLabel>
+                  ) : (
+                    column.label
+                  )}
+                </TableCell>
+              )
+            )}
             <TableCell>Ver más</TableCell>
           </TableRow>
         </TableHead>
@@ -173,11 +235,13 @@ const GenericTable = <T extends object>({
                     />
                   </IconButton>
                 </TableCell>
-                {columns.map((column) => (
-                  <TableCell key={column.id as string}>
-                    {String(row[column.id])}
-                  </TableCell>
-                ))}
+                {columns.map((column) =>
+                  column.hidden ? null : (
+                    <TableCell key={column.id as string}>
+                      {String(row[column.id])}
+                    </TableCell>
+                  )
+                )}
                 <TableCell>
                   <IconButton aria-label="Ver más" onClick={() => onView(row)}>
                     <FontAwesomeIcon icon={faSquarePlus} />
@@ -204,6 +268,25 @@ const GenericTable = <T extends object>({
         onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage="Filas por página:"
       />
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Está seguro de que desea eliminar "{selectedRow ? selectedRow[nameColumnId] : ''}"?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+            Sí
+          </Button>
+        </DialogActions>
+      </Dialog>
     </TableContainer>
   );
 };

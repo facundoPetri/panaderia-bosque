@@ -3,6 +3,7 @@ import GenericTable, { Column } from '../components/GenericTable';
 import MachineMaintenanceDialog from '../components/MachineMaintenanceDialog';
 
 interface MachineMaintenance {
+  id: string;
   name: string;
   user: string;
   acquisitionDate: string;
@@ -12,6 +13,7 @@ interface MachineMaintenance {
 }
 
 const columns: Column<MachineMaintenance>[] = [
+  { id: 'id', label: 'id' , hidden: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'user', label: 'Usuario' },
   { id: 'acquisitionDate', label: 'Fecha de adquisición' },
@@ -22,6 +24,7 @@ const columns: Column<MachineMaintenance>[] = [
 
 const data: MachineMaintenance[] = [
   {
+    id: '1',
     name: 'Amasadora',
     user: 'Kevin Zenon',
     acquisitionDate: '01/06/2022',
@@ -30,6 +33,7 @@ const data: MachineMaintenance[] = [
     priority: 'Media',
   },
   {
+    id: '2',
     name: 'Batidora de mano',
     user: 'Miguel Merentiel',
     acquisitionDate: '03/06/2022',
@@ -38,6 +42,7 @@ const data: MachineMaintenance[] = [
     priority: 'Alta',
   },
   {
+    id: '3',
     name: 'Cámara de fermentación',
     user: 'Cristian Erbes',
     acquisitionDate: '06/06/2022',
@@ -46,6 +51,7 @@ const data: MachineMaintenance[] = [
     priority: 'Baja',
   },
   {
+    id: '4',
     name: 'Heladera',
     user: 'Santiago Silva',
     acquisitionDate: '12/06/2022',
@@ -54,6 +60,7 @@ const data: MachineMaintenance[] = [
     priority: 'Baja',
   },
   {
+    id: '5',
     name: 'Horno a gas',
     user: 'Cristian Medina',
     acquisitionDate: '15/06/2022',
@@ -62,6 +69,7 @@ const data: MachineMaintenance[] = [
     priority: 'Baja',
   },
   {
+    id: '6',
     name: 'Horno eléctrico',
     user: 'Daniel Osvaldo',
     acquisitionDate: '20/06/2022',
@@ -86,6 +94,16 @@ export default function MachinesMaintenance() {
     setSelectedMachineMaintenance(null);
   };
 
+  const handleDelete = (id: number) => {
+    console.log(`Eliminando elemento con id: ${id}`);
+    // Aquí puedes llamar a tu servicio de eliminación con el id
+  };
+
+  const handleAdd = () => {
+    console.log('Agregando nuevo elemento');
+    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión y mantenimiento de maquinaria</h1>
@@ -94,7 +112,10 @@ export default function MachinesMaintenance() {
         data={data}
         dropdownOptions={dropdownOptions}
         onView={handleView}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
         showDropdown={false}
+        nameColumnId="name"
       />
       <MachineMaintenanceDialog
         open={selectedMachineMaintenance !== null}

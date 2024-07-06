@@ -4,6 +4,7 @@ import { Column } from '../components/GenericTable';
 
 
 const columns: Column<Supply>[] = [
+  { id: 'id', label: 'id' , hidden: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'currentStock', label: 'Stock actual' },
   { id: 'minimumStock', label: 'Stock minimo' },
@@ -13,6 +14,7 @@ const columns: Column<Supply>[] = [
 ];
 
 interface Supply {
+  id: string;
   name: string;
   currentStock: string;
   minimumStock: string;
@@ -23,6 +25,7 @@ interface Supply {
 
 const data: Supply[] = [
   {
+    id: '1',
     name: 'Azucar blanca',
     currentStock: '20 kg',
     minimumStock: '15 kg',
@@ -31,6 +34,7 @@ const data: Supply[] = [
     priority: 'Media',
   },
   {
+    id: '2',
     name: 'Harina 000',
     currentStock: '5 kg',
     minimumStock: '5 kg',
@@ -39,6 +43,7 @@ const data: Supply[] = [
     priority: 'Alta',
   },
   {
+    id: '3',
     name: 'Huevo',
     currentStock: '46 u',
     minimumStock: '10 u',
@@ -47,6 +52,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '4',
     name: 'Levadura en polvo',
     currentStock: '10 u',
     minimumStock: '5 u',
@@ -55,6 +61,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '5',
     name: 'Margarina',
     currentStock: '15 kg',
     minimumStock: '10 kg',
@@ -63,6 +70,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '6',
     name: 'Sal fina',
     currentStock: '20 kg',
     minimumStock: '10 kg',
@@ -87,6 +95,16 @@ export default function SuppliesWithLowStock() {
     setSelectedSupplies(null);
   };
 
+  const handleDelete = (id: number) => {
+    console.log(`Eliminando elemento con id: ${id}`);
+    // Aquí puedes llamar a tu servicio de eliminación con el id
+  };
+
+  const handleAdd = () => {
+    console.log('Agregando nuevo elemento');
+    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consulta de insumos con bajo stock</h1>
@@ -95,6 +113,9 @@ export default function SuppliesWithLowStock() {
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
         onView={handleView}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
+        nameColumnId="name"
       />
     </div>
   );

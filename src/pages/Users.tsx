@@ -3,6 +3,7 @@ import GenericTable from '../components/GenericTable';
 import { Column } from '../components/GenericTable';
 
 interface User {
+    id: string;
     fullName: string;
     email: string;
     status: 'Active' | 'Inactive';
@@ -12,6 +13,7 @@ interface User {
   }
   
   const columns: Column<User>[] = [
+    { id: 'id', label: 'id' , hidden: true, sortable : false},
     { id: 'fullName', label: 'Nombre Completo' },
     { id: 'email', label: 'Email' },
     { id: 'status', label: 'Estado' },
@@ -22,6 +24,7 @@ interface User {
   
   const users: User[] = [
     {
+      id: '1',
       fullName: 'Esteban Rolón',
       email: 'ERolon@panaderiadelbosque.com',
       status: 'Active',
@@ -30,6 +33,7 @@ interface User {
       lastLogin: '16/06/2022',
     },
     {
+      id: '2',
       fullName: 'Federico Bravo',
       email: 'FBravo@panaderiadelbosque.com',
       status: 'Active',
@@ -38,6 +42,7 @@ interface User {
       lastLogin: '23/06/2022',
     },
     {
+      id: '3',
       fullName: 'Hernán Santos',
       email: 'HSantos@panaderiadelbosque.com',
       status: 'Inactive',
@@ -46,6 +51,7 @@ interface User {
       lastLogin: '19/06/2022',
     },
     {
+      id: '4',
       fullName: 'Juan Medina',
       email: 'JMedina@panaderiadelbosque.com',
       status: 'Active',
@@ -54,6 +60,7 @@ interface User {
       lastLogin: '28/06/2022',
     },
     {
+      id: '5',
       fullName: 'Juan Román Riquelme',
       email: 'JRiquelme@panaderiadelbosque.com',
       status: 'Inactive',
@@ -62,6 +69,7 @@ interface User {
       lastLogin: '30/06/2022',
     },
     {
+      id: '6',
       fullName: 'Rocío Gutierrez',
       email: 'RGutierrez@panaderiadelbosque.com',
       status: 'Active',
@@ -85,6 +93,16 @@ interface User {
     const handleClose = () => {
         setSelectedUser(null);
     };
+
+    const handleDelete = (id: number) => {
+      console.log(`Eliminando elemento con id: ${id}`);
+      // Aquí puedes llamar a tu servicio de eliminación con el id
+    };
+  
+    const handleAdd = () => {
+      console.log('Agregando nuevo elemento');
+      // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    };
   
     return (
       <div style={{ padding: '20px' }}>
@@ -94,6 +112,9 @@ interface User {
           data={users}
           dropdownOptions={dropdownOptions} // Agrege dropdownOptions
           onView={handleView}
+          onDelete={handleDelete}
+          onAdd={handleAdd}
+          nameColumnId="fullName"
         />
       </div>
     );

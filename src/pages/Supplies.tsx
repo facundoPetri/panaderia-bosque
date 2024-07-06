@@ -4,6 +4,7 @@ import { Column } from '../components/GenericTable';
 import SuppliesDialog from '../components/SuppliesDialog';
 
 interface StockItem {
+  id: string;
   name: string;
   lastLoadDate: string;
   currentStock: string;
@@ -21,6 +22,7 @@ interface StockItem {
 
 
 const columns: Column<StockItem>[] = [
+  { id: 'id', label: 'id' , hidden: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'lastLoadDate', label: 'Fecha de ultima carga' },
   { id: 'currentStock', label: 'Stock actual' },
@@ -30,6 +32,7 @@ const columns: Column<StockItem>[] = [
 
 const data: StockItem[] = [
   {
+    id: '1',
     name: "Harina de trigo 000",
     lastLoadDate: "12/06/2023",
     currentStock: "5 kg",
@@ -45,6 +48,7 @@ const data: StockItem[] = [
     imageUrl: "https://d3340tyzmtlo4u.cloudfront.net/users/864/images/detailed/13/Favorita_Harina_de_Trigo_Enriquecida_Tipo_000,_1_kg.webp" // URL de la imagen del producto
   },
   {
+    id: '2',
     name: "Harina 000",
     lastLoadDate: "20/06/2022",
     currentStock: "100 kg",
@@ -60,6 +64,7 @@ const data: StockItem[] = [
     imageUrl: "https://example.com/image.jpg"
   },
   {
+    id: '3',
     name: "Huevo",
     lastLoadDate: "20/06/2022",
     currentStock: "46 unidades",
@@ -75,6 +80,7 @@ const data: StockItem[] = [
     imageUrl: "https://example.com/image.jpg"
   },
   {
+    id: '4',
     name: "Levadura en polvo",
     lastLoadDate: "15/06/2022",
     currentStock: "10 unidades",
@@ -90,6 +96,7 @@ const data: StockItem[] = [
     imageUrl: "https://example.com/image.jpg"
   },
   {
+    id: '5',
     name: "Margarina",
     lastLoadDate: "10/06/2022",
     currentStock: "15 kg",
@@ -105,6 +112,7 @@ const data: StockItem[] = [
     imageUrl: "https://example.com/image.jpg"
   },
   {
+    id: '6',
     name: "Sal fina",
     lastLoadDate: "22/06/2022",
     currentStock: "20 kg",
@@ -136,6 +144,16 @@ export default function Supplies() {
     setSelectedSupplies(null);
   };
 
+  const handleDelete = (id: number) => {
+    console.log(`Eliminando elemento con id: ${id}`);
+    // Aquí puedes llamar a tu servicio de eliminación con el id
+  };
+
+  const handleAdd = () => {
+    console.log('Agregando nuevo elemento');
+    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consulta de insumos</h1>
@@ -144,6 +162,9 @@ export default function Supplies() {
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
         onView={handleView}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
+        nameColumnId="name"
       />
        <SuppliesDialog
         open={selectedSupplies !== null}
