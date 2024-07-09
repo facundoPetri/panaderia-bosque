@@ -6,6 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
 import logo from '../assets/logo.png'
+import { request } from '../common/request'
+import { AutenticationResponse } from '../interfaces/Autentication'
+import { AxiosError, isAxiosError } from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../stores/AuthContext'
 
 const useStyles = makeStyles((theme) => ({
   logo: {
@@ -40,8 +45,24 @@ const LoginPage = () => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(true)
-  const handleLogin = () => {
-    console.log('Username:', username, 'Password:', password)
+  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const handleLogin = async() => {
+    try{
+
+      const res = await request<AutenticationResponse>({path:'/auth/login',data:{'email': username, 'password': password},method:'POST'})
+      if(res){
+        login(res.data.access_token)
+        setError(false)
+        navigate('/')
+      }
+    }catch(error){
+      if(isAxiosError(error)){
+        setErrorMessage(error.response?.data?.message)
+      }
+    }
   }
   return (
     <div className={classes.root}>
@@ -80,9 +101,9 @@ const LoginPage = () => {
           >
             Iniciar sesión
           </Button>
-          {error && (
+          {error && errorMessage.length >0 && (
             <Alert severity="error">
-              This is an error alert — check it out!
+              {errorMessage}
             </Alert>
           )}
         </Box>
