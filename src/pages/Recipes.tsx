@@ -80,7 +80,6 @@ const dropdownOptions = columns.map(column => ({
 }));
 
 export default function Recipes() {
-  const token = sessionStorage.getItem('token') || ''
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [recipes, setRecipes] = useState<RecipesResponse[]>([])
 //Modal
@@ -93,7 +92,7 @@ export default function Recipes() {
   };
   const getRecipes = async () => {
     try {
-      const res = await request<RecipesResponse>({path:'/recipes',method:'GET',token})
+      const res = await request<RecipesResponse>({path:'/recipes',method:'GET'})
       if(res){
         //setRecipes(res)
         console.log(res)

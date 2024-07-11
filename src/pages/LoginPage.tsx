@@ -8,7 +8,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import logo from '../assets/logo.png'
 import { request } from '../common/request'
 import { AutenticationResponse } from '../interfaces/Autentication'
-import { AxiosError, isAxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../stores/AuthContext'
 
