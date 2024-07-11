@@ -5,17 +5,16 @@ interface Request<T> {
   path: string
   data?: any
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-  token?: string
 }
 
 export const request = async <T>({
   path,
   data,
   method,
-  token,
 }: Request<T>): Promise<T | void> => {
   try {
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+    const token = sessionStorage.getItem('token') || ''
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
     let res: AxiosResponse<T>
     switch (method) {
       case 'GET':

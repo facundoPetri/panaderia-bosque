@@ -12,7 +12,13 @@ import Divider from '@material-ui/core/Divider'
 import IconButton from '@material-ui/core/IconButton'
 import {
   Box,
+  Button,
   Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -31,9 +37,11 @@ import {
   faBuilding,
   faBlender,
   faEgg,
+  faPowerOff,
 } from '@fortawesome/free-solid-svg-icons'
 
 import logo from '../assets/logo.png'
+import { useAuth } from '../stores/AuthContext'
 
 const drawerWidth = 240
 const useStyles = makeStyles((theme) => ({
@@ -97,9 +105,11 @@ const useStyles = makeStyles((theme) => ({
   logo: {
     width: '4rem',
     height: '4rem',
-    position: 'absolute',
-    left: '50%',
     cursor: 'pointer',
+  },
+  topbar: {
+    display: 'flex',
+    justifyContent:'space-between'
   },
 }))
 interface LinkItem {
@@ -107,11 +117,13 @@ interface LinkItem {
   path: string
   icon?: any
 }
-const Sidebar = () => {
+const SidebarAndTopbar = () => {
   const classes = useStyles()
   const theme = useTheme()
   const [open, setOpen] = useState(false)
+  const [openLogoutDialog, setOpenLogoutDialog] = useState(false)
   const [expandedMenuItem, setExpandedMenuItem] = useState('')
+  const { logout } = useAuth()
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -205,16 +217,42 @@ const Sidebar = () => {
     navigate(path)
     handleDrawerClose()
   }
+  const handleLogout = () => {
+    setOpenLogoutDialog(true)
+  }
+  const handleCloseDialog = () => {
+    setOpenLogoutDialog(false)
+  }
+  const handleConfirmLogout = () => {
+    handleCloseDialog()
+    logout()
+  }
   return (
     <div className={classes.root}>
       <CssBaseline />
+      <Dialog open={openLogoutDialog} onClose={handleCloseDialog}>
+        <DialogTitle id="form-dialog-title">Cerrar Sesión</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Estás seguro/a de cerrar sesión ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmLogout} color="primary" variant='contained'>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Toolbar className={classes.topbar}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -230,6 +268,13 @@ const Sidebar = () => {
             alt="Logo Panaderia Bosque"
             className={classes.logo}
           />
+          <IconButton
+            color="inherit"
+            onClick={() => handleLogout()}
+            edge="start"
+          >
+            <FontAwesomeIcon icon={faPowerOff} color="white" />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -308,4 +353,4 @@ const Sidebar = () => {
   )
 }
 
-export default Sidebar
+export default SidebarAndTopbar

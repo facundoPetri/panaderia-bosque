@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom'
 
 import { CssBaseline, makeStyles } from '@material-ui/core'
 
-import Sidebar from '../components/Sidebar'
 import Home from '../pages/Home'
 import { 
   Recipes, 
@@ -18,6 +17,7 @@ import {
   WasteReports, 
   StocksUsage 
 } from '../pages/index'
+import SidebarAndTopbar from '../components/SidebarAndTopbar'
 
 const useStyles = makeStyles({
   wrapper: {
@@ -30,7 +30,7 @@ const AppPage = () => {
   return (
     <div>
       <CssBaseline />
-      <Sidebar />
+      <SidebarAndTopbar />
       <div className={classes.wrapper}>
         <Routes>
           <Route path="/" element={<Home />} />
