@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 import { lighten, makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import {
@@ -11,7 +10,6 @@ import {
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import axios from 'axios'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -41,25 +39,10 @@ const useStyles = makeStyles((theme) => {
   }
 })
 
-
-const getExample = async () => {
-  try {
-    const response = await axios.get('http://localhost:3000/recipes')
-    console.log(response)
-  } catch (error) {
-    console.error(error)
-  }
-
-}
-
 function Home() {
   const classes = useStyles()
   const navigate = useNavigate()
   const handleOpenView = (path: string = '/') => navigate(path)
-
-  useEffect(() => {
-    getExample()
-  }, [])
   
   return (
     <div>

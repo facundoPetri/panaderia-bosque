@@ -51,10 +51,9 @@ const LoginPage = () => {
 
   const handleLogin = async() => {
     try{
-
       const res = await request<AutenticationResponse>({path:'/auth/login',data:{'email': username, 'password': password},method:'POST'})
       if(res){
-        login(res.data.access_token)
+        login(res.access_token)
         setError(false)
         navigate('/')
       }

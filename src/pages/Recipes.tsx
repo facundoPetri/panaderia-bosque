@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import GenericTable from '../components/GenericTable';
 import RecipeDialog from '../components/RecipeDialog';
 import { Column } from '../components/GenericTable';
+import { request } from '../common/request';
+import { RecipesResponse } from '../interfaces/Recipes';
 
 interface Recipe {
   name: string;
@@ -78,7 +80,9 @@ const dropdownOptions = columns.map(column => ({
 }));
 
 export default function Recipes() {
+  const token = sessionStorage.getItem('token') || ''
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recipes, setRecipes] = useState<RecipesResponse[]>([])
 //Modal
   const handleView = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -87,6 +91,24 @@ export default function Recipes() {
   const handleClose = () => {
     setSelectedRecipe(null);
   };
+  const getRecipes = async () => {
+    try {
+      const res = await request<RecipesResponse>({path:'/recipes',method:'GET',token})
+      if(res){
+        //setRecipes(res)
+        console.log(res)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  
+  }
+  useEffect(() => {
+    getRecipes()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  console.log(recipes)
 
   return (
     <div style={{ padding: '20px' }}>
