@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GenericTable, { Column } from '../../components/GenericTable';
 import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit';
+import MachineMaintenanceDialogCreate from './MachinesMaintenanceDialogCreate';
 
 export interface MachineMaintenance {
   id: string;
@@ -13,7 +14,7 @@ export interface MachineMaintenance {
 }
 
 const columns: Column<MachineMaintenance>[] = [
-  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
+  { id: 'id', label: 'id', hiddenColumn: true, sortable: false },
   { id: 'name', label: 'Nombre' },
   { id: 'user', label: 'Usuario' },
   { id: 'acquisitionDate', label: 'Fecha de adquisición' },
@@ -141,6 +142,7 @@ export default function MachinesMaintenance() {
         showDropdown={false}
         nameColumnId="name"
       />
+      <MachineMaintenanceDialogCreate open={isCreateMode} onClose={onClose} onSave={handleCreate} />
       <MachineMaintenanceDialogEdit machineMaintenance={selectedMachineMaintenance} onClose={onClose} editable={isEditMode} onSave={handleSave} />
     </div>
   );

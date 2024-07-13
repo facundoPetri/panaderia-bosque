@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import GenericTable from '../../components/GenericTable';
-import { Column } from '../../components/GenericTable';
+import React, { useState } from 'react';
+import GenericTable, { Column } from '../../components/GenericTable';
 import SuppliesDialogEdit from './SuppliesDialogEdit';
+import SuppliesDialogCreate from './SuppliesDialogCreate';
+
 export interface StockItem {
   id: string;
   name: string;
@@ -19,15 +20,13 @@ export interface StockItem {
   imageUrl: string;
 }
 
-
 const columns: Column<StockItem>[] = [
   { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
-  { id: 'lastLoadDate', label: 'Fecha de ultima carga', hiddenFilter: true },
+  { id: 'lastLoadDate', label: 'Fecha de última carga', hiddenFilter: true },
   { id: 'currentStock', label: 'Stock actual', hiddenFilter: true },
   { id: 'description', label: 'Descripción', hiddenFilter: true },
 ];
-
 
 const data: StockItem[] = [
   {
@@ -129,8 +128,8 @@ const data: StockItem[] = [
 ];
 
 const dropdownOptions = columns
-  .filter(column => column.hiddenFilter !== true)
-  .map(column => ({
+  .filter((column) => column.hiddenFilter !== true)
+  .map((column) => ({
     title: column.label,
   }));
 
@@ -172,9 +171,9 @@ export default function Supplies() {
     setIsCreateMode(false);
   };
 
-  const handleCreate = (supplies: any) => {
-    console.log('Creando usuario', supplies);
-    // Aquí puedes manejar la lógica para crear un nuevo usuario
+  const handleCreate = (supplies: StockItem) => {
+    console.log('Creando insumo', supplies);
+    // Aquí puedes manejar la lógica para crear un nuevo insumo
     setIsCreateMode(false);
   };
 
@@ -184,13 +183,14 @@ export default function Supplies() {
       <GenericTable
         columns={columns}
         data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         onEdit={handleEdit}
         nameColumnId="name"
       />
+      <SuppliesDialogCreate open={isCreateMode} onClose={onClose} onSave={handleCreate} />
       <SuppliesDialogEdit stockItem={selectedSupplies} onClose={onClose} editable={isEditMode} onSave={handleSave} />
     </div>
   );
