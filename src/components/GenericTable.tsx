@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquarePlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSquarePlus, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { faSquare, faSquareCheck } from '@fortawesome/free-regular-svg-icons';
 import CheckboxDropdown from './DDLCheckBox';
 
@@ -28,17 +28,20 @@ interface Column<T> {
   id: keyof T;
   label: string;
   sortable?: boolean;
-  hidden?: boolean; // Propiedad para ocultar la columna
+  hiddenColumn?: boolean;
+  hiddenFilter?: boolean;
 }
+
 interface GenericTableProps<T extends object> {
   columns: Column<T>[];
   data: T[];
   onView: (row: T) => void;
   onAdd?: () => void;
+  onEdit?: (row: T) => void; // Nueva función onEdit
   onDelete: (id: number) => void;
   dropdownOptions: { title: string }[];
   showDropdown?: boolean;
-  nameColumnId: keyof T; // Columna para mostrar en el mensaje de eliminación
+  nameColumnId: keyof T;
 }
 
 const useStyles = makeStyles({
@@ -57,6 +60,7 @@ const GenericTable = <T extends object>({
   data,
   onView,
   onAdd,
+  onEdit,
   onDelete,
   dropdownOptions,
   showDropdown = true,
@@ -73,22 +77,22 @@ const GenericTable = <T extends object>({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
-  const handleRequestSort = (property: keyof T) => {
+  const handleRequestSort = useCallback((property: keyof T) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
+  }, [orderBy, order]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = useCallback((event: unknown, newPage: number) => {
     setPage(newPage);
-  };
+  }, []);
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }, []);
 
-  const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
+  const stableSort = useCallback((array: T[], comparator: (a: T, b: T) => number) => {
     const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
     stabilizedThis.sort((a, b) => {
       const order = comparator(a[0], b[0]);
@@ -96,18 +100,18 @@ const GenericTable = <T extends object>({
       return a[1] - b[1];
     });
     return stabilizedThis.map((el) => el[0]);
-  };
+  }, []);
 
-  const getComparator = <Key extends keyof any>(
+  const getComparator = useCallback(<Key extends keyof any>(
     order: 'asc' | 'desc',
     orderBy: Key
   ): ((a: { [key in Key]: any }, b: { [key in Key]: any }) => number) => {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
-  };
+  }, []);
 
-  const descendingComparator = <T,>(a: T, b: T, orderBy: keyof T) => {
+  const descendingComparator = useCallback(<T,>(a: T, b: T, orderBy: keyof T) => {
     if (b[orderBy] < a[orderBy]) {
       return -1;
     }
@@ -115,25 +119,25 @@ const GenericTable = <T extends object>({
       return 1;
     }
     return 0;
-  };
+  }, []);
 
-  const filteredData = data.filter((row) => {
+  const filteredData = useMemo(() => data.filter((row) => {
     const matchesDropdown = !selectedOption || columns.some(col => col.label === selectedOption.title && String(row[col.id]).toLowerCase().includes(searchText.toLowerCase()));
     return matchesDropdown;
-  });
+  }), [data, selectedOption, searchText, columns]);
 
-  const sortedData = orderBy
+  const sortedData = useMemo(() => orderBy
     ? stableSort(filteredData, getComparator(order, orderBy))
-    : filteredData;
+    : filteredData, [orderBy, order, filteredData, stableSort, getComparator]);
 
-  const paginatedData = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedData = useMemo(() => sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [sortedData, page, rowsPerPage]);
 
-  const handleSelectionChange = (selectedOption: { title: string } | null, search: string) => {
+  const handleSelectionChange = useCallback((selectedOption: { title: string } | null, search: string) => {
     setSelectedOption(selectedOption);
     setSearchText(search);
-  };
+  }, []);
 
-  const handleCheckboxClick = (index: number) => {
+  const handleCheckboxClick = useCallback((index: number) => {
     const currentIndex = selectedRows.indexOf(index);
     const newSelectedRows = [...selectedRows];
 
@@ -144,29 +148,36 @@ const GenericTable = <T extends object>({
     }
 
     setSelectedRows(newSelectedRows);
-  };
+  }, [selectedRows]);
 
-  const isSelected = (index: number) => selectedRows.indexOf(index) !== -1;
+  const isSelected = useCallback((index: number) => selectedRows.indexOf(index) !== -1, [selectedRows]);
 
-  const handleDeleteClick = () => {
+  const onDeleteClick = useCallback(() => {
     if (selectedRows.length === 1) {
       const selectedIndex = selectedRows[0];
       const selectedRow = paginatedData[selectedIndex];
       setSelectedRow(selectedRow);
       setDeleteDialogOpen(true);
     }
-  };
+  }, [selectedRows, paginatedData]);
 
-  const handleDeleteConfirm = () => {
+  const onDeleteConfirm = useCallback(() => {
     if (selectedRow) {
-      console.log(selectedRow[columns[0].id]);
       const id = selectedRow[columns[0].id];
       onDelete(Number(id));
       setDeleteDialogOpen(false);
       setSelectedRows([]);
       setSelectedRow(null);
     }
-  };
+  }, [selectedRow, onDelete, columns]);
+
+  const handleEditClick = useCallback(() => {
+    if (selectedRows.length === 1 && onEdit) {
+      const selectedIndex = selectedRows[0];
+      const selectedRow = paginatedData[selectedIndex];
+      onEdit(selectedRow);
+    }
+  }, [selectedRows, onEdit, paginatedData]);
 
   return (
     <TableContainer component={Paper}>
@@ -192,8 +203,18 @@ const GenericTable = <T extends object>({
         )}
         <Button
           variant="contained"
+          color="default"
+          onClick={handleEditClick}
+          disabled={selectedRows.length !== 1}
+          startIcon={<FontAwesomeIcon icon={faEdit} />}
+          style={{ marginRight: '10px' }}
+        >
+          Editar
+        </Button>
+        <Button
+          variant="contained"
           color="secondary"
-          onClick={handleDeleteClick}
+          onClick={onDeleteClick}
           disabled={selectedRows.length !== 1}
           startIcon={<FontAwesomeIcon icon={faTrashAlt} />}
         >
@@ -205,7 +226,7 @@ const GenericTable = <T extends object>({
           <TableRow>
             <TableCell padding="checkbox"></TableCell>
             {columns.map((column) =>
-              column.hidden ? null : (
+              column.hiddenColumn ? null : (
                 <TableCell key={column.id as string}>
                   {column.sortable !== false ? (
                     <TableSortLabel
@@ -236,7 +257,7 @@ const GenericTable = <T extends object>({
                   </IconButton>
                 </TableCell>
                 {columns.map((column) =>
-                  column.hidden ? null : (
+                  column.hiddenColumn ? null : (
                     <TableCell key={column.id as string}>
                       {String(row[column.id])}
                     </TableCell>
@@ -282,7 +303,7 @@ const GenericTable = <T extends object>({
           <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
             No
           </Button>
-          <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+          <Button onClick={onDeleteConfirm} color="primary" autoFocus>
             Sí
           </Button>
         </DialogActions>

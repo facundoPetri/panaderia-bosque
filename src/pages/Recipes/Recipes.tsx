@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import RecipeDialog from '../components/RecipeDialog';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import RecipeDialogEdit from './RecipeDialogEdit';
+import { Column } from '../../components/GenericTable';
 
 interface Recipe {
   id: string;
@@ -14,7 +14,7 @@ interface Recipe {
 }
 
 const columns: Column<Recipe>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'ingredients', label: 'Ingredientes' , sortable: false},
   { id: 'author', label: 'Autor' },
@@ -88,20 +88,20 @@ const dropdownOptions = columns.map(column => ({
 export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 //Modal
-  const handleView = (recipe: Recipe) => {
+  const onView = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedRecipe(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -113,12 +113,12 @@ export default function Recipes() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         nameColumnId="name"
       />
-      <RecipeDialog open={!!selectedRecipe} onClose={handleClose} recipe={selectedRecipe} />
+      <RecipeDialogEdit open={!!selectedRecipe} onClose={onClose} recipe={selectedRecipe} />
     </div>
   );
 }

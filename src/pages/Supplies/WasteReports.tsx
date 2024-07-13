@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 const columns: Column<WasteReport>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'date', label: 'Fecha' },
   { id: 'reportingEmployee', label: 'Empleado que reporta'},
   { id: 'reason', label: 'Motivo' },
@@ -79,20 +79,20 @@ const dropdownOptions = columns.map(column => ({
 export default function WasteReports() {
   const [selectedOrder, setSelectedOrder] = useState<WasteReport | null>(null);
 //Modal
-  const handleView = (wasteReport: WasteReport) => {
+  const onView = (wasteReport: WasteReport) => {
     setSelectedOrder(wasteReport);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedOrder(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -104,9 +104,9 @@ export default function WasteReports() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onDelete={handleDelete}
-        onAdd={handleAdd}
-        onView={handleView}
+        onDelete={onDelete}
+        onAdd={onAdd}
+        onView={onView}
         nameColumnId="reason"
       />
     </div>

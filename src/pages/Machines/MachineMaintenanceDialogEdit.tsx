@@ -27,17 +27,17 @@ interface MachineMaintenance {
 
 interface MachineMaintenanceModalProps {
   open: boolean;
-  handleClose: () => void;
+  onClose: () => void;
   machineMaintenance: MachineMaintenance | null;
 }
 
-const MachineMaintenanceDialog: React.FC<MachineMaintenanceModalProps> = ({ open, handleClose, machineMaintenance }) => {
+const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ open, onClose, machineMaintenance }) => {
   const classes = useStyles();
 
   if (!machineMaintenance) return null;
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{machineMaintenance.name}</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
@@ -77,11 +77,11 @@ const MachineMaintenanceDialog: React.FC<MachineMaintenanceModalProps> = ({ open
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">Cancelar</Button>
-        <Button onClick={handleClose} color="primary">Guardar</Button>
+        <Button onClick={onClose} color="primary">Cancelar</Button>
+        <Button onClick={onClose} color="primary">Guardar</Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default MachineMaintenanceDialog;
+export default MachineMaintenanceDialogEdit;

@@ -44,17 +44,17 @@ interface StockItem {
 
 interface StockModalProps {
   open: boolean;
-  handleClose: () => void;
+  onClose: () => void;
   stockItem: StockItem | null;
 }
 
-const SuppliesDialog: React.FC<StockModalProps> = ({ open, handleClose, stockItem }) => {
+const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockItem }) => {
   const classes = useStyles();
 
   if (!stockItem) return null;
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{stockItem.name}</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
@@ -120,10 +120,10 @@ const SuppliesDialog: React.FC<StockModalProps> = ({ open, handleClose, stockIte
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">Cerrar</Button>
+        <Button onClick={onClose} color="primary">Cerrar</Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default SuppliesDialog;
+export default SuppliesDialogEdit;

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 const columns: Column<ProductionEfficiency>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'supplies', label: 'Insumos'},
   { id: 'totalTime', label: 'Tiempo total' },
@@ -70,20 +70,20 @@ const dropdownOptions = columns.map(column => ({
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<ProductionEfficiency | null>(null);
 //Modal
-  const handleView = (productionEfficiencies: ProductionEfficiency) => {
+  const onView = (productionEfficiencies: ProductionEfficiency) => {
     setSelectedProductionEfficiency(productionEfficiencies);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedProductionEfficiency(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -95,9 +95,9 @@ export default function ProductionEfficiencies() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         showDropdown={false}
         nameColumnId="name"
       />

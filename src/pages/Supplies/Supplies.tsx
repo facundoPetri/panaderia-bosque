@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
-import SuppliesDialog from '../components/SuppliesDialog';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
+import SuppliesDialogEdit from './SuppliesDialogEdit';
 
 interface StockItem {
   id: string;
@@ -22,11 +22,11 @@ interface StockItem {
 
 
 const columns: Column<StockItem>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
-  { id: 'lastLoadDate', label: 'Fecha de ultima carga' },
-  { id: 'currentStock', label: 'Stock actual' },
-  { id: 'description', label: 'Descripción' },
+  { id: 'lastLoadDate', label: 'Fecha de ultima carga', hiddenFilter: true },
+  { id: 'currentStock', label: 'Stock actual', hiddenFilter: true },
+  { id: 'description', label: 'Descripción', hiddenFilter: true },
 ];
 
 
@@ -129,27 +129,29 @@ const data: StockItem[] = [
   }
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => column.hiddenFilter !== true)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function Supplies() {
   const [selectedSupplies, setSelectedSupplies] = useState<StockItem | null>(null);
   //Modal
-  const handleView = (supplies: StockItem) => {
+  const onView = (supplies: StockItem) => {
     setSelectedSupplies(supplies);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedSupplies(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -161,14 +163,14 @@ export default function Supplies() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         nameColumnId="name"
       />
-       <SuppliesDialog
+      <SuppliesDialogEdit
         open={selectedSupplies !== null}
-        handleClose={handleClose}
+        onClose={onClose}
         stockItem={selectedSupplies}
       />
     </div>

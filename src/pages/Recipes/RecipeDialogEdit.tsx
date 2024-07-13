@@ -25,7 +25,7 @@ interface RecipeDialogProps {
   recipe: Recipe | null;
 }
 
-const RecipeDialog: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }) => {
+const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }) => {
   if (!recipe) return null;
 
   return (
@@ -76,4 +76,4 @@ const RecipeDialog: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }) =>
   );
 };
 
-export default RecipeDialog;
+export default RecipeDialogEdit;

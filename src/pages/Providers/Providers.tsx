@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 const columns: Column<Provider>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'phone', label: 'Telefono' , sortable: false},
   { id: 'email', label: 'Email' },
@@ -71,20 +71,20 @@ const dropdownOptions = columns.map(column => ({
 export default function Providers() {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 //Modal
-  const handleView = (provider: Provider) => {
+  const onView = (provider: Provider) => {
     setSelectedProvider(provider);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedProvider(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -96,9 +96,9 @@ export default function Providers() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         nameColumnId="name"
       />
     </div>

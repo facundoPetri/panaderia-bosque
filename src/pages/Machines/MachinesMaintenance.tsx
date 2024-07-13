@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import GenericTable, { Column } from '../components/GenericTable';
-import MachineMaintenanceDialog from '../components/MachineMaintenanceDialog';
+import GenericTable, { Column } from '../../components/GenericTable';
+import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit';
 
 interface MachineMaintenance {
   id: string;
@@ -13,7 +13,7 @@ interface MachineMaintenance {
 }
 
 const columns: Column<MachineMaintenance>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'user', label: 'Usuario' },
   { id: 'acquisitionDate', label: 'Fecha de adquisición' },
@@ -86,20 +86,20 @@ const dropdownOptions = columns.map(column => ({
 export default function MachinesMaintenance() {
   const [selectedMachineMaintenance, setSelectedMachineMaintenance] = useState<MachineMaintenance | null>(null);
 
-  const handleView = (maintenance: MachineMaintenance) => {
+  const onView = (maintenance: MachineMaintenance) => {
     setSelectedMachineMaintenance(maintenance);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedMachineMaintenance(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -111,15 +111,15 @@ export default function MachinesMaintenance() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions}
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         showDropdown={false}
         nameColumnId="name"
       />
-      <MachineMaintenanceDialog
+      <MachineMaintenanceDialogEdit
         open={selectedMachineMaintenance !== null}
-        handleClose={handleClose}
+        onClose={onClose}
         machineMaintenance={selectedMachineMaintenance}
       />
     </div>

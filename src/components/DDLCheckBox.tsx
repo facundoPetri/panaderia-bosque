@@ -1,4 +1,3 @@
-// CheckboxDropdown.tsx
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -52,12 +51,12 @@ const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectio
             getOptionLabel={(option) => option.title}
             onChange={handleOptionChange}
             renderOption={(option, { selected }) => (
-              <Box component="li" display="flex" justifyContent="space-between">
+              <Box component="li" display="flex" justifyContent="space-between" alignItems="center">
                 {option.title}
                 <Checkbox
                   icon={icon}
                   checkedIcon={checkedIcon}
-                  style={{ marginLeft: 8 }}
+                  style={{ marginLeft: 10 }}
                   checked={selectedOption?.title === option.title}
                 />
               </Box>

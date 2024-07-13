@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 const columns: Column<Order>[] = [
-  { id: 'id', label: 'id' , hidden: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'orderNumber', label: 'Numero de perido' },
   { id: 'creationDate', label: 'Fecha de creacion' , sortable: false},
   { id: 'Provider', label: 'Proveedor' },
@@ -72,20 +72,20 @@ const dropdownOptions = columns.map(column => ({
 export default function OrdersProviders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 //Modal
-  const handleView = (order: Order) => {
+  const onView = (order: Order) => {
     setSelectedOrder(order);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedOrder(null);
   };
 
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
-  const handleAdd = () => {
+  const onAdd = () => {
     console.log('Agregando nuevo elemento');
     // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
@@ -97,9 +97,9 @@ export default function OrdersProviders() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
-        onDelete={handleDelete}
-        onAdd={handleAdd}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
         nameColumnId="orderNumber"
       />
     </div>

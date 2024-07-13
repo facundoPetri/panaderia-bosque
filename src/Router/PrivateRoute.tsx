@@ -7,7 +7,7 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   component: Component,
 }) => {
-  const [logged, setLogged] = useState(false)
+  const [logged, setLogged] = useState(true)
 
   return logged ? <Component /> : <Navigate to={'/auth/'} />
 }
