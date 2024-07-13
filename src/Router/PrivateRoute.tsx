@@ -1,5 +1,6 @@
-import { ComponentType, useState } from 'react'
+import { ComponentType } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../stores/AuthContext'
 
 interface PrivateRouteProps {
   component: ComponentType<any>
@@ -7,9 +8,9 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   component: Component,
 }) => {
-  const [logged, setLogged] = useState(true)
-
-  return logged ? <Component /> : <Navigate to={'/auth/'} />
+  const { token } = useAuth();
+  
+  return token ? <Component /> : <Navigate to={'/auth/'} />
 }
 
 export default PrivateRoute
