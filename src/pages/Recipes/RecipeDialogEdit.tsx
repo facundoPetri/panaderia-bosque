@@ -9,34 +9,50 @@ import {
   Checkbox,
   FormControlLabel
 } from '@material-ui/core';
-
-interface Recipe {
-  name: string;
-  ingredients: string;
-  author: string;
-  applications: number;
-  creationDate: string;
-  modificationDate: string;
-}
+import { useEffect, useState } from 'react';
+import { Recipe } from './Recipes';
 
 interface RecipeDialogProps {
-  open: boolean;
-  onClose: () => void;
   recipe: Recipe | null;
+  onClose: () => void;
+  editable?: boolean;
+  onSave?: (recipe: Recipe) => void;
 }
 
-const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }) => {
-  if (!recipe) return null;
+const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ recipe, onClose, editable = false, onSave }) => {
+  
+
+  const [editedRecipe, setEditedRecipe] = useState<Recipe | null>(recipe);
+
+    useEffect(() => {
+      setEditedRecipe(recipe);
+    }, [recipe]);
+    
+    if (!recipe) return null;
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (editedRecipe) {
+            const { name, value } = event.target;
+            
+            setEditedRecipe({ ...editedRecipe, [name]: value });
+        }
+    };
+
+    const handleSave = () => {
+        if (onSave && editedRecipe) {
+            onSave(editedRecipe);
+        }
+    };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={!!recipe} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Receta de {recipe.name}</DialogTitle>
       <DialogContent>
         <Typography variant="subtitle1">Creado por {recipe.author}</Typography>
         <Typography variant="body2">El día {recipe.creationDate}</Typography>
         <Typography variant="body2">{recipe.applications} usos</Typography>
         <FormControlLabel
-          control={<Checkbox checked={true} disabled />}
+          control={<Checkbox checked={true} disabled={editable} onChange={handleChange}/>}
           label="Activa"
         />
         <TextField
@@ -47,6 +63,10 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }
           fullWidth
           variant="outlined"
           margin="normal"
+          onChange={handleChange}
+          InputProps={{
+            readOnly: !editable,
+        }}
         />
         <TextField
           label="Procedimiento"
@@ -56,6 +76,10 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }
           fullWidth
           variant="outlined"
           margin="normal"
+          onChange={handleChange}
+          InputProps={{
+            readOnly: !editable,
+        }}
         />
         <TextField
           label="Recomendaciones"
@@ -65,12 +89,20 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({ open, onClose, recipe }
           fullWidth
           variant="outlined"
           margin="normal"
+          onChange={handleChange}
+          InputProps={{
+            readOnly: !editable,
+        }}
         />
         <Typography variant="body2">Modificado el día {recipe.modificationDate}</Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">Eliminar</Button>
-        <Button onClick={onClose} color="primary">Guardar</Button>
+        <Button onClick={onClose} color="secondary">Cerrar</Button>
+        {editable && (
+            <Button variant="contained" color="primary" onClick={handleSave}>
+                Guardar
+            </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

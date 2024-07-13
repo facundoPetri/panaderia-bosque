@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import GenericTable, { Column } from '../../components/GenericTable';
 import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit';
 
-interface MachineMaintenance {
+export interface MachineMaintenance {
   id: string;
   name: string;
   user: string;
@@ -85,13 +85,18 @@ const dropdownOptions = columns.map(column => ({
 
 export default function MachinesMaintenance() {
   const [selectedMachineMaintenance, setSelectedMachineMaintenance] = useState<MachineMaintenance | null>(null);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
 
-  const onView = (maintenance: MachineMaintenance) => {
-    setSelectedMachineMaintenance(maintenance);
+  const onView = (machineMaintenance: MachineMaintenance) => {
+    setSelectedMachineMaintenance(machineMaintenance);
+    setIsEditMode(false);
   };
 
   const onClose = () => {
     setSelectedMachineMaintenance(null);
+    setIsEditMode(false);
+    setIsCreateMode(false);
   };
 
   const onDelete = (id: number) => {
@@ -100,8 +105,26 @@ export default function MachinesMaintenance() {
   };
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    setIsCreateMode(true);
+  };
+
+  const handleEdit = (machineMaintenance: MachineMaintenance) => {
+    setSelectedMachineMaintenance(machineMaintenance);
+    setIsEditMode(true);
+  };
+
+  const handleSave = (machineMaintenance: MachineMaintenance) => {
+    console.log('Guardando cambios', machineMaintenance);
+    // Aquí puedes manejar la lógica para guardar los cambios del usuario
+    setSelectedMachineMaintenance(null);
+    setIsEditMode(false);
+    setIsCreateMode(false);
+  };
+
+  const handleCreate = (machineMaintenance: any) => {
+    console.log('Creando usuario', machineMaintenance);
+    // Aquí puedes manejar la lógica para crear un nuevo usuario
+    setIsCreateMode(false);
   };
 
   return (
@@ -114,14 +137,11 @@ export default function MachinesMaintenance() {
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
+        onEdit={handleEdit}
         showDropdown={false}
         nameColumnId="name"
       />
-      <MachineMaintenanceDialogEdit
-        open={selectedMachineMaintenance !== null}
-        onClose={onClose}
-        machineMaintenance={selectedMachineMaintenance}
-      />
+      <MachineMaintenanceDialogEdit machineMaintenance={selectedMachineMaintenance} onClose={onClose} editable={isEditMode} onSave={handleSave} />
     </div>
   );
 }

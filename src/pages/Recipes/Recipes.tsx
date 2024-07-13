@@ -3,7 +3,7 @@ import GenericTable from '../../components/GenericTable';
 import RecipeDialogEdit from './RecipeDialogEdit';
 import { Column } from '../../components/GenericTable';
 
-interface Recipe {
+export interface Recipe {
   id: string;
   name: string;
   ingredients: string;
@@ -14,7 +14,7 @@ interface Recipe {
 }
 
 const columns: Column<Recipe>[] = [
-  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false, hiddenFilter: true},
   { id: 'name', label: 'Nombre' },
   { id: 'ingredients', label: 'Ingredientes' , sortable: false},
   { id: 'author', label: 'Autor' },
@@ -87,24 +87,48 @@ const dropdownOptions = columns.map(column => ({
 
 export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+
 //Modal
-  const onView = (recipe: Recipe) => {
-    setSelectedRecipe(recipe);
-  };
+const onView = (recipe: Recipe) => {
+  setSelectedRecipe(recipe);
+  setIsEditMode(false);
+};
 
-  const onClose = () => {
-    setSelectedRecipe(null);
-  };
+const onClose = () => {
+  setSelectedRecipe(null);
+  setIsEditMode(false);
+  setIsCreateMode(false);
+};
 
-  const onDelete = (id: number) => {
-    console.log(`Eliminando elemento con id: ${id}`);
-    // Aquí puedes llamar a tu servicio de eliminación con el id
-  };
+const onDelete = (id: number) => {
+  console.log(`Eliminando elemento con id: ${id}`);
+  // Aquí puedes llamar a tu servicio de eliminación con el id
+};
 
-  const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
-  };
+const onAdd = () => {
+  setIsCreateMode(true);
+};
+
+const handleEdit = (recipe: Recipe) => {
+  setSelectedRecipe(recipe);
+  setIsEditMode(true);
+};
+
+const handleSave = (recipe: Recipe) => {
+  console.log('Guardando cambios', recipe);
+  // Aquí puedes manejar la lógica para guardar los cambios del usuario
+  setSelectedRecipe(null);
+  setIsEditMode(false);
+  setIsCreateMode(false);
+};
+
+const handleCreate = (recipe: Recipe) => {
+  console.log('Creando usuario', recipe);
+  // Aquí puedes manejar la lógica para crear un nuevo usuario
+  setIsCreateMode(false);
+};
 
   return (
     <div style={{ padding: '20px' }}>
@@ -116,9 +140,11 @@ export default function Recipes() {
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
+        onEdit={handleEdit}
         nameColumnId="name"
       />
-      <RecipeDialogEdit open={!!selectedRecipe} onClose={onClose} recipe={selectedRecipe} />
+      
+      <RecipeDialogEdit recipe={selectedRecipe} onClose={onClose} editable={isEditMode} onSave={handleSave}/>
     </div>
   );
 }

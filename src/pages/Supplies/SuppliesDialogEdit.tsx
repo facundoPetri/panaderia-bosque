@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -10,6 +10,7 @@ import {
   Typography,
   makeStyles
 } from '@material-ui/core';
+import { StockItem } from './Supplies';
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -26,35 +27,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface StockItem {
-  name: string;
-  lastLoadDate: string;
-  currentStock: string;
-  description: string;
-  usedIn: string;
-  packageSize: number;
-  unit: string;
-  lot1: number;
-  lot2: number;
-  expirationDate: string;
-  minStock: number;
-  maxStock: number;
-  imageUrl: string;
-}
-
 interface StockModalProps {
-  open: boolean;
-  onClose: () => void;
   stockItem: StockItem | null;
+  onClose: () => void;
+  editable?: boolean;
+  onSave?: (user: StockItem) => void;
 }
 
-const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockItem }) => {
+const SuppliesDialogEdit: React.FC<StockModalProps> = ({ stockItem, onClose, editable = false, onSave }) => {
+  const [editedStockItem, setEditedStockItem] = useState<StockItem | null>(stockItem);
   const classes = useStyles();
 
-  if (!stockItem) return null;
+    useEffect(() => {
+        setEditedStockItem(stockItem);
+    }, [stockItem]);
+    
+    if (!stockItem) return null;
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (editedStockItem) {
+            const { name, value } = event.target;
+            
+            setEditedStockItem({ ...editedStockItem, [name]: value });
+        }
+    };
+
+    const handleSave = () => {
+        if (onSave && editedStockItem) {
+            onSave(editedStockItem);
+        }
+    };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={!!stockItem} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{stockItem.name}</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
@@ -79,8 +84,9 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockIte
               variant="outlined"
               multiline
               rows={3}
+              onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: !editable,
               }}
             />
           </Grid>
@@ -90,8 +96,9 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockIte
               label="Usado en"
               value={stockItem.usedIn}
               variant="outlined"
+              onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: !editable,
               }}
             />
           </Grid>
@@ -101,8 +108,9 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockIte
               label="Tamaño del paquete"
               value={stockItem.packageSize}
               variant="outlined"
+              onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: !editable,
               }}
             />
           </Grid>
@@ -112,8 +120,9 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockIte
               label="Unidad de medida"
               value={stockItem.unit}
               variant="outlined"
+              onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: !editable,
               }}
             />
           </Grid>
@@ -121,6 +130,11 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({ open, onClose, stockIte
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">Cerrar</Button>
+        {editable && (
+            <Button variant="contained" color="primary" onClick={handleSave}>
+                Guardar
+            </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

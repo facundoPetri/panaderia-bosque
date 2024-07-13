@@ -2,8 +2,7 @@ import { useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import SuppliesDialogEdit from './SuppliesDialogEdit';
-
-interface StockItem {
+export interface StockItem {
   id: string;
   name: string;
   lastLoadDate: string;
@@ -137,13 +136,18 @@ const dropdownOptions = columns
 
 export default function Supplies() {
   const [selectedSupplies, setSelectedSupplies] = useState<StockItem | null>(null);
-  //Modal
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+
   const onView = (supplies: StockItem) => {
     setSelectedSupplies(supplies);
+    setIsEditMode(false);
   };
 
   const onClose = () => {
     setSelectedSupplies(null);
+    setIsEditMode(false);
+    setIsCreateMode(false);
   };
 
   const onDelete = (id: number) => {
@@ -152,8 +156,26 @@ export default function Supplies() {
   };
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    setIsCreateMode(true);
+  };
+
+  const handleEdit = (supplies: StockItem) => {
+    setSelectedSupplies(supplies);
+    setIsEditMode(true);
+  };
+
+  const handleSave = (supplies: StockItem) => {
+    console.log('Guardando cambios', supplies);
+    // Aquí puedes manejar la lógica para guardar los cambios del usuario
+    setSelectedSupplies(null);
+    setIsEditMode(false);
+    setIsCreateMode(false);
+  };
+
+  const handleCreate = (supplies: any) => {
+    console.log('Creando usuario', supplies);
+    // Aquí puedes manejar la lógica para crear un nuevo usuario
+    setIsCreateMode(false);
   };
 
   return (
@@ -166,13 +188,10 @@ export default function Supplies() {
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
+        onEdit={handleEdit}
         nameColumnId="name"
       />
-      <SuppliesDialogEdit
-        open={selectedSupplies !== null}
-        onClose={onClose}
-        stockItem={selectedSupplies}
-      />
+      <SuppliesDialogEdit stockItem={selectedSupplies} onClose={onClose} editable={isEditMode} onSave={handleSave} />
     </div>
   );
 }
