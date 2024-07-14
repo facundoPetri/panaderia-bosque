@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 
 const columns: Column<Supply>[] = [
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'name', label: 'Nombre' },
   { id: 'currentStock', label: 'Stock actual' },
   { id: 'minimumStock', label: 'Stock minimo' },
@@ -13,6 +14,7 @@ const columns: Column<Supply>[] = [
 ];
 
 interface Supply {
+  id: string;
   name: string;
   currentStock: string;
   minimumStock: string;
@@ -23,6 +25,7 @@ interface Supply {
 
 const data: Supply[] = [
   {
+    id: '1',
     name: 'Azucar blanca',
     currentStock: '20 kg',
     minimumStock: '15 kg',
@@ -31,6 +34,7 @@ const data: Supply[] = [
     priority: 'Media',
   },
   {
+    id: '2',
     name: 'Harina 000',
     currentStock: '5 kg',
     minimumStock: '5 kg',
@@ -39,6 +43,7 @@ const data: Supply[] = [
     priority: 'Alta',
   },
   {
+    id: '3',
     name: 'Huevo',
     currentStock: '46 u',
     minimumStock: '10 u',
@@ -47,6 +52,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '4',
     name: 'Levadura en polvo',
     currentStock: '10 u',
     minimumStock: '5 u',
@@ -55,6 +61,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '5',
     name: 'Margarina',
     currentStock: '15 kg',
     minimumStock: '10 kg',
@@ -63,6 +70,7 @@ const data: Supply[] = [
     priority: 'Baja',
   },
   {
+    id: '6',
     name: 'Sal fina',
     currentStock: '20 kg',
     minimumStock: '10 kg',
@@ -79,12 +87,22 @@ const dropdownOptions = columns.map(column => ({
 export default function SuppliesWithLowStock() {
   const [selectedSupplies, setSelectedSupplies] = useState<Supply | null>(null);
   //Modal
-  const handleView = (supplies: Supply) => {
+  const onView = (supplies: Supply) => {
     setSelectedSupplies(supplies);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedSupplies(null);
+  };
+
+  const onDelete = (id: number) => {
+    console.log(`Eliminando elemento con id: ${id}`);
+    // Aquí puedes llamar a tu servicio de eliminación con el id
+  };
+
+  const onAdd = () => {
+    console.log('Agregando nuevo elemento');
+    // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
 
   return (
@@ -94,7 +112,10 @@ export default function SuppliesWithLowStock() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
+        nameColumnId="name"
       />
     </div>
   );

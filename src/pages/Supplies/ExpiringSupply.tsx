@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
   
   const columns: Column<ExpiringSupplyI>[] = [
+    { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
     { id: 'expirationDate', label: 'Fecha de vencimiento' },
     { id: 'name', label: 'Nombre' },
     { id: 'batchNumber', label: 'Numero de lote' },
@@ -11,15 +12,17 @@ import { Column } from '../components/GenericTable';
   ];
 
 interface ExpiringSupplyI {
-    expirationDate: string;
-    name: string;
-    batchNumber: number;
-    location: string;
-    quantity: string;
-  }
+  id: string;
+  expirationDate: string;
+  name: string;
+  batchNumber: number;
+  location: string;
+  quantity: string;
+}
 
   const data: ExpiringSupplyI[] = [
     {
+      id: '1',
       expirationDate: '20/11/2023',
       name: 'Azucar blanca',
       batchNumber: 15,
@@ -27,6 +30,7 @@ interface ExpiringSupplyI {
       quantity: '35 kg',
     },
     {
+      id: '2',
       expirationDate: '21/11/2023',
       name: 'Harina 000',
       batchNumber: 3,
@@ -34,6 +38,7 @@ interface ExpiringSupplyI {
       quantity: '35 kg',
     },
     {
+      id: '3',
       expirationDate: '10/12/2023',
       name: 'Huevo',
       batchNumber: 3,
@@ -41,6 +46,7 @@ interface ExpiringSupplyI {
       quantity: '100 u',
     },
     {
+      id: '4',
       expirationDate: '16/12/2023',
       name: 'Levadura en polvo',
       batchNumber: 5,
@@ -48,6 +54,7 @@ interface ExpiringSupplyI {
       quantity: '20 u',
     },
     {
+      id: '5',
       expirationDate: '20/12/2023',
       name: 'Margarina',
       batchNumber: 10,
@@ -55,6 +62,7 @@ interface ExpiringSupplyI {
       quantity: '50 kg',
     },
     {
+      id: '6',
       expirationDate: '28/12/2023',
       name: 'Sal',
       batchNumber: 10,
@@ -70,12 +78,22 @@ interface ExpiringSupplyI {
   export default function ExpiringSupply() {
     const [selectedSupplies, setSelectedSupplies] = useState<ExpiringSupplyI | null>(null);
   //Modal
-    const handleView = (expiringSupply: ExpiringSupplyI) => {
+    const onView = (expiringSupply: ExpiringSupplyI) => {
         setSelectedSupplies(expiringSupply);
     };
   
-    const handleClose = () => {
+    const onClose = () => {
         setSelectedSupplies(null);
+    };
+
+    const onDelete = (id: number) => {
+      console.log(`Eliminando elemento con id: ${id}`);
+      // Aquí puedes llamar a tu servicio de eliminación con el id
+    };
+  
+    const onAdd = () => {
+      console.log('Agregando nuevo elemento');
+      // Aquí puedes manejar la lógica de agregar un nuevo elemento
     };
   
     return (
@@ -85,8 +103,11 @@ interface ExpiringSupplyI {
           columns={columns}
           data={data}
           dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-          onView={handleView}
+          onView={onView}
+          onDelete={onDelete}
+          onAdd={onAdd}
           showDropdown={false}
+          nameColumnId="name"
         />
       </div>
     );

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import GenericTable from '../components/GenericTable';
-import { Column } from '../components/GenericTable';
+import GenericTable from '../../components/GenericTable';
+import { Column } from '../../components/GenericTable';
 
 const columns: Column<Order>[] = [
+  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
   { id: 'orderNumber', label: 'Numero de perido' },
   { id: 'creationDate', label: 'Fecha de creacion' , sortable: false},
   { id: 'Provider', label: 'Proveedor' },
@@ -11,45 +12,52 @@ const columns: Column<Order>[] = [
 
 // Define the Order interface
 interface Order {
-    orderNumber: number;
-    creationDate: string;
-    Provider: string;
-    supplies: string;
-  }
+  id: string;
+  orderNumber: number;
+  creationDate: string;
+  Provider: string;
+  supplies: string;
+}
   
   // Constants with the extracted values
   const data: Order[] = [
     {
+      id: '1',
       orderNumber: 1,
       creationDate: '01/06/2022',
       Provider: 'Merentiel S.A',
       supplies: 'Harina, azúcar, levadura',
     },
     {
+      id: '2',
       orderNumber: 2,
       creationDate: '03/06/2022',
       Provider: 'Ramirez y Hnos. S.R.L',
       supplies: 'Harina, levadura',
     },
     {
+      id: '3',
       orderNumber: 3,
       creationDate: '06/06/2022',
       Provider: 'Bimbo',
       supplies: 'Harina, levadura',
     },
     {
+      id: '4',
       orderNumber: 4,
       creationDate: '12/06/2022',
       Provider: 'Mapricoa',
       supplies: 'Manteca, crema',
     },
     {
+      id: '5',
       orderNumber: 5,
       creationDate: '15/06/2022',
       Provider: 'Ledevit',
       supplies: 'Manteca, crema',
     },
     {
+      id: '6',
       orderNumber: 6,
       creationDate: '20/06/2022',
       Provider: 'Ledesma',
@@ -64,12 +72,22 @@ const dropdownOptions = columns.map(column => ({
 export default function OrdersProviders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 //Modal
-  const handleView = (order: Order) => {
+  const onView = (order: Order) => {
     setSelectedOrder(order);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setSelectedOrder(null);
+  };
+
+  const onDelete = (id: number) => {
+    console.log(`Eliminando elemento con id: ${id}`);
+    // Aquí puedes llamar a tu servicio de eliminación con el id
+  };
+
+  const onAdd = () => {
+    console.log('Agregando nuevo elemento');
+    // Aquí puedes manejar la lógica de agregar un nuevo elemento
   };
 
   return (
@@ -79,7 +97,10 @@ export default function OrdersProviders() {
         columns={columns}
         data={data}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
-        onView={handleView}
+        onView={onView}
+        onDelete={onDelete}
+        onAdd={onAdd}
+        nameColumnId="orderNumber"
       />
     </div>
   );
