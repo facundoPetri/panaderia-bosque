@@ -1,85 +1,21 @@
-// src/pages/Users/index.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import UserDialogCreate from './UserDialogCreate';
 import UserDialogEdit from './UserDialogEdit';
+import { TransformedUser, UsersResponse } from '../../interfaces/Users';
+import { request } from '../../common/request';
 
-export interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  status: 'Active' | 'Inactive';
-  role: 'Employee' | 'Administrator' | 'Master Baker';
-  creationDate: string;
-  lastLogin: string;
-}
 
-const columns: Column<User>[] = [
-  { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
-  { id: 'fullName', label: 'Nombre Completo' },
+
+const columns: Column<TransformedUser>[] = [
+  { id: '_id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
+  { id: 'fullname', label: 'Nombre Completo' },
   { id: 'email', label: 'Email', hiddenFilter: true },
-  { id: 'status', label: 'Estado' },
-  { id: 'role', label: 'Tipo' },
-  { id: 'creationDate', label: 'Fecha Creacion', hiddenFilter: true },
-  { id: 'lastLogin', label: 'Ultimo Inicio', hiddenFilter: true },
-];
-
-const users: User[] = [
-  {
-    id: '1',
-    fullName: 'Esteban Rolón',
-    email: 'ERolon@panaderiadelbosque.com',
-    status: 'Active',
-    role: 'Employee',
-    creationDate: '13/06/2022',
-    lastLogin: '16/06/2022',
-  },
-  {
-    id: '2',
-    fullName: 'Federico Bravo',
-    email: 'FBravo@panaderiadelbosque.com',
-    status: 'Active',
-    role: 'Employee',
-    creationDate: '17/06/2022',
-    lastLogin: '23/06/2022',
-  },
-  {
-    id: '3',
-    fullName: 'Hernán Santos',
-    email: 'HSantos@panaderiadelbosque.com',
-    status: 'Inactive',
-    role: 'Employee',
-    creationDate: '13/06/2022',
-    lastLogin: '19/06/2022',
-  },
-  {
-    id: '4',
-    fullName: 'Juan Medina',
-    email: 'JMedina@panaderiadelbosque.com',
-    status: 'Active',
-    role: 'Administrator',
-    creationDate: '18/06/2022',
-    lastLogin: '28/06/2022',
-  },
-  {
-    id: '5',
-    fullName: 'Juan Román Riquelme',
-    email: 'JRiquelme@panaderiadelbosque.com',
-    status: 'Inactive',
-    role: 'Master Baker',
-    creationDate: '10/06/2022',
-    lastLogin: '30/06/2022',
-  },
-  {
-    id: '6',
-    fullName: 'Rocío Gutierrez',
-    email: 'RGutierrez@panaderiadelbosque.com',
-    status: 'Active',
-    role: 'Administrator',
-    creationDate: '10/06/2022',
-    lastLogin: '12/06/2022',
-  },
+  { id: 'state', label: 'Estado' },
+  { id: 'type', label: 'Tipo' },
+  { id: 'createdAt', label: 'Fecha Creacion', hiddenFilter: true },
+  { id: 'lastSession', label: 'Ultimo Inicio', hiddenFilter: true },
 ];
 
 const dropdownOptions = columns
@@ -88,12 +24,13 @@ const dropdownOptions = columns
     title: column.label,
   }));
 
-export default function Users() {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+export default function Userstable() {
+  const [selectedUser, setSelectedUser] = useState<TransformedUser | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+  const [users, setUsers] = useState<TransformedUser[]>([]);
 
-  const onView = (user: User) => {
+  const onView = (user: TransformedUser) => {
     setSelectedUser(user);
     setIsEditMode(false);
   };
@@ -104,7 +41,7 @@ export default function Users() {
     setIsCreateMode(false);
   };
 
-  const onDelete = (id: number) => {
+  const onDelete = (id: string) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
@@ -113,12 +50,12 @@ export default function Users() {
     setIsCreateMode(true);
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: TransformedUser) => {
     setSelectedUser(user);
     setIsEditMode(true);
   };
 
-  const handleSave = (user: User) => {
+  const handleSave = (user: TransformedUser) => {
     console.log('Guardando cambios', user);
     // Aquí puedes manejar la lógica para guardar los cambios del usuario
     setSelectedUser(null);
@@ -132,6 +69,46 @@ export default function Users() {
     setIsCreateMode(false);
   };
 
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Los meses empiezan en 0
+    const year = date.getFullYear().toString();
+    return `${day}/${month}/${year}`;
+  };
+
+  const transformUserData = (data: UsersResponse[]): TransformedUser[] => {
+    return data.map(user => ({
+      ...user,
+      fullname: user?.fullname ? user.fullname : '',
+      state: user.state ? 'Activo' : 'Inactivo',
+      type: user?.type ? user.type : '',
+      createdAt: formatDate(user.createdAt),
+      lastSession: user?.lastSession ? new Date(user?.lastSession).toLocaleDateString() : '',
+    }));
+  };
+
+  const getUsers = async () => {
+    try {
+      const res = await request<UsersResponse[]>({
+        path: '/Users',
+        method: 'GET',
+      });
+      if (res) {
+        const transformedData = transformUserData(res);
+        setUsers(transformedData);
+        console.log(transformedData);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consultar usuarios</h1>
@@ -143,7 +120,7 @@ export default function Users() {
         onDelete={onDelete}
         onAdd={onAdd}
         onEdit={handleEdit}
-        nameColumnId="fullName"
+        nameColumnId="fullname"
       />
       <UserDialogCreate open={isCreateMode} onClose={onClose} onSave={handleCreate} />
       <UserDialogEdit user={selectedUser} onClose={onClose} editable={isEditMode} onSave={handleSave} />
