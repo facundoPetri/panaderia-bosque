@@ -10,7 +10,8 @@ import {
     IconButton,
     Box,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { User } from './Users';
 
 interface UserModalProps {
@@ -66,7 +67,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
                         </Box>
                     </Box>
                     <IconButton onClick={onClose}>
-                        <CloseIcon />
+                        <FontAwesomeIcon icon={faTimes} />
                     </IconButton>
                 </Box>
                 <Divider style={{ margin: '20px 0' }} />
@@ -115,7 +116,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
                     }}
                 />
                 <Box display="flex" justifyContent="flex-end" mt={2}>
-                <Button onClick={onClose} color="primary">Cerrar</Button>
+                    <Button onClick={onClose} color="primary">Cerrar</Button>
                     {editable && (
                         <Button variant="contained" color="primary" onClick={handleSave}>
                             Guardar

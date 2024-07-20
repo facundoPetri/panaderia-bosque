@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
 import { StockItem } from './Supplies';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const useStyles = makeStyles((theme) => ({
     imageUploadContainer: {
@@ -116,9 +117,9 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({ open, onClo
                             onChange={handleImageUpload}
                         />
                         <label htmlFor="icon-button-file">
-                            <IconButton className={classes.addButton} component="span">
-                                <AddIcon />
-                            </IconButton>
+                        <IconButton className={classes.addButton}>
+                            <FontAwesomeIcon icon={faPlus} style={{ width: 16, height: 16 }} />
+                        </IconButton>
                         </label>
                     </div>
                 </div>

@@ -14,7 +14,8 @@ import {
   IconButton,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const useStyles = makeStyles({
   avatarContainer: {
@@ -117,7 +118,7 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({ open, onClose, onSa
             onChange={handleAvatarChange}
           />
           <IconButton className={classes.addIcon}>
-            <AddIcon style={{ width: 16, height: 16 }} />
+            <FontAwesomeIcon icon={faPlus} style={{ width: 16, height: 16 }} />
           </IconButton>
         </div>
         <TextField
