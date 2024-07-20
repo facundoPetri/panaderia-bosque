@@ -5,6 +5,7 @@ import UserDialogCreate from './UserDialogCreate';
 import UserDialogEdit from './UserDialogEdit';
 import { TransformedUser, UsersResponse } from '../../interfaces/Users';
 import { request } from '../../common/request';
+import { formatDate } from '../../utils/dateUtils';
 
 
 
@@ -69,14 +70,6 @@ export default function Userstable() {
     setIsCreateMode(false);
   };
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Los meses empiezan en 0
-    const year = date.getFullYear().toString();
-    return `${day}/${month}/${year}`;
-  };
-
   const transformUserData = (data: UsersResponse[]): TransformedUser[] => {
     return data.map(user => ({
       ...user,
@@ -91,7 +84,7 @@ export default function Userstable() {
   const getUsers = async () => {
     try {
       const res = await request<UsersResponse[]>({
-        path: '/Users',
+        path: '/users',
         method: 'GET',
       });
       if (res) {
