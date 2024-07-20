@@ -103,7 +103,7 @@ export default function Recipes() {
     setIsCreateMode(false);
   };
 
-  const onDelete = (id: number) => {
+  const onDelete = (id: string) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };

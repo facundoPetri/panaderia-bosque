@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -38,7 +38,7 @@ interface GenericTableProps<T extends object> {
   onView: (row: T) => void;
   onAdd?: () => void;
   onEdit?: (row: T) => void; // Nueva función onEdit
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   dropdownOptions: { title: string }[];
   showDropdown?: boolean;
   nameColumnId: keyof T;
@@ -164,7 +164,7 @@ const GenericTable = <T extends object>({
   const onDeleteConfirm = useCallback(() => {
     if (selectedRow) {
       const id = selectedRow[columns[0].id];
-      onDelete(Number(id));
+      onDelete(String(id));
       setDeleteDialogOpen(false);
       setSelectedRows([]);
       setSelectedRow(null);

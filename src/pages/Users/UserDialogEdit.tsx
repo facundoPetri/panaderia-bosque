@@ -9,39 +9,111 @@ import {
     Button,
     IconButton,
     Box,
+    InputAdornment
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { User } from './Users';
+import { faTimes, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { TransformedUser } from '../../interfaces/Users';
 
 interface UserModalProps {
-    user: User | null;
+    user: TransformedUser | null;
     onClose: () => void;
     editable?: boolean;
-    onSave?: (user: User) => void;
+    onSave?: (user: TransformedUser) => void;
 }
 
+const isEmailUnique = async (email: string): Promise<boolean> => {
+    // Simula una llamada a la API que verifica si el email es único
+    const existingEmails = ['existing@example.com', 'user@example.com']; // Ejemplo de correos existentes
+    return !existingEmails.includes(email);
+};
+
 const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = false, onSave }) => {
-    const [editedUser, setEditedUser] = useState<User | null>(user);
+    const [editedUser, setEditedUser] = useState<TransformedUser | null>(user);
+    const [passwordError, setPasswordError] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState<string>('');
+    const [emailError, setEmailError] = useState<string>('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
     useEffect(() => {
         setEditedUser(user);
+        setConfirmPassword(''); // Resetear el estado de confirmPassword cuando el usuario cambia
     }, [user]);
-    
+
+    useEffect(() => {
+        if (editedUser && editedUser.email) {
+            validateEmail(editedUser.email);
+        }
+    }, [editedUser?.email]);
+
     if (!user) return null;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const validatePassword = (password: string): string => {
+        if (password.length < 8) {
+            return 'La contraseña debe tener al menos 8 caracteres.';
+        }
+        if (!/[A-Z]/.test(password)) {
+            return 'La contraseña debe contener al menos una letra mayúscula.';
+        }
+        if (!/[a-z]/.test(password)) {
+            return 'La contraseña debe contener al menos una letra minúscula.';
+        }
+        if (!/[0-9]/.test(password)) {
+            return 'La contraseña debe contener al menos un número.';
+        }
+        if (/(\d)\1{2}/.test(password)) {
+            return 'La contraseña no puede contener tres números consecutivos iguales.';
+        }
+        return '';
+    };
+
+    const validateEmail = async (email: string) => {
+        const isUnique = await isEmailUnique(email);
+        if (!isUnique) {
+            setEmailError('El email ya está en uso.');
+        } else {
+            setEmailError('');
+        }
+    };
+
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+
         if (editedUser) {
-            const { name, value } = event.target;
-            
-            setEditedUser({ ...editedUser, [name]: value });
+            if (name === 'password') {
+                const error = validatePassword(value);
+                setPasswordError(error);
+                setEditedUser({ ...editedUser, [name]: value });
+            } else if (name === 'confirmPassword') {
+                setConfirmPassword(value);
+                if (value !== editedUser.password) {
+                    setConfirmPasswordError('Las contraseñas no coinciden.');
+                } else {
+                    setConfirmPasswordError('');
+                }
+            } else if (name === 'email') {
+                setEditedUser({ ...editedUser, [name]: value });
+                await validateEmail(value);
+            } else {
+                setEditedUser({ ...editedUser, [name]: value });
+            }
         }
     };
 
     const handleSave = () => {
-        if (onSave && editedUser) {
+        if (onSave && editedUser && !passwordError && !confirmPasswordError && !emailError) {
             onSave(editedUser);
         }
+    };
+
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleClickShowConfirmPassword = () => {
+        setShowConfirmPassword(!showConfirmPassword);
     };
 
     const style = {
@@ -59,11 +131,11 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
             <Paper style={style}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box display="flex" alignItems="center">
-                        <Avatar>{user.fullName.charAt(0)}</Avatar>
+                        <Avatar>{user.fullname.charAt(0)}</Avatar>
                         <Box ml={2}>
-                            <Typography variant="h6">{user.fullName}</Typography>
-                            <Typography variant="subtitle1">{user.role}</Typography>
-                            <Typography variant="body2">Usuario creado el {user.creationDate}</Typography>
+                            <Typography variant="h6">{user.fullname}</Typography>
+                            <Typography variant="subtitle1">{user.type}</Typography>
+                            <Typography variant="body2">Usuario creado el {user.createdAt}</Typography>
                         </Box>
                     </Box>
                     <IconButton onClick={onClose}>
@@ -78,6 +150,8 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
                     value={editedUser ? editedUser.email : ''}
                     margin="dense"
                     onChange={handleChange}
+                    error={!!emailError}
+                    helperText={emailError}
                     InputProps={{
                         readOnly: !editable,
                     }}
@@ -86,29 +160,58 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
                     fullWidth
                     label="Contraseña"
                     name="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={editedUser?.password || ''}
                     margin="dense"
-                    value={'**********'}
+                    onChange={handleChange}
+                    error={!!passwordError}
+                    helperText={passwordError}
                     InputProps={{
                         readOnly: !editable,
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={handleClickShowPassword}
+                                    edge="end"
+                                >
+                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
                     }}
                 />
+                {editable && (
                 <TextField
                     fullWidth
                     label="Confirmar contraseña"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
                     margin="dense"
-                    value={'**********'}
+                    onChange={handleChange}
+                    error={!!confirmPasswordError}
+                    helperText={confirmPasswordError}
                     InputProps={{
                         readOnly: !editable,
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle confirm password visibility"
+                                    onClick={handleClickShowConfirmPassword}
+                                    edge="end"
+                                >
+                                    <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
                     }}
-                />
+                />)}
                 <TextField
                     fullWidth
                     label="Tipo"
-                    name="role"
-                    value={editedUser ? editedUser.role : ''}
+                    name="type"
+                    value={editedUser ? editedUser.type : ''}
                     margin="dense"
                     onChange={handleChange}
                     InputProps={{
@@ -118,7 +221,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({ user, onClose, editable = fa
                 <Box display="flex" justifyContent="flex-end" mt={2}>
                     <Button onClick={onClose} color="primary">Cerrar</Button>
                     {editable && (
-                        <Button variant="contained" color="primary" onClick={handleSave}>
+                        <Button variant="contained" color="primary" onClick={handleSave} disabled={!!passwordError || !!confirmPasswordError || !!emailError}>
                             Guardar
                         </Button>
                     )}
