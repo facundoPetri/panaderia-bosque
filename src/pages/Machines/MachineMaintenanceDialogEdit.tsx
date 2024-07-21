@@ -9,7 +9,7 @@ import {
   Grid,
   makeStyles
 } from '@material-ui/core';
-import { MachineMaintenance } from './MachinesMaintenance';
+import { TransformedMachines } from '../../interfaces/Machines';
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -18,15 +18,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface MachineMaintenanceModalProps {
-  machineMaintenance: MachineMaintenance | null;
+  machineMaintenance: TransformedMachines | null;
   onClose: () => void;
   editable?: boolean;
-  onSave?: (machineMaintenance: MachineMaintenance) => void;
+  onSave?: (machineMaintenance: TransformedMachines) => void;
 }
 
 
 const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ machineMaintenance, onClose, editable = false, onSave }) => {  
-  const [editedMachineMaintenance, setEditedMachineMaintenance] = useState<MachineMaintenance | null>(machineMaintenance);
+  const [editedMachineMaintenance, setEditedMachineMaintenance] = useState<TransformedMachines | null>(machineMaintenance);
   const classes = useStyles();
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ 
             <TextField
               fullWidth
               label="Mantenimiento deseado (en días)"
-              value={machineMaintenance.desiredMaintenanceInterval}
+              value={machineMaintenance.desired_maintenance}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
@@ -70,7 +70,7 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ 
             <TextField
               fullWidth
               label="Usuario"
-              value={machineMaintenance.user}
+              value={machineMaintenance.user_name}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
@@ -82,7 +82,7 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ 
             <TextField
               fullWidth
               label="Fecha del último mantenimiento"
-              value={machineMaintenance.lastMaintenanceDate}
+              value={machineMaintenance.last_maintenance_date}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
