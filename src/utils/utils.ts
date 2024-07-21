@@ -1,13 +1,13 @@
-import axios from "axios"
+import axios from 'axios'
 
 export const downloadPdf = async (url: string) => {
   try {
-    const res = await axios.get(url, {
-      responseType: 'blob',
+    const res = await axios.get(url, { responseType: 'blob' })
+    const file = new Blob([res.data], {
+      type: 'application/pdf',
     })
 
-    const fileBlob = new Blob([res.data], { type: 'application/pdf' })
-    const fileURL = URL.createObjectURL(fileBlob)
+    const fileURL = URL.createObjectURL(file)
 
     window.open(fileURL, '_blank')
   } catch (error) {
