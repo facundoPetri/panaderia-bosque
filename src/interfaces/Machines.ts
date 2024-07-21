@@ -1,4 +1,4 @@
-import { UsersResponse } from "./Users"
+import { UsersResponse } from './Users'
 
 export interface MachinesResponse {
   _id: string
@@ -24,4 +24,3 @@ export interface TransformedMachines {
   priority: string
   user_name: string
 }
-

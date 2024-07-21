@@ -70,7 +70,7 @@ export default function MachinesMaintenance() {
     const lastMaintenance = new Date(lastMaintenanceDate);
     const daysDifference = Math.floor((now.getTime() - lastMaintenance.getTime()) / (1000 * 60 * 60 * 24));
     const desiredDays = desiredMaintenance;
-  
+
     if (daysDifference > desiredDays + 5) {
       return 'Alta';
     } else if (daysDifference >= desiredDays - 5 && daysDifference <= desiredDays + 5) {
@@ -79,7 +79,7 @@ export default function MachinesMaintenance() {
       return 'Baja';
     }
   };
-  
+
   const transformUserData = (data: MachinesResponse[]): TransformedMachines[] => {
     return data.map(machine => ({
       ...machine,
@@ -94,7 +94,7 @@ export default function MachinesMaintenance() {
       user_name: machine.user_id.fullname,
     }));
   };
-  
+
   const getMachines = async () => {
     try {
       const res = await request<MachinesResponse[]>({
