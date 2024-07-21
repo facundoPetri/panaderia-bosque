@@ -4,13 +4,13 @@ import RecipeDialogEdit from './RecipeDialogEdit';
 import RecipeDialogCreate from './RecipeDialogCreate';
 import { Column } from '../../components/GenericTable';
 import { RecipesResponse } from '../../interfaces/Recipes';
-import { request } from '../../common/request'; 
+import { request } from '../../common/request';
 import { formatDate } from '../../utils/dateUtils';
 
 const columns: Column<RecipesResponse>[] = [
-  { id: '_id', label: 'id' , hiddenColumn: true, sortable : false, hiddenFilter: true},
+  { id: '_id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
-  { id: 'ingredients', label: 'Ingredientes' , sortable: false},
+  { id: 'ingredients', label: 'Ingredientes', sortable: false },
   { id: 'author', label: 'Autor' },
   { id: 'standardUnits', label: 'Usos' },
   { id: 'createdAt', label: 'Fecha de creación' },
@@ -25,7 +25,7 @@ export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
-  const [recipes, setRecipes] = useState<RecipesResponse[]> ([]);
+  const [recipes, setRecipes] = useState<RecipesResponse[]>([]);
 
   // Modal
   const onView = (recipe: RecipesResponse) => {
@@ -105,8 +105,8 @@ export default function Recipes() {
         onEdit={handleEdit}
         nameColumnId="name"
       />
-      
-      <RecipeDialogEdit recipe={selectedRecipe} onClose={onClose} editable={isEditMode} onSave={handleSave}/>
+
+      <RecipeDialogEdit recipe={selectedRecipe} onClose={onClose} editable={isEditMode} onSave={handleSave} />
       <RecipeDialogCreate open={isCreateMode} onClose={onClose} onSave={handleCreate} />
     </div>
   );

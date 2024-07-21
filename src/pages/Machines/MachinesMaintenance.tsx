@@ -1,83 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GenericTable, { Column } from '../../components/GenericTable';
 import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit';
 import MachineMaintenanceDialogCreate from './MachinesMaintenanceDialogCreate';
+import { MachinesResponse, TransformedMachines } from '../../interfaces/Machines';
+import { request } from '../../common/request';
+import { formatDate } from '../../utils/dateUtils';
 
-export interface MachineMaintenance {
-  id: string;
-  name: string;
-  user: string;
-  acquisitionDate: string;
-  lastMaintenanceDate: string;
-  desiredMaintenanceInterval: string;
-  priority: string;
-}
-
-const columns: Column<MachineMaintenance>[] = [
-  { id: 'id', label: 'id', hiddenColumn: true, sortable: false },
+const columns: Column<TransformedMachines>[] = [
+  { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
   { id: 'name', label: 'Nombre' },
-  { id: 'user', label: 'Usuario' },
-  { id: 'acquisitionDate', label: 'Fecha de adquisición' },
-  { id: 'lastMaintenanceDate', label: 'Fecha del último mantenimiento' },
-  { id: 'desiredMaintenanceInterval', label: 'Mantenimiento deseado' },
+  { id: 'user_name', label: 'Usuario' },
+  { id: 'purchase_date', label: 'Fecha de adquisición' },
+  { id: 'last_maintenance_date', label: 'Fecha del último mantenimiento' },
+  { id: 'desired_maintenance', label: 'Mantenimiento deseado' },
   { id: 'priority', label: 'Prioridad' },
-];
-
-const data: MachineMaintenance[] = [
-  {
-    id: '1',
-    name: 'Amasadora',
-    user: 'Kevin Zenon',
-    acquisitionDate: '01/06/2022',
-    lastMaintenanceDate: '01/12/2023',
-    desiredMaintenanceInterval: '60 días',
-    priority: 'Media',
-  },
-  {
-    id: '2',
-    name: 'Batidora de mano',
-    user: 'Miguel Merentiel',
-    acquisitionDate: '03/06/2022',
-    lastMaintenanceDate: '03/10/2023',
-    desiredMaintenanceInterval: '35 días',
-    priority: 'Alta',
-  },
-  {
-    id: '3',
-    name: 'Cámara de fermentación',
-    user: 'Cristian Erbes',
-    acquisitionDate: '06/06/2022',
-    lastMaintenanceDate: '06/02/2024',
-    desiredMaintenanceInterval: '30 días',
-    priority: 'Baja',
-  },
-  {
-    id: '4',
-    name: 'Heladera',
-    user: 'Santiago Silva',
-    acquisitionDate: '12/06/2022',
-    lastMaintenanceDate: '12/01/2024',
-    desiredMaintenanceInterval: '20 días',
-    priority: 'Baja',
-  },
-  {
-    id: '5',
-    name: 'Horno a gas',
-    user: 'Cristian Medina',
-    acquisitionDate: '15/06/2022',
-    lastMaintenanceDate: '15/02/2024',
-    desiredMaintenanceInterval: '15 días',
-    priority: 'Baja',
-  },
-  {
-    id: '6',
-    name: 'Horno eléctrico',
-    user: 'Daniel Osvaldo',
-    acquisitionDate: '20/06/2022',
-    lastMaintenanceDate: '01/03/2024',
-    desiredMaintenanceInterval: '70 días',
-    priority: 'Baja',
-  },
 ];
 
 const dropdownOptions = columns.map(column => ({
@@ -85,11 +21,12 @@ const dropdownOptions = columns.map(column => ({
 }));
 
 export default function MachinesMaintenance() {
-  const [selectedMachineMaintenance, setSelectedMachineMaintenance] = useState<MachineMaintenance | null>(null);
+  const [selectedMachineMaintenance, setSelectedMachineMaintenance] = useState<TransformedMachines | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+  const [Machines, setMachines] = useState<TransformedMachines[]>([]);
 
-  const onView = (machineMaintenance: MachineMaintenance) => {
+  const onView = (machineMaintenance: TransformedMachines) => {
     setSelectedMachineMaintenance(machineMaintenance);
     setIsEditMode(false);
   };
@@ -109,12 +46,12 @@ export default function MachinesMaintenance() {
     setIsCreateMode(true);
   };
 
-  const handleEdit = (machineMaintenance: MachineMaintenance) => {
+  const handleEdit = (machineMaintenance: TransformedMachines) => {
     setSelectedMachineMaintenance(machineMaintenance);
     setIsEditMode(true);
   };
 
-  const handleSave = (machineMaintenance: MachineMaintenance) => {
+  const handleSave = (machineMaintenance: TransformedMachines) => {
     console.log('Guardando cambios', machineMaintenance);
     // Aquí puedes manejar la lógica para guardar los cambios del usuario
     setSelectedMachineMaintenance(null);
@@ -128,12 +65,63 @@ export default function MachinesMaintenance() {
     setIsCreateMode(false);
   };
 
+  const calculatePriority = (lastMaintenanceDate: string, desiredMaintenance: number): string => {
+    const now = new Date();
+    const lastMaintenance = new Date(lastMaintenanceDate);
+    const daysDifference = Math.floor((now.getTime() - lastMaintenance.getTime()) / (1000 * 60 * 60 * 24));
+    const desiredDays = desiredMaintenance;
+
+    if (daysDifference > desiredDays + 5) {
+      return 'Alta';
+    } else if (daysDifference >= desiredDays - 5 && daysDifference <= desiredDays + 5) {
+      return 'Media';
+    } else {
+      return 'Baja';
+    }
+  };
+
+  const transformUserData = (data: MachinesResponse[]): TransformedMachines[] => {
+    return data.map(machine => ({
+      ...machine,
+      name: machine?.name ? machine.name : '',
+      description: machine.description,
+      purchase_date: formatDate(machine.purchase_date),
+      desired_maintenance: machine.desired_maintenance,
+      last_maintenance_date: formatDate(machine.last_maintenance_date),
+      createdAt: formatDate(machine.createdAt),
+      updatedAt: formatDate(machine.updatedAt),
+      priority: calculatePriority(machine.last_maintenance_date, machine.desired_maintenance), // Calcular prioridad
+      user_name: machine.user_id.fullname,
+    }));
+  };
+
+  const getMachines = async () => {
+    try {
+      const res = await request<MachinesResponse[]>({
+        path: '/machines',
+        method: 'GET',
+      });
+      if (res) {
+        const transformedData = transformUserData(res);
+        setMachines(transformedData);
+        console.log(transformedData);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachines();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión y mantenimiento de maquinaria</h1>
       <GenericTable
         columns={columns}
-        data={data}
+        data={Machines}
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}

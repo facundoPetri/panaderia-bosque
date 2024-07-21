@@ -7,8 +7,6 @@ import { TransformedUser, UsersResponse } from '../../interfaces/Users';
 import { request } from '../../common/request';
 import { formatDate } from '../../utils/dateUtils';
 
-
-
 const columns: Column<TransformedUser>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'fullname', label: 'Nombre Completo' },
@@ -90,7 +88,6 @@ export default function Userstable() {
       if (res) {
         const transformedData = transformUserData(res);
         setUsers(transformedData);
-        console.log(transformedData);
       }
     } catch (error) {
       console.error(error);
