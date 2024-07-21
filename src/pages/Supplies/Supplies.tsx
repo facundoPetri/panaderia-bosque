@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import GenericTable, { Column } from '../../components/GenericTable';
 import SuppliesDialogEdit from './SuppliesDialogEdit';
 import SuppliesDialogCreate from './SuppliesDialogCreate';
+import { request } from '../../common/request';
+import { SuppliesResponse } from '../../interfaces/Supplies';
 
 export interface StockItem {
   id: string;
@@ -137,6 +139,7 @@ export default function Supplies() {
   const [selectedSupplies, setSelectedSupplies] = useState<StockItem | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+  const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
 
   const onView = (supplies: StockItem) => {
     setSelectedSupplies(supplies);
@@ -149,8 +152,19 @@ export default function Supplies() {
     setIsCreateMode(false);
   };
 
-  const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`);
+  const onDelete = async(id: string) => {
+    console.log(`Eliminando elemento con id: ${id}`)
+    try {
+      const res = await request<any[]>({
+        path: `supplies/${id}`,
+        method: 'DELETE',
+      })
+      if (res) {
+        getSupplies()
+      }
+    } catch (error) {
+      console.error(error)
+    }
     // Aquí puedes llamar a tu servicio de eliminación con el id
   };
 
@@ -162,18 +176,77 @@ export default function Supplies() {
     setSelectedSupplies(supplies);
     setIsEditMode(true);
   };
+  const getSupplies= async () => {
+    try {
+      const res = await request<SuppliesResponse[]>({
+        path: '/recipes',
+        method: 'GET',
+      })
+      if (res) {
+        setSupplies(res)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-  const handleSave = (supplies: StockItem) => {
+  useEffect(() => {
+    getSupplies()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  //editting supplies
+  const handleSave = async(supplies: StockItem) => {
     console.log('Guardando cambios', supplies);
     // Aquí puedes manejar la lógica para guardar los cambios del usuario
+    const data = {
+      name: supplies.name,
+      description: supplies.description,
+      min_stock : supplies.minStock,
+      max_stock: supplies.maxStock,
+      size: supplies.packageSize,
+      unit:supplies.unit
+    }
+    
+    try {
+      const res = await request<any[]>({
+        path: `/supplies/${supplies.id}`,
+        method: 'PUT',
+        data
+      })
+      if (res) {
+        getSupplies()
+      }
+    } catch (error) {
+      console.error(error)
+    }
     setSelectedSupplies(null);
     setIsEditMode(false);
     setIsCreateMode(false);
   };
 
-  const handleCreate = (supplies: StockItem) => {
-    console.log('Creando insumo', supplies);
-    // Aquí puedes manejar la lógica para crear un nuevo insumo
+  const handleCreate = async(supplies: StockItem) => {
+    const data = {
+      name: supplies.name,
+      description: supplies.description,
+      min_stock : supplies.minStock,
+      max_stock: supplies.maxStock,
+      size: supplies.packageSize,
+      unit:supplies.unit
+    }
+    
+    try {
+      const res = await request<any[]>({
+        path: '/supplies',
+        method: 'POST',
+        data
+      })
+      if (res) {
+        getSupplies()
+      }
+    } catch (error) {
+      console.error(error)
+    }
     setIsCreateMode(false);
   };
 
@@ -182,7 +255,7 @@ export default function Supplies() {
       <h1>Consulta de insumos</h1>
       <GenericTable
         columns={columns}
-        data={data}
+        data={data}//TODO: reemplazar fake data por supplies
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
