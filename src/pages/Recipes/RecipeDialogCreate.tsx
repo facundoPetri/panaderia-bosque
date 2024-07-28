@@ -57,7 +57,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, 
   const [formData, setFormData] = useState({
     name: '',
     ingredients: '',
-    procedure: '',
+    steps: '',
     recommendations: '',
     standardUnits: '',
   });
@@ -69,7 +69,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, 
       setFormData({
         name: '',
         ingredients: '',
-        procedure: '',
+        steps: '',
         recommendations: '',
         standardUnits: '',
       });
@@ -134,11 +134,11 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, 
         />
         <TextField
           margin="dense"
-          name="procedure"
+          name="steps"
           label="Procedimiento"
           type="text"
           fullWidth
-          value={formData.procedure}
+          value={formData.steps}
           onChange={handleChange}
         />
         <TextField

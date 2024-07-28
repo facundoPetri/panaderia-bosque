@@ -24,7 +24,7 @@ export default function MachinesMaintenance() {
   const [selectedMachineMaintenance, setSelectedMachineMaintenance] = useState<TransformedMachines | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
-  const [Machines, setMachines] = useState<TransformedMachines[]>([]);
+  const [machines, setMachines] = useState<TransformedMachines[]>([]);
 
   const onView = (machineMaintenance: TransformedMachines) => {
     setSelectedMachineMaintenance(machineMaintenance);
@@ -37,9 +37,20 @@ export default function MachinesMaintenance() {
     setIsCreateMode(false);
   };
 
-  const onDelete = (id: string) => {
+  const onDelete = async(id: string) => {
     console.log(`Eliminando elemento con id: ${id}`);
     // Aquí puedes llamar a tu servicio de eliminación con el id
+    try {
+      const res = await request<any[]>({
+        path: `machines/${id}`,
+        method: 'DELETE',
+      })
+      if (res) {
+        getMachines()
+      }
+    } catch (error) {
+      console.error(error)
+    }
   };
 
   const onAdd = () => {
@@ -51,17 +62,55 @@ export default function MachinesMaintenance() {
     setIsEditMode(true);
   };
 
-  const handleSave = (machineMaintenance: TransformedMachines) => {
+  const handleSave = async(machineMaintenance: TransformedMachines) => {
     console.log('Guardando cambios', machineMaintenance);
     // Aquí puedes manejar la lógica para guardar los cambios del usuario
+    const data = {
+      name: machineMaintenance.name,
+      description: machineMaintenance.description,
+      desired_maintenance: machineMaintenance.desired_maintenance,
+      purcharse_date: machineMaintenance.purchase_date
+    }
+    
+    try {
+      const res = await request<any[]>({
+        path: `/machines/${machineMaintenance._id}`,
+        method: 'PUT',
+        data
+      })
+      if (res) {
+        getMachines()
+      }
+    } catch (error) {
+      console.error(error)
+    }
     setSelectedMachineMaintenance(null);
     setIsEditMode(false);
     setIsCreateMode(false);
   };
 
-  const handleCreate = (machineMaintenance: any) => {
+  const handleCreate = async(machineMaintenance: any) => {
     console.log('Creando usuario', machineMaintenance);
     // Aquí puedes manejar la lógica para crear un nuevo usuario
+    const data = {
+      name: machineMaintenance.name,
+      description: machineMaintenance.description,
+      desired_maintenance: machineMaintenance.desired_maintenance,
+      purcharse_date: machineMaintenance.purcharse_date
+    }
+    
+    try {
+      const res = await request<any[]>({
+        path: '/machines',
+        method: 'POST',
+        data
+      })
+      if (res) {
+        getMachines()
+      }
+    } catch (error) {
+      console.error(error)
+    }
     setIsCreateMode(false);
   };
 
@@ -104,7 +153,6 @@ export default function MachinesMaintenance() {
       if (res) {
         const transformedData = transformUserData(res);
         setMachines(transformedData);
-        console.log(transformedData);
       }
     } catch (error) {
       console.error(error);
@@ -121,7 +169,7 @@ export default function MachinesMaintenance() {
       <h1>Gestión y mantenimiento de maquinaria</h1>
       <GenericTable
         columns={columns}
-        data={Machines}
+        data={machines}
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
