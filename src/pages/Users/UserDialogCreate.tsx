@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -12,10 +12,10 @@ import {
   FormControl,
   Avatar,
   IconButton,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const useStyles = makeStyles({
   avatarContainer: {
@@ -48,62 +48,68 @@ const useStyles = makeStyles({
     width: 24,
     height: 24,
   },
-});
+})
 
 interface UserDialogCreateProps {
-  open: boolean;
-  onClose: () => void;
-  onSave: (user: any) => void;
+  open: boolean
+  onClose: () => void
+  onSave: (user: any) => void
 }
 
-const UserDialogCreate: React.FC<UserDialogCreateProps> = ({ open, onClose, onSave }) => {
-  const classes = useStyles();
+const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
+  open,
+  onClose,
+  onSave,
+}) => {
+  const classes = useStyles()
   const [formData, setFormData] = useState({
-    fullName: '',
+    fullname: '',
     email: '',
     password: '',
     confirmPassword: '',
-    userType: '',
-  });
-  const [avatar, setAvatar] = useState<string | null>(null);
+    type: '',
+  })
+  const [avatar, setAvatar] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) {
       // Limpiar el formulario y el avatar al cerrar el diálogo
       setFormData({
-        fullName: '',
+        fullname: '',
         email: '',
         password: '',
         confirmPassword: '',
-        userType: '',
-      });
-      setAvatar(null);
+        type: '',
+      })
+      setAvatar(null)
     }
-  }, [open]);
+  }, [open])
 
-  const handleChange = (e: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name as string]: value });
-  };
+  const handleChange = (
+    e: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name as string]: value })
+  }
 
   const handleSave = () => {
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
-      return;
+      alert('Passwords do not match')
+      return
     }
-    onSave({ ...formData, avatar });
-  };
+    onSave({ ...formData, avatar })
+  }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setAvatar(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        setAvatar(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -124,11 +130,11 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({ open, onClose, onSa
         <TextField
           autoFocus
           margin="dense"
-          name="fullName"
+          name="fullname"
           label="Nombre Completo"
           type="text"
           fullWidth
-          value={formData.fullName}
+          value={formData.fullname}
           onChange={handleChange}
         />
         <TextField
@@ -160,14 +166,10 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({ open, onClose, onSa
         />
         <FormControl fullWidth margin="dense">
           <InputLabel>Tipo de usuario</InputLabel>
-          <Select
-            name="userType"
-            value={formData.userType}
-            onChange={handleChange}
-          >
-            <MenuItem value="Employee">Empleado</MenuItem>
-            <MenuItem value="Administrator">Administrador</MenuItem>
-            <MenuItem value="Master Baker">Maestro Panadero</MenuItem>
+          <Select name="type" value={formData.type} onChange={handleChange}>
+            <MenuItem value="user">Empleado</MenuItem>
+            <MenuItem value="admin">Administrador</MenuItem>
+            <MenuItem value="master">Maestro Panadero</MenuItem>
           </Select>
         </FormControl>
       </DialogContent>
@@ -180,7 +182,7 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({ open, onClose, onSa
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default UserDialogCreate;
+export default UserDialogCreate

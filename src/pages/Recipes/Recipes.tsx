@@ -47,7 +47,7 @@ export default function Recipes() {
     setIsCreateMode(false)
   }
 
-  const onDelete = async(id: string) => {
+  const onDelete = async (id: string) => {
     console.log(`Eliminando elemento con id: ${id}`)
     // Aquí puedes llamar a tu servicio de eliminación con el id
     try {
@@ -73,8 +73,6 @@ export default function Recipes() {
   }
 
   const handleSave = async (recipe: RecipesResponse) => {
-    console.log('Guardando cambios', recipe)
-    // Aquí puedes manejar la lógica para guardar los cambios del usuario
     //author and supplies, not working
     const data = {
       steps: recipe.steps,

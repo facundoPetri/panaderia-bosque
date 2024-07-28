@@ -9,4 +9,8 @@ export interface SuppliesResponse {
     createdAt:string
     updatedAt:string
   }
+  export interface SuppliesCreateData extends Omit<SuppliesResponse, '_id' | 'size'>  {
+    image:string
+    size:number
+  }
   
