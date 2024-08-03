@@ -192,7 +192,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
         <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
-        <Button onClick={handleSave} color="primary">
+        <Button onClick={handleSave} color="primary" variant="contained">
           Crear
         </Button>
       </DialogActions>

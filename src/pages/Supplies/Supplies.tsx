@@ -72,7 +72,6 @@ export default function Supplies() {
         method: 'GET',
       })
       if (res) {
-        console.log(res)
         setSupplies(res)
       }
     } catch (error) {
@@ -99,7 +98,7 @@ export default function Supplies() {
     try {
       const res = await request<any[]>({
         path: `/supplies/${supplies._id}`,
-        method: 'PUT',
+        method: 'PATCH',
         data,
       })
       if (res) {

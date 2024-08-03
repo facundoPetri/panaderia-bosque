@@ -1,34 +1,44 @@
-import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@material-ui/core';
+import React, { useState } from 'react'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+} from '@material-ui/core'
 
 interface MachineMaintenanceDialogCreateProps {
-  open: boolean;
-  onClose: () => void;
-  onSave: (machineMaintenance: any) => void;
+  open: boolean
+  onClose: () => void
+  onSave: (machineMaintenance: any) => void
 }
 
-const MachineMaintenanceDialogCreate: React.FC<MachineMaintenanceDialogCreateProps> = ({ open, onClose, onSave }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [acquisitionDate, setAcquisitionDate] = useState('');
-  const [desiredMaintenanceInterval, setDesiredMaintenanceInterval] = useState('');
+const MachineMaintenanceDialogCreate: React.FC<
+  MachineMaintenanceDialogCreateProps
+> = ({ open, onClose, onSave }) => {
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [acquisitionDate, setAcquisitionDate] = useState('')
+  const [desiredMaintenanceInterval, setDesiredMaintenanceInterval] =
+    useState('')
 
   const handleSave = () => {
     const newMachineMaintenance = {
       id: Math.random().toString(36).substr(2, 9), // Genera un id aleatorio
       name,
       description,
-      acquisitionDate,
-      desiredMaintenanceInterval,
+      purcharse_date: acquisitionDate,
+      desired_maintenance: desiredMaintenanceInterval,
       lastMaintenanceDate: '', // Asumimos que es un nuevo registro, por lo que no tiene última fecha de mantenimiento
       priority: 'Media', // Puedes cambiar esto según sea necesario
-    };
-    onSave(newMachineMaintenance);
-    setName('');
-    setDescription('');
-    setAcquisitionDate('');
-    setDesiredMaintenanceInterval('');
-  };
+    }
+    onSave(newMachineMaintenance)
+    setName('')
+    setDescription('')
+    setAcquisitionDate('')
+    setDesiredMaintenanceInterval('')
+  }
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -77,7 +87,7 @@ const MachineMaintenanceDialogCreate: React.FC<MachineMaintenanceDialogCreatePro
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default MachineMaintenanceDialogCreate;
+export default MachineMaintenanceDialogCreate

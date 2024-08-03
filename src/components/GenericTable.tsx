@@ -82,7 +82,6 @@ const GenericTable = <T extends object>({
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedRow, setSelectedRow] = useState<T | null>(null)
-
   const handleRequestSort = useCallback(
     (property: keyof T) => {
       const isAsc = orderBy === property && order === 'asc'
@@ -185,16 +184,11 @@ const GenericTable = <T extends object>({
 
   const handleCheckboxClick = useCallback(
     (index: number) => {
-      const currentIndex = selectedRows.indexOf(index)
-      const newSelectedRows = [...selectedRows]
-
-      if (currentIndex === -1) {
-        newSelectedRows.push(index)
+      if (index === selectedRows[0]) {
+        setSelectedRows([])
       } else {
-        newSelectedRows.splice(currentIndex, 1)
+        setSelectedRows([index])
       }
-
-      setSelectedRows(newSelectedRows)
     },
     [selectedRows]
   )
@@ -249,6 +243,7 @@ const GenericTable = <T extends object>({
             onClick={onAdd}
             startIcon={<FontAwesomeIcon icon={faSquarePlus} />}
             style={{ marginRight: '10px' }}
+            disabled={selectedRows.length > 0}
           >
             Agregar
           </Button>

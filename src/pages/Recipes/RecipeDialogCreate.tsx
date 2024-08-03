@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -8,10 +8,14 @@ import {
   Button,
   IconButton,
   Avatar,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+  Select,
+  MenuItem,
+  Input,
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { SuppliesResponse } from '../../interfaces/Supplies'
 
 const useStyles = makeStyles({
   avatarContainer: {
@@ -44,58 +48,69 @@ const useStyles = makeStyles({
     width: 24,
     height: 24,
   },
-});
+  select: {
+    marginTop: '1rem',
+  },
+})
 
 interface RecipeDialogCreateProps {
-  open: boolean;
-  onClose: () => void;
-  onSave: (recipe: any) => void;
+  open: boolean
+  onClose: () => void
+  onSave: (recipe: any) => void
+  supplies: SuppliesResponse[]
 }
 
-const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, onSave }) => {
-  const classes = useStyles();
+const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
+  open,
+  onClose,
+  onSave,
+  supplies,
+}) => {
+  const classes = useStyles()
   const [formData, setFormData] = useState({
     name: '',
-    ingredients: '',
+    supplies: [],
     steps: '',
     recommendations: '',
     standardUnits: '',
-  });
-  const [avatar, setAvatar] = useState<string | null>(null);
+  })
+  const [avatar, setAvatar] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) {
       // Limpiar el formulario y el avatar al cerrar el diálogo
       setFormData({
         name: '',
-        ingredients: '',
+        supplies: [],
         steps: '',
         recommendations: '',
         standardUnits: '',
-      });
-      setAvatar(null);
+      })
+      setAvatar(null)
     }
-  }, [open]);
-
-  const handleChange = (e: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name as string]: value });
-  };
+  }, [open])
+  console.log(formData)
+  const handleChange = (
+    e: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name as string]: value })
+  }
 
   const handleSave = () => {
-    onSave({ ...formData, avatar });
-  };
+    onSave({ ...formData, avatar })
+  }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setAvatar(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        setAvatar(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -123,15 +138,22 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, 
           value={formData.name}
           onChange={handleChange}
         />
-        <TextField
-          margin="dense"
-          name="ingredients"
-          label="Ingredientes"
-          type="text"
-          fullWidth
-          value={formData.ingredients}
+        <Select
+          className={classes.select}
+          name="supplies"
+          multiple
+          value={formData.supplies}
           onChange={handleChange}
-        />
+          label="Insumos"
+          input={<Input />}
+          fullWidth
+        >
+          {supplies.map((sup) => (
+            <MenuItem key={sup._id} value={sup._id}>
+              {sup.name}
+            </MenuItem>
+          ))}
+        </Select>
         <TextField
           margin="dense"
           name="steps"
@@ -164,12 +186,12 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({ open, onClose, 
         <Button onClick={onClose} color="primary">
           Cancelar
         </Button>
-        <Button onClick={handleSave} color="primary">
+        <Button onClick={handleSave} color="primary" variant="contained">
           Crear
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default RecipeDialogCreate;
+export default RecipeDialogCreate

@@ -77,9 +77,14 @@ export default function Userstable() {
   const handleSave = async (user: TransformedUser) => {
     try {
       const res = await request<UsersResponse[]>({
-        path: '/users',
-        method: 'PUT',
-        data: user,
+        path: `/users/${user._id}`,
+        method: 'PATCH',
+        data: {
+          fullname: user.fullname,
+          email: user.email,
+          pasword: user.password,
+          type: user.type,
+        },
       })
       if (res) {
         getUsers()

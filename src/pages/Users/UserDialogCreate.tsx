@@ -177,7 +177,7 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
         <Button onClick={onClose} color="primary">
           Cancelar
         </Button>
-        <Button onClick={handleSave} color="primary">
+        <Button onClick={handleSave} color="primary" variant="contained">
           Crear
         </Button>
       </DialogActions>

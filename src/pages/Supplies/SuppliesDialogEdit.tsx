@@ -100,6 +100,16 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
           </Grid> */}
           <Grid item xs={12}>
             <TextField
+              margin="dense"
+              label="Nombre"
+              type="text"
+              fullWidth
+              value={selectedSupplies.name}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
               fullWidth
               name="description"
               label="Descripción"
