@@ -4,7 +4,7 @@ import { API_BASE_URL } from './commonConsts'
 interface Request<T> {
   path: string
   data?: any
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 }
 
 export const request = async <T>({
@@ -25,6 +25,9 @@ export const request = async <T>({
         break
       case 'PUT':
         res = await axios.put<T>(`${API_BASE_URL}${path}`, data, { headers })
+        break
+      case 'PATCH':
+        res = await axios.patch<T>(`${API_BASE_URL}${path}`, data, { headers })
         break
       case 'DELETE':
         res = await axios.delete<T>(`${API_BASE_URL}${path}`, { headers })

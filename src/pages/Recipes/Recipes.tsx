@@ -6,6 +6,7 @@ import { Column } from '../../components/GenericTable'
 import { RecipesResponse } from '../../interfaces/Recipes'
 import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
+import { SuppliesResponse } from '../../interfaces/Supplies'
 
 const columns: Column<RecipesResponse>[] = [
   {
@@ -33,6 +34,7 @@ export default function Recipes() {
   )
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
+  const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
   const [recipes, setRecipes] = useState<RecipesResponse[]>([])
 
   // Modal
@@ -47,7 +49,7 @@ export default function Recipes() {
     setIsCreateMode(false)
   }
 
-  const onDelete = async(id: string) => {
+  const onDelete = async (id: string) => {
     console.log(`Eliminando elemento con id: ${id}`)
     // Aquí puedes llamar a tu servicio de eliminación con el id
     try {
@@ -71,24 +73,37 @@ export default function Recipes() {
     setSelectedRecipe(recipe)
     setIsEditMode(true)
   }
-
+  const getSupplies = async () => {
+    try {
+      const res = await request<SuppliesResponse[]>({
+        path: '/supplies',
+        method: 'GET',
+      })
+      if (res) {
+        setSupplies(res)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  useEffect(() => {
+    getSupplies()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const handleSave = async (recipe: RecipesResponse) => {
-    console.log('Guardando cambios', recipe)
-    // Aquí puedes manejar la lógica para guardar los cambios del usuario
     //author and supplies, not working
     const data = {
       steps: recipe.steps,
-      author: recipe.author,
       name: recipe.name,
       recommendations: recipe.recommendations,
       supplies: recipe.supplies,
-      standardUnits: recipe.standardUnits,
+      standardUnits: Number(recipe.standardUnits),
     }
 
     try {
       const res = await request<any[]>({
         path: `/recipes/${recipe._id}`,
-        method: 'PUT',
+        method: 'PATCH',
         data,
       })
       if (res) {
@@ -103,16 +118,12 @@ export default function Recipes() {
   }
 
   const handleCreate = async (recipe: RecipesResponse) => {
-    console.log('Creando receta', recipe)
-    // Aquí puedes manejar la lógica para crear una nueva receta
-    //author and supplies, not working
     const data = {
       steps: recipe.steps,
-      author: recipe.author,
       name: recipe.name,
       recommendations: recipe.recommendations,
       supplies: recipe.supplies,
-      standardUnits: recipe.standardUnits,
+      standardUnits: Number(recipe.standardUnits),
     }
 
     try {
@@ -174,11 +185,13 @@ export default function Recipes() {
         onClose={onClose}
         editable={isEditMode}
         onSave={handleSave}
+        supplies={supplies}
       />
       <RecipeDialogCreate
         open={isCreateMode}
         onClose={onClose}
         onSave={handleCreate}
+        supplies={supplies}
       />
     </div>
   )
