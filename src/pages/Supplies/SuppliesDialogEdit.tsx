@@ -41,7 +41,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
   onSave,
 }) => {
   const [editedStockItem, setEditedStockItem] =
-    useState<SuppliesResponse | null>(null)
+    useState<SuppliesResponse | null>(selectedSupplies)
   const classes = useStyles()
 
   useEffect(() => {
@@ -53,7 +53,6 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (editedStockItem) {
       const { name, value } = event.target
-
       setEditedStockItem({ ...editedStockItem, [name]: value })
     }
   }
@@ -78,13 +77,13 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
           </Grid>
           <Grid item xs={6}>
             <Typography variant="subtitle1">
-              Stock actual: 0 {selectedSupplies.unit}
+              Stock actual: 0 {editedStockItem?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              Stock mínimo: {selectedSupplies.min_stock} {selectedSupplies.unit}
+              Stock mínimo: {editedStockItem?.min_stock} {editedStockItem?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              Stock máximo: {selectedSupplies.max_stock} {selectedSupplies.unit}
+              Stock máximo: {editedStockItem?.max_stock} {editedStockItem?.unit}
             </Typography>
           </Grid>
           {/* <Grid item xs={6}>
@@ -104,8 +103,12 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
               label="Nombre"
               type="text"
               fullWidth
-              value={selectedSupplies.name}
+              name="name"  // Añadido el atributo name
+              value={editedStockItem?.name || ''}
               onChange={handleChange}
+              InputProps={{
+                readOnly: !editable,
+              }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -113,7 +116,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
               fullWidth
               name="description"
               label="Descripción"
-              value={selectedSupplies.description}
+              value={editedStockItem?.description || ''}
               variant="outlined"
               multiline
               rows={3}
@@ -139,7 +142,8 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
             <TextField
               fullWidth
               label="Tamaño del paquete"
-              value={selectedSupplies.size}
+              name="size"  // Añadido el atributo name
+              value={editedStockItem?.size || ''}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
@@ -151,7 +155,8 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
             <TextField
               fullWidth
               label="Unidad de medida"
-              value={selectedSupplies.unit}
+              name="unit"  // Añadido el atributo name
+              value={editedStockItem?.unit || ''}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
