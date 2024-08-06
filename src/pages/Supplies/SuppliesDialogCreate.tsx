@@ -152,6 +152,8 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           label="Descripción"
           type="text"
           fullWidth
+          multiline
+          rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
