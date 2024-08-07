@@ -91,11 +91,6 @@ interface ExpiringSupplyI {
       // Aquí puedes llamar a tu servicio de eliminación con el id
     };
   
-    const onAdd = () => {
-      console.log('Agregando nuevo elemento');
-      // Aquí puedes manejar la lógica de agregar un nuevo elemento
-    };
-  
     return (
       <div style={{ padding: '20px' }}>
         <h1>Insumos con vencimiento próximo</h1>
@@ -105,7 +100,6 @@ interface ExpiringSupplyI {
           dropdownOptions={dropdownOptions} // Agrege dropdownOptions
           onView={onView}
           onDelete={onDelete}
-          onAdd={onAdd}
           showDropdown={false}
           nameColumnId="name"
         />

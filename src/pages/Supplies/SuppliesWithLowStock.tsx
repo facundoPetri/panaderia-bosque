@@ -4,12 +4,12 @@ import { Column } from '../../components/GenericTable';
 
 
 const columns: Column<Supply>[] = [
-  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
+  { id: 'id', label: 'id', hiddenColumn: true, sortable: false },
   { id: 'name', label: 'Nombre' },
-  { id: 'currentStock', label: 'Stock actual' },
-  { id: 'minimumStock', label: 'Stock minimo' },
-  { id: 'maximumStock', label: 'Stock máximo' },
-  { id: 'estimatedDeliveryTime', label: 'Tiempo de entrega' },
+  { id: 'currentStock', label: 'Stock actual', hiddenFilter: true, },
+  { id: 'minimumStock', label: 'Stock minimo', hiddenFilter: true, },
+  { id: 'maximumStock', label: 'Stock máximo', hiddenFilter: true, },
+  { id: 'estimatedDeliveryTime', label: 'Tiempo de entrega', hiddenFilter: true, },
   { id: 'priority', label: 'Prioridad' },
 ];
 
@@ -111,11 +111,12 @@ export default function SuppliesWithLowStock() {
       <GenericTable
         columns={columns}
         data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         nameColumnId="name"
+        nameButton='Hacer pedido'
       />
     </div>
   );
