@@ -87,6 +87,9 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({ 
               value={editedMachineMaintenance?.last_maintenance_date || ''}
               variant="outlined"
               onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
               InputProps={{
                 readOnly: !editable,
               }}

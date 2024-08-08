@@ -41,11 +41,12 @@ interface GenericTableProps<T extends object> {
   data: T[]
   onView: (row: T) => void
   onAdd?: () => void
-  onEdit?: (row: T) => void // Nueva función onEdit
+  onEdit?: (row: T) => void
   onDelete: (id: string) => void
   dropdownOptions: { title: string }[]
   showDropdown?: boolean
   nameColumnId: keyof T
+  nameButton?: string
 }
 
 const useStyles = makeStyles({
@@ -69,6 +70,7 @@ const GenericTable = <T extends object>({
   dropdownOptions,
   showDropdown = true,
   nameColumnId,
+  nameButton = "Agregar"
 }: GenericTableProps<T>) => {
   const classes = useStyles()
   const [page, setPage] = useState(0)
@@ -245,33 +247,39 @@ const GenericTable = <T extends object>({
             style={{ marginRight: '10px' }}
             disabled={selectedRows.length > 0}
           >
-            Agregar
+            {nameButton}
           </Button>
         )}
-        <Button
-          variant="contained"
-          color="default"
-          onClick={handleEditClick}
-          disabled={selectedRows.length !== 1}
-          startIcon={<FontAwesomeIcon icon={faEdit} />}
-          style={{ marginRight: '10px' }}
-        >
-          Editar
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={onDeleteClick}
-          disabled={selectedRows.length !== 1}
-          startIcon={<FontAwesomeIcon icon={faTrashAlt} />}
-        >
-          Eliminar
-        </Button>
+        {onEdit && (
+          <Button
+            variant="contained"
+            color="default"
+            onClick={handleEditClick}
+            disabled={selectedRows.length !== 1}
+            startIcon={<FontAwesomeIcon icon={faEdit} />}
+            style={{ marginRight: '10px' }}
+          >
+            Editar
+          </Button>
+        )}
+        {onEdit && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={onDeleteClick}
+            disabled={selectedRows.length !== 1}
+            startIcon={<FontAwesomeIcon icon={faTrashAlt} />}
+          >
+            Eliminar
+          </Button>
+        )}
       </Box>
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
+          {onEdit && (
             <TableCell padding="checkbox"></TableCell>
+          )}
             {columns.map((column) =>
               column.hiddenColumn ? null : (
                 <TableCell key={column.id as string}>
@@ -296,6 +304,7 @@ const GenericTable = <T extends object>({
           {paginatedData.length > 0 ? (
             paginatedData.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
+              {onEdit && (
                 <TableCell padding="checkbox">
                   <IconButton onClick={() => handleCheckboxClick(rowIndex)}>
                     <FontAwesomeIcon
@@ -303,6 +312,7 @@ const GenericTable = <T extends object>({
                     />
                   </IconButton>
                 </TableCell>
+              )}
                 {columns.map((column) =>
                   column.hiddenColumn ? null : (
                     <TableCell key={column.id as string}>
@@ -316,6 +326,7 @@ const GenericTable = <T extends object>({
                   </IconButton>
                 </TableCell>
               </TableRow>
+
             ))
           ) : (
             <TableRow>

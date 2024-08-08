@@ -100,6 +100,7 @@ export default function ProductionEfficiencies() {
         onAdd={onAdd}
         showDropdown={false}
         nameColumnId="name"
+        nameButton='Crear'
       />
     </div>
   );
