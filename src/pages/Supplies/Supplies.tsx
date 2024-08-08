@@ -4,6 +4,7 @@ import SuppliesDialogEdit from './SuppliesDialogEdit'
 import SuppliesDialogCreate from './SuppliesDialogCreate'
 import { request } from '../../common/request'
 import { SuppliesCreateData, SuppliesResponse } from '../../interfaces/Supplies'
+import { formatDate } from '../../utils/dateUtils'
 
 const columns: Column<SuppliesResponse>[] = [
   {
@@ -65,6 +66,7 @@ export default function Supplies() {
     setSelectedSupplies(supplies)
     setIsEditMode(true)
   }
+
   const getSupplies = async () => {
     try {
       const res = await request<SuppliesResponse[]>({
@@ -72,7 +74,11 @@ export default function Supplies() {
         method: 'GET',
       })
       if (res) {
-        setSupplies(res)
+        const formattedSupplies = res.map((supplie) => ({
+          ...supplie,
+          updatedAt: formatDate(supplie.updatedAt),
+        }))
+        setSupplies(formattedSupplies)
       }
     } catch (error) {
       console.error(error)

@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { RecipesResponse } from '../../interfaces/Recipes'
+import { TransformedRecipes } from '../../interfaces/Recipes'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 
 const useStyles = makeStyles({
@@ -25,10 +25,10 @@ const useStyles = makeStyles({
   },
 })
 interface RecipeDialogProps {
-  recipe: RecipesResponse | null
+  recipe: TransformedRecipes | null
   onClose: () => void
   editable?: boolean
-  onSave?: (recipe: RecipesResponse) => void
+  onSave?: (recipe: TransformedRecipes) => void
   supplies: SuppliesResponse[]
 }
 
@@ -40,7 +40,7 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
   supplies,
 }) => {
   const classes = useStyles()
-  const [editedRecipe, setEditedRecipe] = useState<RecipesResponse | null>(
+  const [editedRecipe, setEditedRecipe] = useState<TransformedRecipes | null>(
     recipe
   )
 

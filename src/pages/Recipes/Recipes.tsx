@@ -3,12 +3,13 @@ import GenericTable from '../../components/GenericTable'
 import RecipeDialogEdit from './RecipeDialogEdit'
 import RecipeDialogCreate from './RecipeDialogCreate'
 import { Column } from '../../components/GenericTable'
-import { RecipesResponse } from '../../interfaces/Recipes'
+import { RecipesResponse, TransformedRecipes } from '../../interfaces/Recipes'
 import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
 import { SuppliesResponse } from '../../interfaces/Supplies'
+import { capitalizeFullName } from '../../utils/capitalizeFullName'
 
-const columns: Column<RecipesResponse>[] = [
+const columns: Column<TransformedRecipes>[] = [
   {
     id: '_id',
     label: 'id',
@@ -29,16 +30,16 @@ const dropdownOptions = columns.map((column) => ({
 }))
 
 export default function Recipes() {
-  const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(
+  const [selectedRecipe, setSelectedRecipe] = useState<TransformedRecipes | null>(
     null
   )
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
-  const [recipes, setRecipes] = useState<RecipesResponse[]>([])
+  const [recipes, setRecipes] = useState<TransformedRecipes[]>([])
 
   // Modal
-  const onView = (recipe: RecipesResponse) => {
+  const onView = (recipe: TransformedRecipes) => {
     setSelectedRecipe(recipe)
     setIsEditMode(false)
   }
@@ -69,7 +70,7 @@ export default function Recipes() {
     setIsCreateMode(true)
   }
 
-  const handleEdit = (recipe: RecipesResponse) => {
+  const handleEdit = (recipe: TransformedRecipes) => {
     setSelectedRecipe(recipe)
     setIsEditMode(true)
   }
@@ -90,7 +91,7 @@ export default function Recipes() {
     getSupplies()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const handleSave = async (recipe: RecipesResponse) => {
+  const handleSave = async (recipe: TransformedRecipes) => {
     //author and supplies, not working
     const data = {
       steps: recipe.steps,
@@ -117,7 +118,7 @@ export default function Recipes() {
     setIsCreateMode(false)
   }
 
-  const handleCreate = async (recipe: RecipesResponse) => {
+  const handleCreate = async (recipe: TransformedRecipes) => {
     const data = {
       steps: recipe.steps,
       name: recipe.name,
@@ -148,17 +149,22 @@ export default function Recipes() {
         method: 'GET',
       })
       if (res) {
-        // Formatear las fechas aquí
-        const formattedRecipes = res.map((recipe) => ({
-          ...recipe,
-          createdAt: formatDate(recipe.createdAt),
-          updatedAt: formatDate(recipe.updatedAt),
-        }))
-        setRecipes(formattedRecipes)
+        console.log(res);
+        const transformedData = transformUserData(res)
+        setRecipes(transformedData)
       }
     } catch (error) {
       console.error(error)
     }
+  }
+
+  const transformUserData = (data: RecipesResponse[]): TransformedRecipes[] => {
+    return data.map((recipe) => ({
+      ...recipe,
+      author: capitalizeFullName(recipe.author.fullname),
+      createdAt: formatDate(recipe.createdAt),
+      updatedAt: formatDate(recipe.updatedAt),
+    }))
   }
 
   useEffect(() => {
