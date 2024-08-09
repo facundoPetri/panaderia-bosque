@@ -74,6 +74,7 @@ export default function Recipes() {
     setSelectedRecipe(recipe)
     setIsEditMode(true)
   }
+
   const getSupplies = async () => {
     try {
       const res = await request<SuppliesResponse[]>({
@@ -87,10 +88,12 @@ export default function Recipes() {
       console.error(error)
     }
   }
+
   useEffect(() => {
     getSupplies()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
   const handleSave = async (recipe: TransformedRecipes) => {
     //author and supplies, not working
     const data = {

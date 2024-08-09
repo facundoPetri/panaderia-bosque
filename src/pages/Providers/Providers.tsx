@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
+import ProviderDialogEdit from './ProviderDialogEdit';
+import { SuppliesResponse } from '../../interfaces/Supplies';
+import { request } from '../../common/request';
+import ProviderDialogCreate from './ProviderDialogCreate';
 
 const columns: Column<Provider>[] = [
   { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
@@ -10,59 +14,16 @@ const columns: Column<Provider>[] = [
   { id: 'supplies', label: 'Insumos' },
 ];
 
-interface Provider {
+export interface Provider {
   id: string;
   name: string;
   phone: string;
   email: string;
-  supplies: string;
+  supplies: string[];
+  deliveryTime?: string;
+  supplyType?: string;
+  image?: string;
 }
-
-const data: Provider[] = [
-  {
-    id: '1',
-    name: 'Bimbo',
-    phone: '3514789635',
-    email: 'bimbo@gmail.com',
-    supplies: 'Harina, levadura',
-  },
-  {
-    id: '2',
-    name: 'Ledevit',
-    phone: '3513969578',
-    email: 'ledevit@gmail.com',
-    supplies: 'Manteca, crema',
-  },
-  {
-    id: '3',
-    name: 'Ledesma',
-    phone: '3513669978',
-    email: 'ledesma@gmail.com',
-    supplies: 'Huevos',
-  },
-  {
-    id: '4',
-    name: 'Mapricoa',
-    phone: '3514259635',
-    email: 'mapricoa@gmail.com',
-    supplies: 'Manteca, crema',
-  },
-  {
-    id: '5',
-    name: 'Merentiel S.A',
-    phone: '3513669578',
-    email: 'merentielsa@gmail.com',
-    supplies: 'Harina, azúcar, levadura',
-  },
-  {
-    id: '6',
-    name: 'Ramirez y Hnos. S.R.L',
-    phone: '3514589963',
-    email: 'ramirezsrl@gmail.com',
-    supplies: 'Harina, levadura',
-  },
-];
-
 
 const dropdownOptions = columns.map(column => ({
   title: column.label,
@@ -70,36 +31,135 @@ const dropdownOptions = columns.map(column => ({
 
 export default function Providers() {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  //Modal
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
+  const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
+  const [providers, setProviders] = useState<Provider[]>([]);
+
   const onView = (provider: Provider) => {
     setSelectedProvider(provider);
+    setIsEditMode(false);
   };
 
   const onClose = () => {
     setSelectedProvider(null);
+    setIsEditMode(false);
+    setIsCreateMode(false);
   };
 
-  const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`);
-    // Aquí puedes llamar a tu servicio de eliminación con el id
+  const onDelete = async (id: string) => {
+    try {
+      const res = await request<any[]>({
+        path: `/providers/${id}`,
+        method: 'DELETE',
+      });
+      if (res) {
+        getProviders();
+      }
+    } catch (error) {
+      console.error('Error al eliminar el proveedor:', error);
+    }
   };
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    setIsCreateMode(true);
   };
+
+  const onEdit = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setIsEditMode(true);
+  };
+
+  const getSupplies = async () => {
+    try {
+      const res = await request<SuppliesResponse[]>({
+        path: '/supplies',
+        method: 'GET',
+      });
+      if (res) {
+        setSupplies(res);
+      }
+    } catch (error) {
+      console.error('Error al obtener insumos:', error);
+    }
+  };
+
+  const getProviders = async () => {
+    try {
+      const res = await request<Provider[]>({
+        path: '/providers',
+        method: 'GET',
+      });
+      if (res) {
+        setProviders(res);
+      }
+    } catch (error) {
+      console.error('Error al obtener proveedores:', error);
+    }
+  };
+
+  const handleSave = async (provider: Provider) => {
+    try {
+      const res = await request<any[]>({
+        path: `/providers/${provider.id}`,
+        method: 'PATCH',
+        data: provider,
+      });
+      if (res) {
+        getProviders();
+      }
+    } catch (error) {
+      console.error('Error al guardar proveedor:', error);
+    }
+    onClose();
+  };
+
+  const handleCreate = async (provider: Provider) => {
+    try {
+      const res = await request<any[]>({
+        path: '/providers',
+        method: 'POST',
+        data: provider,
+      });
+      if (res) {
+        getProviders();
+      }
+    } catch (error) {
+      console.error('Error al crear proveedor:', error);
+    }
+    onClose();
+  };
+
+  useEffect(() => {
+    getSupplies();
+    getProviders();
+  }, []);
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Listado de proveedores</h1>
       <GenericTable
         columns={columns}
-        data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        data={providers}
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
+        onEdit={onEdit}
         onAdd={onAdd}
         nameColumnId="name"
+      />
+      <ProviderDialogEdit
+        provider={selectedProvider}
+        onClose={onClose}
+        onSave={handleSave}
+        editable={isEditMode}
+        supplies={supplies}
+      />
+      <ProviderDialogCreate
+        open={isCreateMode}
+        onClose={onClose}
+        onSave={handleCreate}
+        supplies={supplies}
       />
     </div>
   );
