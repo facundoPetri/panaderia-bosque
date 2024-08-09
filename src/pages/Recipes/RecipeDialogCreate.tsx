@@ -89,7 +89,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
       setAvatar(null)
     }
   }, [open])
-  console.log(formData)
+
   const handleChange = (
     e: React.ChangeEvent<{ name?: string; value: unknown }>
   ) => {
