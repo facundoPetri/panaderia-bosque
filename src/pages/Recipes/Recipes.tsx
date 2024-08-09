@@ -8,6 +8,7 @@ import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { capitalizeFullName } from '../../utils/capitalizeFullName'
+import DownloadPdfButton from '../../components/DownloadPdfButton'
 
 const columns: Column<TransformedRecipes>[] = [
   {
@@ -202,6 +203,7 @@ export default function Recipes() {
         onSave={handleCreate}
         supplies={supplies}
       />
+      <DownloadPdfButton url='http://localhost:3000/recipes/generate-pdf'/>
     </div>
   )
 }

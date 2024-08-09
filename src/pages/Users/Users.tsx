@@ -6,10 +6,7 @@ import UserDialogEdit from './UserDialogEdit'
 import { TransformedUser, UsersResponse } from '../../interfaces/Users'
 import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
-import { Button } from '@material-ui/core'
-import { downloadPdf } from '../../utils/utils'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFilePdf } from '@fortawesome/free-solid-svg-icons'
+import DownloadPdfButton from '../../components/DownloadPdfButton'
 
 const columns: Column<TransformedUser>[] = [
   {
@@ -171,11 +168,7 @@ export default function Userstable() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <Button
-        onClick={() => downloadPdf('http://localhost:3000/users/generate-pdf')}
-      >
-        <FontAwesomeIcon icon={faFilePdf} size="2x" />
-      </Button>
+      <DownloadPdfButton url="http://localhost:3000/users/generate-pdf" />
     </div>
   )
 }
