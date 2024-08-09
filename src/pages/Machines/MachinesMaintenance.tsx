@@ -8,6 +8,7 @@ import {
 } from '../../interfaces/Machines'
 import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
+import DownloadPdfButton from '../../components/DownloadPdfButton'
 
 const columns: Column<TransformedMachines>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -204,6 +205,7 @@ export default function MachinesMaintenance() {
         editable={isEditMode}
         onSave={handleSave}
       />
+      <DownloadPdfButton url="http://localhost:3000/machines/generate-pdf" />
     </div>
   )
 }
