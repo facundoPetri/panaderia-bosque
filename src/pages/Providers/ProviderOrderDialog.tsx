@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, List, ListItem, ListItemText, IconButton } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, List, ListItem, ListItemText, IconButton, TextField } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 
@@ -40,6 +40,14 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({ isOpen, onClo
         );
     };
 
+    const handleQuantityChange = (id: string, newQuantity: number) => {
+        setOrderItems(prevItems =>
+            prevItems.map(item =>
+                item.id === id ? { ...item, quantity: newQuantity } : item
+            )
+        );
+    };
+
     return (
         <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>Pedido</DialogTitle>
@@ -47,7 +55,14 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({ isOpen, onClo
                 <List>
                     {orderItems.map(item => (
                         <ListItem key={item.id}>
-                            <ListItemText primary={item.name} secondary={`Cantidad: ${item.quantity}`} />
+                            <ListItemText primary={item.name} />
+                            <TextField
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                                inputProps={{ min: 1 }} // Evita que se ingrese un número menor que 1
+                                style={{ width: '60px', marginRight: '10px' }}
+                            />
                             <IconButton onClick={() => handleIncreaseQuantity(item.id)}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </IconButton>

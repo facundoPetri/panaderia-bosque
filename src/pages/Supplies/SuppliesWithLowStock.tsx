@@ -20,41 +20,47 @@ const dropdownOptions = columns.map(column => ({
 }));
 
 export default function SuppliesWithLowStock() {
-  const [selectedSupplies, setSelectedSupplies] = useState<TransformedSupplies | null>(null);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]); // Add orderItems state
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [name, setName] = useState<string>("Hacer Pedido, insumos agregados: 0");
 
   const onView = (supply: TransformedSupplies) => {
     const existingOrderItemIndex = orderItems.findIndex(item => item.id === supply._id);
 
+    let updatedOrderItems = [...orderItems];
+
     if (existingOrderItemIndex !== -1) {
-      // Si el item ya existe, incrementa la cantidad
-      const updatedOrderItems = [...orderItems];
       updatedOrderItems[existingOrderItemIndex].quantity += 1;
-      setOrderItems(updatedOrderItems);
     } else {
-      // Si el item no existe, añade un nuevo item con cantidad 1
       const newOrderItem: OrderItem = {
         id: supply._id,
         name: supply.name,
         quantity: 1,
       };
-      setOrderItems([...orderItems, newOrderItem]);
+      updatedOrderItems = [...updatedOrderItems, newOrderItem];
     }
+
+    setOrderItems(updatedOrderItems);
+
+    const totalQuantity = updatedOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    setName(`Hacer Pedido, insumos agregados: ${totalQuantity}`);
   };
 
-
   const onClose = () => {
-    setSelectedSupplies(null)
     setIsCreateMode(false)
+    setOrderItems([]);
+    setName("Hacer Pedido, insumos agregados: 0");
   }
 
   const onDelete = (id: string) => {
   };
 
   const onAdd = () => {
-    setIsCreateMode(true)
+    if (orderItems.length > 0) {
+      setIsCreateMode(true);
+    }
   };
 
   const handlerSave = async () => {
@@ -65,6 +71,7 @@ export default function SuppliesWithLowStock() {
 
     setOrderItems(updatedOrderItems);
     console.log(updatedOrderItems);
+    onClose();
   };
 
   const calculatePriority = (currentStock: number, minStock: number, maxStock: number): string => {
@@ -122,7 +129,7 @@ export default function SuppliesWithLowStock() {
         onDelete={onDelete}
         onAdd={onAdd}
         nameColumnId="name"
-        nameButton="Hacer Pedido"
+        nameButton={name}
       />
       <ProviderOrderDialog
         isOpen={isCreateMode}
