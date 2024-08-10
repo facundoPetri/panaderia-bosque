@@ -1,49 +1,53 @@
 import { useEffect, useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
-import { SuppliesResponse } from '../../interfaces/Supplies';
+import { SuppliesResponse, TransformedBatch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import { formatDate } from '../../utils/dateUtils';
 import SuppliesDialogEdit from './SuppliesDialogEdit';
 
-const columns: Column<SuppliesResponse>[] = [
+const columns: Column<TransformedBatch>[] = [
   {
     id: '_id',
-    label: 'id',
+    label: 'ID',
     hiddenColumn: true,
     sortable: false,
     hiddenFilter: true,
   },
-  { id: 'deletedAt', label: 'Fecha de vencimiento' },
-  { id: 'name', label: 'Nombre' },
-  { id: 'max_stock', label: 'Numero de lote' },
-  { id: 'description', label: 'Ubicacion' },
-  { id: 'unit', label: 'Cantidad' },
+  { id: 'expiration_date', label: 'Fecha de vencimiento', sortable: true },
+  { id: 'supply_name', label: 'Nombre del insumo', sortable: true },
+  { id: 'batch_number', label: 'Número de lote' },
+  { id: 'location', label: 'Ubicación' },
+  { id: 'quantity', label: 'Cantidad', sortable: true },
 ];
-//TODO: VER bien por que no esta en el back
+
 const dropdownOptions = columns.map(column => ({
   title: column.label,
 }));
 
 export default function ExpiringSupply() {
-  const [selectedSupplies, setSelectedSupplies] =
-    useState<SuppliesResponse | null>(null)
-    const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
-    const [isEditMode, setIsEditMode] = useState<boolean>(false)
-  //Modal
-  const onView = (supplies: SuppliesResponse) => {
-    setSelectedSupplies(supplies)
-    setIsEditMode(false)
-  }
+  const [supplies, setSupplies] = useState<SuppliesResponse[]>([]);
+  const [, setSelectedBatch] = useState<TransformedBatch | null>(null);
+  const [selectedSupplies, setSelectedSupplies] = useState<SuppliesResponse | null>(null);
+  const [batches, setBatches] = useState<TransformedBatch[]>([]);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
+  const onView = (batch: TransformedBatch) => {
+    setSelectedBatch(batch);
+    setIsEditMode(false);
+
+    const relatedSupply = supplies.find(supply => supply.name === batch.supply_name);
+    setSelectedSupplies(relatedSupply || null);
+  };
 
   const onClose = () => {
-    setSelectedSupplies(null)
-    setIsEditMode(false)
-  }
+    setSelectedBatch(null);
+    setSelectedSupplies(null);
+    setIsEditMode(false);
+  };
 
   const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`);
-    // Aquí puedes llamar a tu servicio de eliminación con el id
+    // Aquí puedes manejar la lógica para eliminar el lote con el ID proporcionado
   };
 
   const getSupplies = async () => {
@@ -51,40 +55,51 @@ export default function ExpiringSupply() {
       const res = await request<SuppliesResponse[]>({
         path: '/supplies',
         method: 'GET',
-      })
+      });
+
       if (res) {
-        const formattedSupplies = res.map((supplie) => ({
-          ...supplie,
-          updatedAt: formatDate(supplie.updatedAt),
-        }))
-        setSupplies(formattedSupplies)
+        setSupplies(res);
+        const transformedBatches: TransformedBatch[] = res.flatMap(supply =>
+          (supply.batches || []).map(batch => ({
+            ...batch,
+            location: ('Fila: ' + batch.row + ', Columna: ' + batch.column),
+            supply_name: supply.name,
+            expiration_date: formatDate(batch.expiration_date),
+            quantity: (batch.quantity + ' ' +supply.unit)
+          }))
+        );
+
+        setBatches(transformedBatches);
       }
     } catch (error) {
-      console.error(error)
+      console.error('Error al obtener los insumos:', error);
     }
-  }
+  };
 
   useEffect(() => {
-    getSupplies()
+    getSupplies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Insumos con vencimiento próximo</h1>
       <GenericTable
         columns={columns}
-        data={supplies}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        data={batches}
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         showDropdown={false}
-        nameColumnId="name"
+        nameColumnId="batch_number"
       />
-      <SuppliesDialogEdit
-        selectedSupplies={selectedSupplies}
-        onClose={onClose}
-        editable={isEditMode}
-      />
+      {selectedSupplies && (
+        <SuppliesDialogEdit
+          selectedSupplies={selectedSupplies}
+          onClose={onClose}
+          editable={isEditMode}
+        />
+      )}
     </div>
   );
 }
