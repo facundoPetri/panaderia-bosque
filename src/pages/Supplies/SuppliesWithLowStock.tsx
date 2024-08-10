@@ -3,7 +3,7 @@ import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
-import { formatDate } from '../../utils/dateUtils';
+import ProviderOrderDialog, { OrderItem } from '../Providers/ProviderOrderDialog';
 
 const columns: Column<TransformedSupplies>[] = [
   { id: '_id', label: 'ID', hiddenColumn: true, sortable: false },
@@ -12,7 +12,7 @@ const columns: Column<TransformedSupplies>[] = [
   { id: 'min_stock', label: 'Stock Mínimo', hiddenFilter: true },
   { id: 'max_stock', label: 'Stock Máximo', hiddenFilter: true },
   { id: 'unit', label: 'Unidad de Medida', hiddenFilter: true },
-  { id: 'priority', label: 'Prioridad' },
+  { id: 'priority', label: 'Prioridad' },// Added a column for "Ver más"
 ];
 
 const dropdownOptions = columns.map(column => ({
@@ -21,24 +21,50 @@ const dropdownOptions = columns.map(column => ({
 
 export default function SuppliesWithLowStock() {
   const [selectedSupplies, setSelectedSupplies] = useState<TransformedSupplies | null>(null);
+  const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]); // Add orderItems state
 
   const onView = (supply: TransformedSupplies) => {
-    setSelectedSupplies(supply);
+    const existingOrderItemIndex = orderItems.findIndex(item => item.id === supply._id);
+
+    if (existingOrderItemIndex !== -1) {
+      // Si el item ya existe, incrementa la cantidad
+      const updatedOrderItems = [...orderItems];
+      updatedOrderItems[existingOrderItemIndex].quantity += 1;
+      setOrderItems(updatedOrderItems);
+    } else {
+      // Si el item no existe, añade un nuevo item con cantidad 1
+      const newOrderItem: OrderItem = {
+        id: supply._id,
+        name: supply.name,
+        quantity: 1,
+      };
+      setOrderItems([...orderItems, newOrderItem]);
+    }
   };
+
 
   const onClose = () => {
-    setSelectedSupplies(null);
-  };
+    setSelectedSupplies(null)
+    setIsCreateMode(false)
+  }
 
   const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con ID: ${id}`);
-    // Lógica para eliminar el elemento con el ID proporcionado
   };
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Lógica para agregar un nuevo elemento
+    setIsCreateMode(true)
+  };
+
+  const handlerSave = async () => {
+    const updatedOrderItems = orderItems.map(item => ({
+      ...item,
+      date_create: new Date().toISOString(),
+    }));
+
+    setOrderItems(updatedOrderItems);
+    console.log(updatedOrderItems);
   };
 
   const calculatePriority = (currentStock: number, minStock: number, maxStock: number): string => {
@@ -97,6 +123,13 @@ export default function SuppliesWithLowStock() {
         onAdd={onAdd}
         nameColumnId="name"
         nameButton="Hacer Pedido"
+      />
+      <ProviderOrderDialog
+        isOpen={isCreateMode}
+        onClose={onClose}
+        orderItems={orderItems}
+        setOrderItems={setOrderItems}
+        onSave={handlerSave}
       />
     </div>
   );
