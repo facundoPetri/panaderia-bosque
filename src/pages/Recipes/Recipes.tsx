@@ -19,7 +19,7 @@ const columns: Column<TransformedRecipes>[] = [
     hiddenFilter: true,
   },
   { id: 'name', label: 'Nombre' },
-  { id: 'ingredients', label: 'Ingredientes', sortable: false },
+  { id: 'supplies', label: 'Ingredientes', sortable: false },
   { id: 'author', label: 'Autor' },
   { id: 'standardUnits', label: 'Usos' },
   { id: 'createdAt', label: 'Fecha de creación' },
@@ -31,17 +31,23 @@ const dropdownOptions = columns.map((column) => ({
 }))
 
 export default function Recipes() {
-  const [selectedRecipe, setSelectedRecipe] = useState<TransformedRecipes | null>(
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(
     null
   )
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
-  const [recipes, setRecipes] = useState<TransformedRecipes[]>([])
+  const [recipes, setRecipes] = useState<RecipesResponse[]>([])
+  const [transformedRecipes, setTransformedRecipes] = useState<
+    TransformedRecipes[]
+  >([])
 
   // Modal
   const onView = (recipe: TransformedRecipes) => {
-    setSelectedRecipe(recipe)
+    const selected = recipes.find((r) => r._id === recipe._id)
+    if (selected) {
+      setSelectedRecipe(selected)
+    }
     setIsEditMode(false)
   }
 
@@ -52,8 +58,6 @@ export default function Recipes() {
   }
 
   const onDelete = async (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`)
-    // Aquí puedes llamar a tu servicio de eliminación con el id
     try {
       const res = await request<any[]>({
         path: `/recipes/${id}`,
@@ -70,9 +74,11 @@ export default function Recipes() {
   const onAdd = () => {
     setIsCreateMode(true)
   }
-
   const handleEdit = (recipe: TransformedRecipes) => {
-    setSelectedRecipe(recipe)
+    const selected = recipes.find((r) => r._id === recipe._id)
+    if (selected) {
+      setSelectedRecipe(selected)
+    }
     setIsEditMode(true)
   }
 
@@ -95,13 +101,13 @@ export default function Recipes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSave = async (recipe: TransformedRecipes) => {
+  const handleSave = async (recipe: RecipesResponse) => {
     //author and supplies, not working
     const data = {
       steps: recipe.steps,
       name: recipe.name,
       recommendations: recipe.recommendations,
-      supplies: recipe.supplies,
+      supplies: recipe.supplies.map((sup) => sup._id),
       standardUnits: Number(recipe.standardUnits),
     }
 
@@ -153,9 +159,9 @@ export default function Recipes() {
         method: 'GET',
       })
       if (res) {
-        console.log(res);
         const transformedData = transformUserData(res)
-        setRecipes(transformedData)
+        setRecipes(res)
+        setTransformedRecipes(transformedData)
       }
     } catch (error) {
       console.error(error)
@@ -168,6 +174,10 @@ export default function Recipes() {
       author: capitalizeFullName(recipe.author.fullname),
       createdAt: formatDate(recipe.createdAt),
       updatedAt: formatDate(recipe.updatedAt),
+      supplies: recipe.supplies
+        .map((supply: SuppliesResponse) => supply.name)
+        .map((str) => str)
+        .join(', '),
     }))
   }
 
@@ -175,13 +185,12 @@ export default function Recipes() {
     getRecipes()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consultar recetas</h1>
       <GenericTable
         columns={columns}
-        data={recipes}
+        data={transformedRecipes}
         dropdownOptions={dropdownOptions} // Agrege dropdownOptions
         onView={onView}
         onDelete={onDelete}
@@ -203,7 +212,7 @@ export default function Recipes() {
         onSave={handleCreate}
         supplies={supplies}
       />
-      <DownloadPdfButton url='http://localhost:3000/recipes/generate-pdf'/>
+      <DownloadPdfButton url="http://localhost:3000/recipes/generate-pdf" />
     </div>
   )
 }

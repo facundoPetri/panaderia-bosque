@@ -75,7 +75,6 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
     standardUnits: '',
   })
   const [avatar, setAvatar] = useState<string | null>(null)
-
   useEffect(() => {
     if (!open) {
       // Limpiar el formulario y el avatar al cerrar el diálogo
