@@ -1,3 +1,4 @@
+import { SuppliesResponse } from './Supplies'
 import { UsersResponse } from './Users'
 
 export interface RecipesResponse {
@@ -10,7 +11,7 @@ export interface RecipesResponse {
   standardUnits: string
   state: true
   steps: string
-  supplies: []
+  supplies: SuppliesResponse[]
   updatedAt: string
 }
 
@@ -24,6 +25,6 @@ export interface TransformedRecipes {
   standardUnits: string
   state: true
   steps: string
-  supplies: []
+  supplies: string
   updatedAt: string
 }

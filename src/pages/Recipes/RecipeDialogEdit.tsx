@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { TransformedRecipes } from '../../interfaces/Recipes'
+import { RecipesResponse, TransformedRecipes } from '../../interfaces/Recipes'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 
 const useStyles = makeStyles({
@@ -25,10 +25,10 @@ const useStyles = makeStyles({
   },
 })
 interface RecipeDialogProps {
-  recipe: TransformedRecipes | null
+  recipe: RecipesResponse | null
   onClose: () => void
   editable?: boolean
-  onSave?: (recipe: TransformedRecipes) => void
+  onSave?: (recipe: RecipesResponse) => void
   supplies: SuppliesResponse[]
 }
 
@@ -40,7 +40,7 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
   supplies,
 }) => {
   const classes = useStyles()
-  const [editedRecipe, setEditedRecipe] = useState<TransformedRecipes | null>(
+  const [editedRecipe, setEditedRecipe] = useState<RecipesResponse | null>(
     recipe
   )
 
@@ -58,6 +58,17 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
       setEditedRecipe({ ...editedRecipe, [name as string]: value })
     }
   }
+  const handleChangeSelect = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    if (editedRecipe) {
+      const { name, value } = event.target
+      const filteredItems = supplies.filter((item) =>
+        (value as string[]).includes(item._id)
+      )
+      setEditedRecipe({ ...editedRecipe, [name as string]: filteredItems })
+    }
+  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (editedRecipe) {
@@ -71,12 +82,14 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
       onSave(editedRecipe)
     }
   }
-
+  console.log(editedRecipe)
   return (
     <Dialog open={!!recipe} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Receta de {recipe.name}</DialogTitle>
       <DialogContent>
-        <Typography variant="subtitle1">Creado por {recipe.author}</Typography>
+        <Typography variant="subtitle1">
+          Creado por {recipe.author.fullname}
+        </Typography>
         <Typography variant="body2">El día {recipe.createdAt}</Typography>
         <Typography variant="body2">{recipe.standardUnits} usos</Typography>
         <FormControlLabel
@@ -106,8 +119,8 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
           className={classes.select}
           name="supplies"
           multiple
-          value={editedRecipe?.supplies}
-          onChange={handleChange}
+          value={editedRecipe?.supplies.map((sup) => sup._id)}
+          onChange={(e) => handleChangeSelect(e)}
           label="Insumos"
           input={<Input />}
           fullWidth
