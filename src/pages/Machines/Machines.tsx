@@ -9,13 +9,15 @@ import {
 import { request } from '../../common/request'
 import { formatDate } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { getRequireMaintenance } from './helper'
 
-const columns: Column<any>[] = [
+const columns: Column<TransformedMachines>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
   { id: 'name', label: 'Nombre' },
   { id: 'purcharse_date', label: 'Fecha de adquisición' },
   { id: 'last_maintenance_date', label: 'Fecha del último mantenimiento' },
-  { id: 'desired_maintenance', label: 'Mantenimiento deseado' },
+  { id: 'desired_maintenance', label: 'Mantenimiento deseado (en días)' },
+  { id: 'require_maintenance', label: 'Requiere mantenimiento' },
 ]
 
 const dropdownOptions = columns
@@ -24,7 +26,7 @@ const dropdownOptions = columns
     title: column.label,
   }))
 
-export default function MachinesMaintenance() {
+export default function Machines() {
   const [selectedMachineMaintenance, setSelectedMachineMaintenance] =
     useState<TransformedMachines | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
@@ -43,11 +45,9 @@ export default function MachinesMaintenance() {
   }
 
   const onDelete = async (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`)
-    // Aquí puedes llamar a tu servicio de eliminación con el id
     try {
       const res = await request<any[]>({
-        path: `machines/${id}`,
+        path: `/machines/${id}`,
         method: 'DELETE',
       })
       if (res) {
@@ -62,8 +62,8 @@ export default function MachinesMaintenance() {
     setIsCreateMode(true)
   }
 
-  const handleEdit = (machineMaintenance: TransformedMachines) => {
-    setSelectedMachineMaintenance(machineMaintenance)
+  const handleEdit = (machineToEdit: TransformedMachines) => {
+    setSelectedMachineMaintenance(machineToEdit)
     setIsEditMode(true)
   }
 
@@ -71,7 +71,7 @@ export default function MachinesMaintenance() {
     const data = {
       name: machineMaintenance.name,
       description: machineMaintenance.description,
-      desired_maintenance: machineMaintenance.desired_maintenance,
+      desired_maintenance: Number(machineMaintenance.desired_maintenance),
       purcharse_date: machineMaintenance.purchase_date,
     }
 
@@ -93,8 +93,6 @@ export default function MachinesMaintenance() {
   }
 
   const handleCreate = async (machineMaintenance: any) => {
-    console.log('Creando usuario', machineMaintenance)
-    // Aquí puedes manejar la lógica para crear un nuevo usuario
     const data = {
       name: machineMaintenance.name,
       description: machineMaintenance.description,
@@ -117,39 +115,18 @@ export default function MachinesMaintenance() {
     setIsCreateMode(false)
   }
 
-  const calculatePriority = (
-    lastMaintenanceDate: string,
-    desiredMaintenance: number
-  ): string => {
-    const now = new Date()
-    const lastMaintenance = new Date(lastMaintenanceDate)
-    const daysDifference = Math.floor(
-      (now.getTime() - lastMaintenance.getTime()) / (1000 * 60 * 60 * 24)
-    )
-    const desiredDays = desiredMaintenance
-
-    if (daysDifference > desiredDays + 5) {
-      return 'Alta'
-    } else if (
-      daysDifference >= desiredDays - 5 &&
-      daysDifference <= desiredDays + 5
-    ) {
-      return 'Media'
-    } else {
-      return 'Baja'
-    }
-  }
-
   const transformUserData = (
     data: MachinesResponse[]
   ): TransformedMachines[] => {
     return data.map((machine) => ({
       ...machine,
       name: machine?.name ? machine.name : '',
-      purchase_date: formatDate(machine.purcharse_date),
       desired_maintenance: machine.desired_maintenance,
-      last_maintenance_date: formatDate(machine.maintenance[0].date || ''),
-      require_maintenance: '',
+      purcharse_date: formatDate(machine.purcharse_date),
+      last_maintenance_date: formatDate(machine.maintenance[0].date),
+      require_maintenance: getRequireMaintenance(
+        machine.require_maintenance || false
+      ),
     }))
   }
 
@@ -172,10 +149,9 @@ export default function MachinesMaintenance() {
     getMachines()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Gestión y mantenimiento de maquinaria</h1>
+      <h1>Consultar Maquinarias</h1>
       <GenericTable
         columns={columns}
         data={machines}
@@ -186,6 +162,17 @@ export default function MachinesMaintenance() {
         onEdit={handleEdit}
         showDropdown={false}
         nameColumnId="name"
+      />
+      <MachineMaintenanceDialogCreate
+        open={isCreateMode}
+        onClose={onClose}
+        onSave={handleCreate}
+      />
+      <MachineMaintenanceDialogEdit
+        machineMaintenance={selectedMachineMaintenance}
+        onClose={onClose}
+        editable={isEditMode}
+        onSave={handleSave}
       />
       <DownloadPdfButton url="http://localhost:3000/machines/generate-pdf" />
     </div>
