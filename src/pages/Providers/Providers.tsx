@@ -5,25 +5,15 @@ import ProviderDialogEdit from './ProviderDialogEdit';
 import { SuppliesResponse } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import ProviderDialogCreate from './ProviderDialogCreate';
+import { ProviderResponse, TransformedProvider } from '../../interfaces/Providers';
 
-const columns: Column<Provider>[] = [
-  { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
+const columns: Column<TransformedProvider>[] = [
+  { id: '_id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
   { id: 'name', label: 'Nombre' },
   { id: 'phone', label: 'Telefono', sortable: false, hiddenFilter: true, },
   { id: 'email', label: 'Email', hiddenFilter: true, },
   { id: 'supplies', label: 'Insumos' },
 ];
-
-export interface Provider {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  supplies: SuppliesResponse[];
-  deliveryTime?: string;
-  supplyType?: string;
-  image?: string;
-}
 
 const dropdownOptions = columns
   .filter(column => !column.hiddenFilter)
@@ -32,15 +22,19 @@ const dropdownOptions = columns
   }));
 
 export default function Providers() {
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderResponse | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
-  const [providers, setProviders] = useState<Provider[]>([]);
+  const [providers, setProviders] = useState<ProviderResponse[]>([]);
+  const [transformedProvider, setTransformedProvider] = useState<TransformedProvider[]>([])
 
-  const onView = (provider: Provider) => {
-    setSelectedProvider(provider);
-    setIsEditMode(false);
+  const onView = (provider: TransformedProvider) => {
+    const selected = providers.find((p) => p._id === provider._id)
+    if (selected) {
+      setSelectedProvider(selected)
+    }
+    setIsEditMode(false)
   };
 
   const onClose = () => {
@@ -67,9 +61,12 @@ export default function Providers() {
     setIsCreateMode(true);
   };
 
-  const onEdit = (provider: Provider) => {
-    setSelectedProvider(provider);
-    setIsEditMode(true);
+  const onEdit = (provider: TransformedProvider) => {
+    const selected = providers.find((p) => p._id === provider._id)
+    if (selected) {
+      setSelectedProvider(selected)
+    }
+    setIsEditMode(true)
   };
 
   const getSupplies = async () => {
@@ -88,22 +85,24 @@ export default function Providers() {
 
   const getProviders = async () => {
     try {
-      const res = await request<Provider[]>({
+      const res = await request<ProviderResponse[]>({
         path: '/providers',
         method: 'GET',
       });
       if (res) {
         setProviders(res);
+        const transformedData = transformData(res)
+        setTransformedProvider(transformedData)
       }
     } catch (error) {
       console.error('Error al obtener proveedores:', error);
     }
   };
 
-  const handleSave = async (provider: Provider) => {
+  const handleSave = async (provider: ProviderResponse) => {
     try {
       const res = await request<any[]>({
-        path: `/providers/${provider.id}`,
+        path: `/providers/${provider._id}`,
         method: 'PATCH',
         data: provider,
       });
@@ -116,7 +115,7 @@ export default function Providers() {
     onClose();
   };
 
-  const handleCreate = async (provider: Provider) => {
+  const handleCreate = async (provider: ProviderResponse) => {
     try {
       const res = await request<any[]>({
         path: '/providers',
@@ -132,6 +131,16 @@ export default function Providers() {
     onClose();
   };
 
+  const transformData = (data: ProviderResponse[]): TransformedProvider[] => {
+    return data.map((provider) => ({
+      ...provider,
+      supplies: provider.supplies
+        .map((supply: SuppliesResponse) => supply.name)
+        .map((str) => str)
+        .join(', '),
+    }))
+  }
+
   useEffect(() => {
     getSupplies();
     getProviders();
@@ -142,7 +151,7 @@ export default function Providers() {
       <h1>Listado de proveedores</h1>
       <GenericTable
         columns={columns}
-        data={providers}
+        data={transformedProvider}
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
