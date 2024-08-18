@@ -26,9 +26,11 @@ const columns: Column<TransformedRecipes>[] = [
   { id: 'updatedAt', label: 'Fecha de modificación' },
 ]
 
-const dropdownOptions = columns.map((column) => ({
-  title: column.label,
-}))
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(

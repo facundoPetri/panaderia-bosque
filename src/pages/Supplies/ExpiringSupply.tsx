@@ -21,9 +21,11 @@ const columns: Column<TransformedBatch>[] = [
   { id: 'quantity', label: 'Cantidad', sortable: true },
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function ExpiringSupply() {
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([]);

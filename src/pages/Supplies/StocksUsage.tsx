@@ -55,9 +55,11 @@ const data: StockUsage[] = [
   }
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function StocksUsage() {
   const [selectedStockUsage, setSelectedStockUsage] = useState<StockUsage | null>(null);

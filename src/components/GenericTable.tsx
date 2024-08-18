@@ -47,6 +47,7 @@ interface GenericTableProps<T extends object> {
   showDropdown?: boolean
   nameColumnId: keyof T
   nameButton?: string
+  hiddenButtonModal?: boolean
 }
 
 const useStyles = makeStyles({
@@ -70,7 +71,8 @@ const GenericTable = <T extends object>({
   dropdownOptions,
   showDropdown = true,
   nameColumnId,
-  nameButton = "Agregar"
+  nameButton = "Agregar",
+  hiddenButtonModal = true
 }: GenericTableProps<T>) => {
   const classes = useStyles()
   const [page, setPage] = useState(0)
@@ -129,6 +131,7 @@ const GenericTable = <T extends object>({
         ? (a, b) => descendingComparator(a, b, orderBy)
         : (a, b) => -descendingComparator(a, b, orderBy)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
@@ -153,14 +156,15 @@ const GenericTable = <T extends object>({
           columns.some(
             (col) =>
               col.label === selectedOption.title &&
+              !col.hiddenFilter && // Validación adicional
               String(row[col.id])
                 .toLowerCase()
                 .includes(searchText.toLowerCase())
-          )
-        return matchesDropdown
+          );
+        return matchesDropdown;
       }),
     [data, selectedOption, searchText, columns]
-  )
+  );
 
   const sortedData = useMemo(
     () =>
@@ -277,9 +281,9 @@ const GenericTable = <T extends object>({
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
-          {onEdit && (
-            <TableCell padding="checkbox"></TableCell>
-          )}
+            {onEdit && (
+              <TableCell padding="checkbox"></TableCell>
+            )}
             {columns.map((column) =>
               column.hiddenColumn ? null : (
                 <TableCell key={column.id as string}>
@@ -297,22 +301,22 @@ const GenericTable = <T extends object>({
                 </TableCell>
               )
             )}
-            <TableCell>Ver más</TableCell>
+            {hiddenButtonModal && (<TableCell>Ver más</TableCell>)}
           </TableRow>
         </TableHead>
         <TableBody className={classes.tableBody}>
           {paginatedData.length > 0 ? (
             paginatedData.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
-              {onEdit && (
-                <TableCell padding="checkbox">
-                  <IconButton onClick={() => handleCheckboxClick(rowIndex)}>
-                    <FontAwesomeIcon
-                      icon={isSelected(rowIndex) ? faSquareCheck : faSquare}
-                    />
-                  </IconButton>
-                </TableCell>
-              )}
+                {onEdit && (
+                  <TableCell padding="checkbox">
+                    <IconButton onClick={() => handleCheckboxClick(rowIndex)}>
+                      <FontAwesomeIcon
+                        icon={isSelected(rowIndex) ? faSquareCheck : faSquare}
+                      />
+                    </IconButton>
+                  </TableCell>
+                )}
                 {columns.map((column) =>
                   column.hiddenColumn ? null : (
                     <TableCell key={column.id as string}>
@@ -320,11 +324,13 @@ const GenericTable = <T extends object>({
                     </TableCell>
                   )
                 )}
-                <TableCell>
-                  <IconButton aria-label="Ver más" onClick={() => onView(row)}>
-                    <FontAwesomeIcon icon={faSquarePlus} />
-                  </IconButton>
-                </TableCell>
+                {hiddenButtonModal && (
+                  <TableCell>
+                    <IconButton aria-label="Ver más" onClick={() => onView(row)}>
+                      <FontAwesomeIcon icon={faSquarePlus} />
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
 
             ))

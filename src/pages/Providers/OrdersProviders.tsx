@@ -65,9 +65,11 @@ const data: Order[] = [
   },
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function OrdersProviders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

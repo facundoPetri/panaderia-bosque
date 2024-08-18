@@ -20,9 +20,11 @@ const columns: Column<TransformedMachines>[] = [
   { id: 'priority', label: 'Prioridad' },
 ]
 
-const dropdownOptions = columns.map((column) => ({
-  title: column.label,
-}))
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function MachinesMaintenance() {
   const [selectedMachineMaintenance, setSelectedMachineMaintenance] =

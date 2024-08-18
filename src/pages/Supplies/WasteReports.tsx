@@ -72,9 +72,11 @@ const data: WasteReport[] = [
   },
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function WasteReports() {
   const [selectedOrder, setSelectedOrder] = useState<WasteReport | null>(null);
