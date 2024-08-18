@@ -15,8 +15,8 @@ import {
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Provider } from './Providers';
 import { SuppliesResponse } from '../../interfaces/Supplies';
+import { ProviderResponse } from '../../interfaces/Providers';
 
 const useStyles = makeStyles((theme) => ({
     closeButton: {
@@ -32,13 +32,13 @@ const useStyles = makeStyles((theme) => ({
     },
     select: {
         marginTop: '1rem',
-      },
+    },
 }));
 
 interface ProviderDialogEditProps {
-    provider: Provider | null;
+    provider: ProviderResponse | null;
     onClose: () => void;
-    onSave: (provider: Provider) => void;
+    onSave: (provider: ProviderResponse) => void;
     editable?: boolean;
     supplies: SuppliesResponse[]
 }
@@ -51,38 +51,43 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
     supplies
 }) => {
     const classes = useStyles();
-    const [formData, setFormData] = useState<Provider>({
-        id: '',
-        name: '',
-        phone: '',
-        email: '',
-        supplies: [],
-    });
+    const [editedProvider, setEditedProvider] = useState<ProviderResponse | null>(provider);
 
     useEffect(() => {
-        if (provider) {
-            setFormData(provider);
-        }
-    }, [provider]);
+        setEditedProvider(provider)
+    }, [provider])
 
     const handleChange = (
         event: React.ChangeEvent<{ name?: string; value: unknown }>
-      ) => {
-        if (formData) {
-          const { name, value } = event.target
-          setFormData({ ...formData, [name as string]: value })
+    ) => {
+        if (editedProvider) {
+            const { name, value } = event.target
+            setEditedProvider({ ...editedProvider, [name as string]: value })
         }
-      }
+    }
+
+    const handleChangeSelect = (
+        event: React.ChangeEvent<{ name?: string; value: unknown }>
+    ) => {
+        if (editedProvider) {
+            const { name, value } = event.target
+            const filteredItems = supplies.filter((item) =>
+                (value as string[]).includes(item._id)
+            )
+            setEditedProvider({ ...editedProvider, [name as string]: filteredItems })
+        }
+    }
 
     const handleSave = () => {
-        onSave(formData);
-        onClose();
-    };
+        if (onSave && editedProvider) {
+            onSave(editedProvider)
+        }
+    }
 
     return (
         <Dialog open={!!provider} onClose={onClose}>
             <DialogTitle>
-                Proveedor: {formData.name}
+                Proveedor: {provider?.name}
                 <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
                     <FontAwesomeIcon icon={faTimes} />
                 </IconButton>
@@ -90,7 +95,7 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
             <DialogContent dividers>
                 <Avatar
                     src={provider?.image || '/path/to/default-image.jpg'} // Imagen del proveedor o una por defecto
-                    alt={formData.name}
+                    alt={provider?.name}
                     className={classes.avatar}
                 />
                 <TextField
@@ -100,7 +105,7 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
                     type="text"
                     fullWidth
                     variant="outlined"
-                    value={formData.name}
+                    value={editedProvider?.name}
                     onChange={handleChange}
                     InputProps={{
                         readOnly: !editable,
@@ -113,7 +118,7 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
                     type="email"
                     fullWidth
                     variant="outlined"
-                    value={formData.email}
+                    value={editedProvider?.email}
                     onChange={handleChange}
                     InputProps={{
                         readOnly: !editable,
@@ -126,7 +131,7 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
                     type="text"
                     fullWidth
                     variant="outlined"
-                    value={formData.phone}
+                    value={editedProvider?.phone}
                     onChange={handleChange}
                     InputProps={{
                         readOnly: !editable,
@@ -136,8 +141,8 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
                     className={classes.select}
                     name="supplies"
                     multiple
-                    value={formData.supplies}
-                    onChange={handleChange}
+                    value={editedProvider?.supplies?.map((sup) => sup._id) || []}
+                    onChange={(e) => handleChangeSelect(e)}
                     label="Insumos"
                     input={<Input />}
                     fullWidth

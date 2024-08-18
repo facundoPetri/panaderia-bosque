@@ -16,8 +16,8 @@ import {
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Provider } from './Providers';
 import { SuppliesResponse } from '../../interfaces/Supplies';
+import { ProviderResponse } from '../../interfaces/Providers';
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -71,7 +71,7 @@ interface ProviderDialogProps {
   open: boolean;
   supplies: SuppliesResponse[];
   onClose: () => void;
-  onSave: (provider: Provider) => void;
+  onSave: (provider: ProviderResponse) => void;
 }
 
 const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
@@ -82,15 +82,15 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
 }) => {
   const classes = useStyles();
 
-  const [formData, setFormData] = useState<Provider>({
-    id: '',
+  const [formData, setFormData] = useState<ProviderResponse>({
+    _id: '',
     name: '',
     email: '',
     phone: '',
-    deliveryTime: '',
-    supplyType: '',
+    estimated_delivery_time: '',
     supplies: [],
     image: '',
+    createdAt: new Date()
   });
   const [avatar, setAvatar] = useState<string | null>(null)
 
@@ -118,14 +118,14 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
   useEffect(() => {
     if (!open) {
       setFormData({
-        id: '',
+        _id: '',
         name: '',
         email: '',
         phone: '',
-        deliveryTime: '',
-        supplyType: '',
+        estimated_delivery_time: '',
         supplies: [],
         image: '',
+        createdAt: new Date()
       });
       setAvatar(null); // Resetea el avatar si es necesario
     }
@@ -146,7 +146,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-      <div className={classes.avatarContainer}>
+        <div className={classes.avatarContainer}>
           <Avatar className={classes.avatar} src={avatar || undefined} />
           <input
             type="file"
@@ -195,7 +195,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           type="text"
           fullWidth
           variant="outlined"
-          value={formData.deliveryTime}
+          value={formData.estimated_delivery_time}
           onChange={handleChange}
         />
         <Select

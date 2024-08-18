@@ -44,7 +44,6 @@ export default function Recipes() {
     TransformedRecipes[]
   >([])
 
-  // Modal
   const onView = (recipe: TransformedRecipes) => {
     const selected = recipes.find((r) => r._id === recipe._id)
     if (selected) {
@@ -97,11 +96,6 @@ export default function Recipes() {
       console.error(error)
     }
   }
-
-  useEffect(() => {
-    getSupplies()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleSave = async (recipe: RecipesResponse) => {
     //author and supplies, not working
@@ -185,8 +179,10 @@ export default function Recipes() {
 
   useEffect(() => {
     getRecipes()
+    getSupplies()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consultar recetas</h1>

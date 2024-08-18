@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { RecipesResponse, TransformedRecipes } from '../../interfaces/Recipes'
+import { RecipesResponse } from '../../interfaces/Recipes'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 
 const useStyles = makeStyles({
@@ -82,7 +82,7 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
       onSave(editedRecipe)
     }
   }
-  console.log(editedRecipe)
+
   return (
     <Dialog open={!!recipe} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Receta de {recipe.name}</DialogTitle>

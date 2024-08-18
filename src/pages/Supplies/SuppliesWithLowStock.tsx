@@ -4,7 +4,7 @@ import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import ProviderOrderDialog, { OrderItem } from '../Providers/ProviderOrderDialog';
-import { Provider } from '../Providers/Providers';
+import { ProviderResponse } from '../../interfaces/Providers';
 
 const columns: Column<TransformedSupplies>[] = [
   { id: '_id', label: 'Id', hiddenColumn: true, sortable: false, hiddenFilter: true },
@@ -30,7 +30,7 @@ export default function SuppliesWithLowStock() {
     date_create: '',
     provider: ''
   });
-  const [providers, setProviders] = useState<Provider[]>([]);
+  const [providers, setProviders] = useState<ProviderResponse[]>([]);
   const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
 
   const onClose = () => {
@@ -88,7 +88,7 @@ export default function SuppliesWithLowStock() {
 
   const getProviders = async () => {
     try {
-      const res = await request<Provider[]>({
+      const res = await request<ProviderResponse[]>({
         path: '/providers',
         method: 'GET',
       });
