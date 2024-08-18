@@ -19,15 +19,17 @@ export interface Provider {
   name: string;
   phone: string;
   email: string;
-  supplies: string[];
+  supplies: SuppliesResponse[];
   deliveryTime?: string;
   supplyType?: string;
   image?: string;
 }
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function Providers() {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);

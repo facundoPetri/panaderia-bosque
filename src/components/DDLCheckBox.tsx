@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Option {
   title: string;
+  hiddenFilter?: boolean;
 }
 
 interface CheckboxDropdownProps {
@@ -24,8 +25,12 @@ const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectio
   const [searchText, setSearchText] = useState('');
 
   const handleOptionChange = (event: React.ChangeEvent<{}>, value: Option | null) => {
+    const option = options.find(opt => opt.title === value?.title);
+    if (option?.hiddenFilter) {
+      setSearchText(''); // Limpiar el texto de búsqueda si se selecciona una opción con hiddenFilter
+    }
     setSelectedOption(value);
-    onSelectionChange(value, searchText);
+    onSelectionChange(value, option?.hiddenFilter ? '' : searchText);
   };
 
   const handleSearchTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,8 +75,8 @@ const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectio
             )}
           />
         </Grid>
-        <Grid item xs={2} style={{ paddingRight: 10 }}>
-          {selectedOption && (
+        {selectedOption && !selectedOption.hiddenFilter && (
+          <Grid item xs={2} style={{ paddingRight: 10 }}>
             <TextField
               label="Buscar"
               placeholder={getPlaceholderText()}
@@ -81,11 +86,11 @@ const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectio
               value={searchText}
               onChange={handleSearchTextChange}
             />
-          )}
-        </Grid>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );
-};
+}
 
 export default CheckboxDropdown;

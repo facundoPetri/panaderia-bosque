@@ -63,9 +63,11 @@ interface ProductionEfficiency {
     },
   ];   
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<ProductionEfficiency | null>(null);

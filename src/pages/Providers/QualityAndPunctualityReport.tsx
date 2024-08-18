@@ -71,9 +71,11 @@ const data: QualityAndPunctuality[] = [
   }
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function QualityAndPunctualityReport() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<QualityAndPunctuality | null>(null);

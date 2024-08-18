@@ -4,73 +4,46 @@ import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import ProviderOrderDialog, { OrderItem } from '../Providers/ProviderOrderDialog';
+import { Provider } from '../Providers/Providers';
 
 const columns: Column<TransformedSupplies>[] = [
-  { id: '_id', label: 'ID', hiddenColumn: true, sortable: false },
+  { id: '_id', label: 'Id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
   { id: 'current_stock', label: 'Stock Actual', hiddenFilter: true },
   { id: 'min_stock', label: 'Stock Mínimo', hiddenFilter: true },
   { id: 'max_stock', label: 'Stock Máximo', hiddenFilter: true },
   { id: 'unit', label: 'Unidad de Medida', hiddenFilter: true },
-  { id: 'priority', label: 'Prioridad' },// Added a column for "Ver más"
+  { id: 'priority', label: 'Prioridad' },
 ];
 
-const dropdownOptions = columns.map(column => ({
-  title: column.label,
-}));
+const dropdownOptions = columns
+  .filter(column => !column.hiddenFilter)
+  .map(column => ({
+    title: column.label,
+  }));
 
 export default function SuppliesWithLowStock() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [name, setName] = useState<string>("Hacer Pedido, insumos agregados: 0");
-
-  const onView = (supply: TransformedSupplies) => {
-    const existingOrderItemIndex = orderItems.findIndex(item => item.id === supply._id);
-
-    let updatedOrderItems = [...orderItems];
-
-    if (existingOrderItemIndex !== -1) {
-      updatedOrderItems[existingOrderItemIndex].quantity += 1;
-    } else {
-      const newOrderItem: OrderItem = {
-        id: supply._id,
-        name: supply.name,
-        quantity: 1,
-      };
-      updatedOrderItems = [...updatedOrderItems, newOrderItem];
-    }
-
-    setOrderItems(updatedOrderItems);
-
-    const totalQuantity = updatedOrderItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    setName(`Hacer Pedido, insumos agregados: ${totalQuantity}`);
-  };
+  const [order, setOrder] = useState<OrderItem>({
+    items: [],
+    date_create: '',
+    provider: ''
+  });
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
 
   const onClose = () => {
-    setIsCreateMode(false)
-    setOrderItems([]);
-    setName("Hacer Pedido, insumos agregados: 0");
-  }
-
-  const onDelete = (id: string) => {
+    setIsCreateMode(false);
+    setOrder({ items: [], date_create: '', provider: '' });
   };
 
   const onAdd = () => {
-    if (orderItems.length > 0) {
-      setIsCreateMode(true);
-    }
+    setIsCreateMode(true);
   };
 
-  const handlerSave = async () => {
-    const updatedOrderItems = orderItems.map(item => ({
-      ...item,
-      date_create: new Date().toISOString(),
-    }));
-
-    setOrderItems(updatedOrderItems);
-    console.log(updatedOrderItems);
+  const handlerSave = (order: OrderItem) => {
+    console.log('Pedido guardado:', order);
     onClose();
   };
 
@@ -113,8 +86,29 @@ export default function SuppliesWithLowStock() {
     }
   };
 
+  const getProviders = async () => {
+    try {
+      const res = await request<Provider[]>({
+        path: '/providers',
+        method: 'GET',
+      });
+      if (res) {
+        setProviders(res);
+
+        const providerProducts: { [provider: string]: SuppliesResponse[] } = {};
+        res.forEach(provider => {
+          providerProducts[provider.name] = provider.supplies;
+        });
+        setProductsByProvider(providerProducts);
+      }
+    } catch (error) {
+      console.error('Error al obtener proveedores:', error);
+    }
+  };
+
   useEffect(() => {
     getSupplies();
+    getProviders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -125,18 +119,21 @@ export default function SuppliesWithLowStock() {
         columns={columns}
         data={supplies}
         dropdownOptions={dropdownOptions}
-        onView={onView}
-        onDelete={onDelete}
+        onView={() => { }}
+        onDelete={() => { }}
         onAdd={onAdd}
         nameColumnId="name"
-        nameButton={name}
+        nameButton={"Hacer Pedido"}
+        hiddenButtonModal={false}
       />
       <ProviderOrderDialog
         isOpen={isCreateMode}
         onClose={onClose}
-        orderItems={orderItems}
-        setOrderItems={setOrderItems}
+        order={order}
+        setOrder={setOrder}
         onSave={handlerSave}
+        providers={providers.map(provider => provider.name)} // Mapeo de nombres de proveedores
+        productsByProvider={productsByProvider}
       />
     </div>
   );
