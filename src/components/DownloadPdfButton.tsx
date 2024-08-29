@@ -4,7 +4,7 @@ import { Button, makeStyles } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   btnContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
