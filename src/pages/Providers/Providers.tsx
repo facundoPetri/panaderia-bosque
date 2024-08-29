@@ -6,6 +6,7 @@ import { SuppliesResponse } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import ProviderDialogCreate from './ProviderDialogCreate';
 import { ProviderResponse, TransformedProvider } from '../../interfaces/Providers';
+import DownloadPdfButton from '../../components/DownloadPdfButton';
 
 const columns: Column<TransformedProvider>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
@@ -172,6 +173,7 @@ export default function Providers() {
         onSave={handleCreate}
         supplies={supplies}
       />
+      <DownloadPdfButton url="http://localhost:3000/providers/generate-pdf" />
     </div>
   );
 }
