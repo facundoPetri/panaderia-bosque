@@ -5,7 +5,7 @@ import UserDialogCreate from './UserDialogCreate'
 import UserDialogEdit from './UserDialogEdit'
 import { TransformedUser, UsersResponse } from '../../interfaces/Users'
 import { request } from '../../common/request'
-import { formatDate } from '../../utils/dateUtils'
+import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 
 const columns: Column<TransformedUser>[] = [
@@ -117,7 +117,7 @@ export default function Userstable() {
       fullname: user?.fullname ? user.fullname : '',
       state: user.state ? 'Activo' : 'Inactivo',
       type: user?.type ? user.type : '',
-      createdAt: formatDate(user.createdAt),
+      createdAt: formatISODateString(user.createdAt),
       lastSession: user?.lastSession
         ? new Date(user?.lastSession).toLocaleDateString()
         : '',

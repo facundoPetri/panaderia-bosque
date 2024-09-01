@@ -71,8 +71,8 @@ const GenericTable = <T extends object>({
   dropdownOptions,
   showDropdown = true,
   nameColumnId,
-  nameButton = "Agregar",
-  hiddenButtonModal = true
+  nameButton = 'Agregar',
+  hiddenButtonModal = true,
 }: GenericTableProps<T>) => {
   const classes = useStyles()
   const [page, setPage] = useState(0)
@@ -160,11 +160,11 @@ const GenericTable = <T extends object>({
               String(row[col.id])
                 .toLowerCase()
                 .includes(searchText.toLowerCase())
-          );
-        return matchesDropdown;
+          )
+        return matchesDropdown
       }),
     [data, selectedOption, searchText, columns]
-  );
+  )
 
   const sortedData = useMemo(
     () =>
@@ -281,9 +281,7 @@ const GenericTable = <T extends object>({
       <Table aria-label="generic table">
         <TableHead>
           <TableRow>
-            {onEdit && (
-              <TableCell padding="checkbox"></TableCell>
-            )}
+            {onEdit && <TableCell padding="checkbox"></TableCell>}
             {columns.map((column) =>
               column.hiddenColumn ? null : (
                 <TableCell key={column.id as string}>
@@ -301,7 +299,7 @@ const GenericTable = <T extends object>({
                 </TableCell>
               )
             )}
-            {hiddenButtonModal && (<TableCell>Ver más</TableCell>)}
+            {hiddenButtonModal && <TableCell>Ver más</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody className={classes.tableBody}>
@@ -326,13 +324,15 @@ const GenericTable = <T extends object>({
                 )}
                 {hiddenButtonModal && (
                   <TableCell>
-                    <IconButton aria-label="Ver más" onClick={() => onView(row)}>
+                    <IconButton
+                      aria-label="Ver más"
+                      onClick={() => onView(row)}
+                    >
                       <FontAwesomeIcon icon={faSquarePlus} />
                     </IconButton>
                   </TableCell>
                 )}
               </TableRow>
-
             ))
           ) : (
             <TableRow>

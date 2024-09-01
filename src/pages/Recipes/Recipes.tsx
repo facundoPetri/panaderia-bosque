@@ -5,7 +5,7 @@ import RecipeDialogCreate from './RecipeDialogCreate'
 import { Column } from '../../components/GenericTable'
 import { RecipesResponse, TransformedRecipes } from '../../interfaces/Recipes'
 import { request } from '../../common/request'
-import { formatDate } from '../../utils/dateUtils'
+import { formatISODateString } from '../../utils/dateUtils'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { capitalizeFullName } from '../../utils/capitalizeFullName'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
@@ -27,10 +27,10 @@ const columns: Column<TransformedRecipes>[] = [
 ]
 
 const dropdownOptions = columns
-  .filter(column => !column.hiddenFilter)
-  .map(column => ({
+  .filter((column) => !column.hiddenFilter)
+  .map((column) => ({
     title: column.label,
-  }));
+  }))
 
 export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(
@@ -168,8 +168,8 @@ export default function Recipes() {
     return data.map((recipe) => ({
       ...recipe,
       author: capitalizeFullName(recipe.author.fullname),
-      createdAt: formatDate(recipe.createdAt),
-      updatedAt: formatDate(recipe.updatedAt),
+      createdAt: formatISODateString(recipe.createdAt),
+      updatedAt: formatISODateString(recipe.updatedAt),
       supplies: recipe.supplies
         .map((supply: SuppliesResponse) => supply.name)
         .map((str) => str)

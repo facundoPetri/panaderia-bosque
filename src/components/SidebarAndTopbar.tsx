@@ -109,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
   },
   topbar: {
     display: 'flex',
-    justifyContent:'space-between'
+    justifyContent: 'space-between',
   },
 }))
 interface LinkItem {
@@ -197,7 +197,11 @@ const SidebarAndTopbar = () => {
     },
   ]
   const maquinariasRoutes: LinkItem[] = [
-    { name: 'Gestión y mantenimiento de maquinarias', path: '/machinery' },
+    { name: 'Consulta de maquinarias', path: '/machinery' },
+    {
+      name: 'Gestión y mantenimiento de maquinarias',
+      path: '/machinery/maintenance',
+    },
   ]
   const getSubmenuItems = (name: string) => {
     switch (name) {
@@ -238,10 +242,12 @@ const SidebarAndTopbar = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmLogout} color="primary" variant='contained'>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button
+            onClick={handleConfirmLogout}
+            color="primary"
+            variant="contained"
+          >
             Confirmar
           </Button>
         </DialogActions>
