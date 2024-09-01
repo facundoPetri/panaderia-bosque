@@ -19,6 +19,7 @@ import {
 } from '../pages/index'
 import SidebarAndTopbar from '../components/SidebarAndTopbar'
 import Machines from '../pages/Machines/Machines'
+import Batches from '../pages/Batches/Batches'
 
 const useStyles = makeStyles({
   wrapper: {
@@ -45,6 +46,7 @@ const AppPage = () => {
             path="/supplies/productionEfficiency"
             element={<ProductionEfficiencies />}
           />
+          <Route path="/supplies/batches" element={<Batches />} />
           <Route path="/users" element={<Users />} />
           <Route path="/providers" element={<Providers />} />
           <Route path="/providers/orders" element={<OrdersProviders />} />

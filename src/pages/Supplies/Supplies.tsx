@@ -149,7 +149,7 @@ export default function Supplies() {
       <h1>Consulta de insumos</h1>
       <GenericTable
         columns={columns}
-        data={supplies} //TODO: reemplazar fake data por supplies
+        data={supplies}
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
