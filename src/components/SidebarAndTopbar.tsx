@@ -178,6 +178,10 @@ const SidebarAndTopbar = () => {
       name: 'Eficiencia de producción',
       path: '/supplies/productionEfficiency',
     },
+    {
+      name: 'Lotes de insumos',
+      path: '/supplies/batches',
+    },
   ]
   const usuariosRoutes: LinkItem[] = [
     { name: 'Consulta de usuarios', path: '/users' },
