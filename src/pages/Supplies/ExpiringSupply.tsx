@@ -5,6 +5,7 @@ import { SuppliesResponse, TransformedBatch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import { formatDate } from '../../utils/dateUtils';
 import SuppliesDialogEdit from './SuppliesDialogEdit';
+import DownloadPdfButton from '../../components/DownloadPdfButton';
 
 const columns: Column<TransformedBatch>[] = [
   {
@@ -102,6 +103,7 @@ export default function ExpiringSupply() {
           editable={isEditMode}
         />
       )}
+      <DownloadPdfButton url='http://localhost:3000/batch/generate-pdf'/>
     </div>
   );
 }

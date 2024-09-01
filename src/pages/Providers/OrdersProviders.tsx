@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
+import DownloadPdfButton from '../../components/DownloadPdfButton';
 
 const columns: Column<Order>[] = [
   { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
@@ -104,6 +105,7 @@ export default function OrdersProviders() {
         onAdd={onAdd}
         nameColumnId="orderNumber"
       />
+      <DownloadPdfButton url="http://localhost:3000/orders/generate-pdf" />
     </div>
   );
 }
