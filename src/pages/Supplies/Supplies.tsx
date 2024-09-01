@@ -4,7 +4,7 @@ import SuppliesDialogEdit from './SuppliesDialogEdit'
 import SuppliesDialogCreate from './SuppliesDialogCreate'
 import { request } from '../../common/request'
 import { SuppliesCreateData, SuppliesResponse } from '../../interfaces/Supplies'
-import { formatDate } from '../../utils/dateUtils'
+import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 
 const columns: Column<SuppliesResponse>[] = [
@@ -77,7 +77,7 @@ export default function Supplies() {
       if (res) {
         const formattedSupplies = res.map((supplie) => ({
           ...supplie,
-          updatedAt: formatDate(supplie.updatedAt),
+          updatedAt: formatISODateString(supplie.updatedAt),
         }))
         setSupplies(formattedSupplies)
       }
@@ -168,7 +168,7 @@ export default function Supplies() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url='http://localhost:3000/supplies/generate-pdf'/>
+      <DownloadPdfButton url="http://localhost:3000/supplies/generate-pdf" />
     </div>
   )
 }

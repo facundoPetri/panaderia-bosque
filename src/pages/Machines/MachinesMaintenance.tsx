@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import GenericTable, { Column } from '../../components/GenericTable'
-import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit'
-import MachineMaintenanceDialogCreate from './MachinesMaintenanceDialogCreate'
-import {
-  MachinesResponse,
-  TransformedMachines,
-} from '../../interfaces/Machines'
 import { request } from '../../common/request'
-import { formatDate } from '../../utils/dateUtils'
+import {
+  convertToFullDateString,
+  formatISODateString,
+} from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import {
+  Maintenance,
+  TransformedMaintenance,
+} from '../../interfaces/Maintenance'
+import MachinesMaintenanceDialog from './MachinesMaintenanceDialog'
+import { MachinesResponse } from '../../interfaces/Machines'
+import MaintenanceDialogCreate from './MaintenanceDialogCreate'
 
 const columns: Column<any>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
-  { id: 'name', label: 'Nombre' },
-  { id: 'purcharse_date', label: 'Fecha de adquisición' },
-  { id: 'last_maintenance_date', label: 'Fecha del último mantenimiento' },
-  { id: 'desired_maintenance', label: 'Mantenimiento deseado' },
+  { id: 'date', label: 'Fecha' },
+  { id: 'machine', label: 'Maquinaria' },
+  { id: 'user', label: 'Empleado' },
 ]
 
 const dropdownOptions = columns
@@ -25,33 +28,32 @@ const dropdownOptions = columns
   }))
 
 export default function MachinesMaintenance() {
-  const [selectedMachineMaintenance, setSelectedMachineMaintenance] =
-    useState<TransformedMachines | null>(null)
+  const [selectedMaintenance, setSelectedMaintenance] =
+    useState<TransformedMaintenance | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
-  const [machines, setMachines] = useState<TransformedMachines[]>([])
+  const [machines, setMachines] = useState<MachinesResponse[]>([])
+  const [maintenances, setMaintenances] = useState<TransformedMaintenance[]>([])
 
-  const onView = (machineMaintenance: TransformedMachines) => {
-    setSelectedMachineMaintenance(machineMaintenance)
+  const onView = (item: TransformedMaintenance) => {
+    setSelectedMaintenance(item)
     setIsEditMode(false)
   }
 
   const onClose = () => {
-    setSelectedMachineMaintenance(null)
+    setSelectedMaintenance(null)
     setIsEditMode(false)
     setIsCreateMode(false)
   }
 
   const onDelete = async (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`)
-    // Aquí puedes llamar a tu servicio de eliminación con el id
     try {
       const res = await request<any[]>({
-        path: `machines/${id}`,
+        path: `/maintenance/${id}`,
         method: 'DELETE',
       })
       if (res) {
-        getMachines()
+        getMaintenances()
       }
     } catch (error) {
       console.error(error)
@@ -62,54 +64,49 @@ export default function MachinesMaintenance() {
     setIsCreateMode(true)
   }
 
-  const handleEdit = (machineMaintenance: TransformedMachines) => {
-    setSelectedMachineMaintenance(machineMaintenance)
+  const handleEdit = (item: TransformedMaintenance) => {
+    setSelectedMaintenance(item)
     setIsEditMode(true)
   }
 
   const handleSave = async (machineMaintenance: any) => {
     const data = {
-      name: machineMaintenance.name,
       description: machineMaintenance.description,
-      desired_maintenance: machineMaintenance.desired_maintenance,
-      purcharse_date: machineMaintenance.purchase_date,
+      date: convertToFullDateString(machineMaintenance.date),
     }
 
     try {
       const res = await request<any[]>({
-        path: `/machines/${machineMaintenance._id}`,
+        path: `/maintenance/${machineMaintenance._id}`,
         method: 'PATCH',
         data,
       })
       if (res) {
-        getMachines()
+        getMaintenances()
       }
     } catch (error) {
       console.error(error)
     }
-    setSelectedMachineMaintenance(null)
+    setSelectedMaintenance(null)
     setIsEditMode(false)
     setIsCreateMode(false)
   }
 
   const handleCreate = async (machineMaintenance: any) => {
-    console.log('Creando usuario', machineMaintenance)
-    // Aquí puedes manejar la lógica para crear un nuevo usuario
     const data = {
-      name: machineMaintenance.name,
       description: machineMaintenance.description,
-      desired_maintenance: Number(machineMaintenance.desired_maintenance),
-      purcharse_date: machineMaintenance.purcharse_date,
+      date: machineMaintenance.date,
+      machine: machineMaintenance.machine,
     }
 
     try {
       const res = await request<any[]>({
-        path: '/machines',
+        path: '/maintenance',
         method: 'POST',
         data,
       })
       if (res) {
-        getMachines()
+        getMaintenances()
       }
     } catch (error) {
       console.error(error)
@@ -117,42 +114,34 @@ export default function MachinesMaintenance() {
     setIsCreateMode(false)
   }
 
-  const calculatePriority = (
-    lastMaintenanceDate: string,
-    desiredMaintenance: number
-  ): string => {
-    const now = new Date()
-    const lastMaintenance = new Date(lastMaintenanceDate)
-    const daysDifference = Math.floor(
-      (now.getTime() - lastMaintenance.getTime()) / (1000 * 60 * 60 * 24)
-    )
-    const desiredDays = desiredMaintenance
-
-    if (daysDifference > desiredDays + 5) {
-      return 'Alta'
-    } else if (
-      daysDifference >= desiredDays - 5 &&
-      daysDifference <= desiredDays + 5
-    ) {
-      return 'Media'
-    } else {
-      return 'Baja'
-    }
-  }
-
-  const transformUserData = (
-    data: MachinesResponse[]
-  ): TransformedMachines[] => {
-    return data.map((machine) => ({
-      ...machine,
-      name: machine?.name ? machine.name : '',
-      purchase_date: formatDate(machine.purcharse_date),
-      desired_maintenance: machine.desired_maintenance,
-      last_maintenance_date: formatDate(machine.maintenance[0].date || ''),
-      require_maintenance: '',
+  const transformUserData = (data: Maintenance[]): TransformedMaintenance[] => {
+    return data.map((item) => ({
+      ...item,
+      machine: item.machine.name,
+      user: item.user.fullname,
+      date: formatISODateString(item.date),
     }))
   }
 
+  const getMaintenances = async () => {
+    try {
+      const res = await request<Maintenance[]>({
+        path: '/maintenance',
+        method: 'GET',
+      })
+      if (res) {
+        const transformedData = transformUserData(res)
+        setMaintenances(transformedData)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getMaintenances()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const getMachines = async () => {
     try {
       const res = await request<MachinesResponse[]>({
@@ -160,8 +149,7 @@ export default function MachinesMaintenance() {
         method: 'GET',
       })
       if (res) {
-        const transformedData = transformUserData(res)
-        setMachines(transformedData)
+        setMachines(res)
       }
     } catch (error) {
       console.error(error)
@@ -172,22 +160,33 @@ export default function MachinesMaintenance() {
     getMachines()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión y mantenimiento de maquinaria</h1>
       <GenericTable
         columns={columns}
-        data={machines}
+        data={maintenances}
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         onEdit={handleEdit}
         showDropdown={false}
-        nameColumnId="name"
+        nameColumnId="_id"
       />
-      <DownloadPdfButton url="http://localhost:3000/machines/generate-pdf" />
+      <MaintenanceDialogCreate
+        open={isCreateMode}
+        onClose={onClose}
+        onSave={handleCreate}
+        machines={machines}
+      />
+      <MachinesMaintenanceDialog
+        selectedMaintenance={selectedMaintenance}
+        onClose={onClose}
+        editable={isEditMode}
+        onSave={handleSave}
+      />
+      <DownloadPdfButton url="http://localhost:3000/maintenance/generate-pdf" />
     </div>
   )
 }

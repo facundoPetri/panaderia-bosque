@@ -9,8 +9,11 @@ import {
   Grid,
   makeStyles,
 } from '@material-ui/core'
-import { TransformedMachines } from '../../interfaces/Machines'
-import { formatDateStringBack } from '../../utils/dateUtils'
+import {
+  convertToDisplayDateString,
+  convertToFullDateString,
+} from '../../utils/dateUtils'
+import { TransformedMaintenance } from '../../interfaces/Maintenance'
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -18,36 +21,43 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-interface MachineMaintenanceModalProps {
-  machineMaintenance: TransformedMachines | null
+interface MachinesMaintenanceDialogProps {
+  selectedMaintenance: TransformedMaintenance | null
   onClose: () => void
   editable?: boolean
-  onSave?: (machineMaintenance: TransformedMachines) => void
+  onSave?: (machineMaintenance: TransformedMaintenance) => void
 }
 
-const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
-  machineMaintenance,
+const MachinesMaintenanceDialog: React.FC<MachinesMaintenanceDialogProps> = ({
+  selectedMaintenance,
   onClose,
   editable = false,
   onSave,
 }) => {
   const [editedMachineMaintenance, setEditedMachineMaintenance] =
-    useState<TransformedMachines | null>(machineMaintenance)
+    useState<TransformedMaintenance | null>(selectedMaintenance)
   const classes = useStyles()
 
   useEffect(() => {
-    setEditedMachineMaintenance(machineMaintenance)
-  }, [machineMaintenance])
+    setEditedMachineMaintenance(selectedMaintenance)
+  }, [selectedMaintenance])
 
-  if (!machineMaintenance) return null
+  if (!selectedMaintenance) return null
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (editedMachineMaintenance) {
       const { name, value } = event.target
-      setEditedMachineMaintenance({
-        ...editedMachineMaintenance,
-        [name]: value,
-      })
+      if (name === 'date') {
+        setEditedMachineMaintenance({
+          ...editedMachineMaintenance,
+          [name]: convertToDisplayDateString(value),
+        })
+      } else {
+        setEditedMachineMaintenance({
+          ...editedMachineMaintenance,
+          [name]: value,
+        })
+      }
     }
   }
 
@@ -56,27 +66,47 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
       onSave(editedMachineMaintenance)
     }
   }
+
   console.log(editedMachineMaintenance)
   return (
     <Dialog
-      open={!!machineMaintenance}
+      open={!!selectedMaintenance}
       onClose={onClose}
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>{machineMaintenance.name}</DialogTitle>
+      <DialogTitle>{selectedMaintenance.machine}</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Nombre"
-              name="name"
-              value={editedMachineMaintenance?.name || ''}
+              type="date"
+              label="Fecha del mantenimiento"
+              name="date"
+              value={convertToFullDateString(
+                editedMachineMaintenance?.date || ''
+              )}
+              variant="outlined"
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                readOnly: !editable,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Usuario"
+              name="user"
+              value={editedMachineMaintenance?.user || ''}
               variant="outlined"
               onChange={handleChange}
               InputProps={{
-                readOnly: !editable,
+                readOnly: true,
               }}
             />
           </Grid>
@@ -88,47 +118,13 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
               value={editedMachineMaintenance?.description || ''}
               variant="outlined"
               onChange={handleChange}
+              multiline
+              rows={3}
               InputProps={{
                 readOnly: !editable,
               }}
             />
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Mantenimiento deseado (en días)"
-              name="desired_maintenance"
-              value={editedMachineMaintenance?.desired_maintenance || ''}
-              variant="outlined"
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !editable,
-              }}
-            />
-          </Grid>
-          {!editable && (
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Fecha del último mantenimiento"
-                name="last_maintenance_date"
-                value={
-                  formatDateStringBack(
-                    editedMachineMaintenance?.last_maintenance_date || ''
-                  ) || ''
-                }
-                variant="outlined"
-                onChange={handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  readOnly: !editable,
-                }}
-              />
-            </Grid>
-          )}
         </Grid>
       </DialogContent>
       <DialogActions>
@@ -145,4 +141,4 @@ const MachineMaintenanceDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
   )
 }
 
-export default MachineMaintenanceDialogEdit
+export default MachinesMaintenanceDialog

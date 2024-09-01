@@ -8,15 +8,17 @@ import {
   TextField,
 } from '@material-ui/core'
 
-interface MachineMaintenanceDialogCreateProps {
+interface MachineDialogCreateProps {
   open: boolean
   onClose: () => void
   onSave: (machineMaintenance: any) => void
 }
 
-const MachineMaintenanceDialogCreate: React.FC<
-  MachineMaintenanceDialogCreateProps
-> = ({ open, onClose, onSave }) => {
+const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
+  open,
+  onClose,
+  onSave,
+}) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [acquisitionDate, setAcquisitionDate] = useState('')
@@ -90,4 +92,4 @@ const MachineMaintenanceDialogCreate: React.FC<
   )
 }
 
-export default MachineMaintenanceDialogCreate
+export default MachineDialogCreate

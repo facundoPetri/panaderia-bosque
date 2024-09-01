@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import GenericTable, { Column } from '../../components/GenericTable'
-import MachineMaintenanceDialogEdit from './MachineMaintenanceDialogEdit'
-import MachineMaintenanceDialogCreate from './MachinesMaintenanceDialogCreate'
+import MachineDialogEdit from './MachineDialogEdit'
+import MachineDialogCreate from './MachineDialogCreate'
 import {
   MachinesResponse,
   TransformedMachines,
 } from '../../interfaces/Machines'
 import { request } from '../../common/request'
-import { formatDate } from '../../utils/dateUtils'
+import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { getRequireMaintenance } from './helper'
 
@@ -122,8 +122,8 @@ export default function Machines() {
       ...machine,
       name: machine?.name ? machine.name : '',
       desired_maintenance: machine.desired_maintenance,
-      purcharse_date: formatDate(machine.purcharse_date),
-      last_maintenance_date: formatDate(machine.maintenance[0].date),
+      purcharse_date: formatISODateString(machine.purcharse_date),
+      last_maintenance_date: formatISODateString(machine.maintenance[0].date),
       require_maintenance: getRequireMaintenance(
         machine.require_maintenance || false
       ),
@@ -163,12 +163,12 @@ export default function Machines() {
         showDropdown={false}
         nameColumnId="name"
       />
-      <MachineMaintenanceDialogCreate
+      <MachineDialogCreate
         open={isCreateMode}
         onClose={onClose}
         onSave={handleCreate}
       />
-      <MachineMaintenanceDialogEdit
+      <MachineDialogEdit
         machineMaintenance={selectedMachineMaintenance}
         onClose={onClose}
         editable={isEditMode}

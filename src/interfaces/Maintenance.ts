@@ -8,3 +8,10 @@ export interface Maintenance {
     user: UsersResponse
     machine: MachinesResponse
   }
+  export interface TransformedMaintenance {
+    _id: string
+    date: string
+    description: string
+    user: string
+    machine: string
+  }
