@@ -3,8 +3,9 @@ import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
-import ProviderOrderDialog, { OrderItem } from '../Providers/ProviderOrderDialog';
+import ProviderOrderDialog from '../Providers/ProviderOrderDialog';
 import { ProviderResponse } from '../../interfaces/Providers';
+import { OrderResponse } from '../../interfaces/Orders';
 
 const columns: Column<TransformedSupplies>[] = [
   { id: '_id', label: 'Id', hiddenColumn: true, sortable: false, hiddenFilter: true },
@@ -25,24 +26,48 @@ const dropdownOptions = columns
 export default function SuppliesWithLowStock() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
-  const [order, setOrder] = useState<OrderItem>({
-    items: [],
-    date_create: '',
-    provider: ''
+  const [order, setOrder] = useState<OrderResponse>({
+    _id: '',
+    number: 0,
+    date: new Date(),
+    created_at: new Date(),
+    provider: {
+      _id: '',
+      name: '',
+      phone: '',
+      email: '',
+      supplies: [],
+      createdAt: new Date(),
+    },
+    supplies: [],
   });
   const [providers, setProviders] = useState<ProviderResponse[]>([]);
   const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
 
   const onClose = () => {
     setIsCreateMode(false);
-    setOrder({ items: [], date_create: '', provider: '' });
   };
 
   const onAdd = () => {
+    setOrder({
+      _id: '',
+      number: 0,
+      date: new Date(),
+      created_at: new Date(),
+      provider: {
+        _id: '',
+        name: '',
+        phone: '',
+        email: '',
+        supplies: [],
+        createdAt: new Date(),
+      },
+      supplies: [],
+    });
     setIsCreateMode(true);
   };
 
-  const handlerSave = (order: OrderItem) => {
+  const handlerSave = (order: OrderResponse) => {
     console.log('Pedido guardado:', order);
     onClose();
   };
@@ -97,7 +122,7 @@ export default function SuppliesWithLowStock() {
 
         const providerProducts: { [provider: string]: SuppliesResponse[] } = {};
         res.forEach(provider => {
-          providerProducts[provider.name] = provider.supplies;
+          providerProducts[provider._id] = provider.supplies;
         });
         setProductsByProvider(providerProducts);
       }
@@ -132,7 +157,7 @@ export default function SuppliesWithLowStock() {
         order={order}
         setOrder={setOrder}
         onSave={handlerSave}
-        providers={providers.map(provider => provider.name)} // Mapeo de nombres de proveedores
+        providers={providers}
         productsByProvider={productsByProvider}
       />
     </div>
