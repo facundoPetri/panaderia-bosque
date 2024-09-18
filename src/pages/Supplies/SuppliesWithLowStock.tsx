@@ -3,7 +3,7 @@ import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
-import ProviderOrderDialog from '../Providers/ProviderOrderDialog';
+import ProviderOrderDialogCreate from '../Providers/ProviderOrderDialogCreate';
 import { ProviderResponse } from '../../interfaces/Providers';
 import { OrderResponse } from '../../interfaces/Orders';
 
@@ -26,21 +26,7 @@ const dropdownOptions = columns
 export default function SuppliesWithLowStock() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
-  const [order, setOrder] = useState<OrderResponse>({
-    _id: '',
-    number: 0,
-    date: new Date(),
-    created_at: new Date(),
-    provider: {
-      _id: '',
-      name: '',
-      phone: '',
-      email: '',
-      supplies: [],
-      createdAt: new Date(),
-    },
-    supplies: [],
-  });
+  const [order, setOrder] = useState<OrderResponse | null>(null);
   const [providers, setProviders] = useState<ProviderResponse[]>([]);
   const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
 
@@ -49,21 +35,7 @@ export default function SuppliesWithLowStock() {
   };
 
   const onAdd = () => {
-    setOrder({
-      _id: '',
-      number: 0,
-      date: new Date(),
-      created_at: new Date(),
-      provider: {
-        _id: '',
-        name: '',
-        phone: '',
-        email: '',
-        supplies: [],
-        createdAt: new Date(),
-      },
-      supplies: [],
-    });
+    setOrder(null);
     setIsCreateMode(true);
   };
 
@@ -151,7 +123,7 @@ export default function SuppliesWithLowStock() {
         nameButton={"Hacer Pedido"}
         hiddenButtonModal={false}
       />
-      <ProviderOrderDialog
+      <ProviderOrderDialogCreate
         isOpen={isCreateMode}
         onClose={onClose}
         order={order}

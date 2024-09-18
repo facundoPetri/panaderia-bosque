@@ -9,56 +9,54 @@ import { faTrash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { OrderResponse } from '../../interfaces/Orders';
 import { ProviderResponse } from '../../interfaces/Providers';
 import { SuppliesResponse } from '../../interfaces/Supplies';
+
 interface ProviderOrderDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    order: OrderResponse;
-    setOrder: React.Dispatch<React.SetStateAction<OrderResponse>>;
+    order: OrderResponse | null;
+    setOrder: React.Dispatch<React.SetStateAction<OrderResponse | null>>;
     onSave: (order: OrderResponse) => void;
     providers: ProviderResponse[];
     productsByProvider: { [providerId: string]: SuppliesResponse[] };
 }
 
-const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
+
+const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
     isOpen, onClose, order, setOrder, onSave, providers, productsByProvider
 }) => {
-    const [selectedProvider, setSelectedProvider] = useState<string | null>(order.provider?._id || null);
+    const [selectedProvider, setSelectedProvider] = useState<string | null>(order?.provider?._id || null);
 
-    const updateOrderTotal = (supplies: SuppliesResponse[]) => {
-        const totalQuantity = supplies.reduce((total, supply) => total + (supply.batches?.reduce((batchTotal, batch) => batchTotal + batch.quantity, 0) || 0), 0);
-        setOrder(prevOrder => ({
+    const updateOrderTotal = (supplies: SuppliesResponse[] = []) => {
+        if (!order) return;
+
+        const totalQuantity = supplies.reduce((total, supply) =>
+            total + (supply.batches?.reduce((batchTotal, batch) => batchTotal + batch.quantity, 0) || 0), 0);
+
+        setOrder(prevOrder => prevOrder ? ({
             ...prevOrder,
             supplies,
             number: totalQuantity,
-        }));
-    };
-
-    const handleProviderChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const providerId = event.target.value as string;
-        const provider = providers.find(p => p._id === providerId)!;
-        setSelectedProvider(providerId);
-        updateOrderTotal([]);
-        setOrder(prevOrder => ({
-            ...prevOrder,
-            provider: provider,
-            supplies: [],
-        }));
+        }) : null);
     };
 
     const handleProductSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
         const selectedProductIds = event.target.value as string[];
+
+        if (!selectedProvider || !productsByProvider[selectedProvider]) return;
+
         const selectedProducts = selectedProductIds.map(id =>
-            productsByProvider[selectedProvider!].find(product => product._id === id)!
+            productsByProvider[selectedProvider].find(product => product._id === id)!
         );
 
         const newProducts = selectedProducts.filter(product =>
-            !order.supplies.some(existingProduct => existingProduct._id === product._id)
+            !order?.supplies?.some(existingProduct => existingProduct._id === product._id)
         ).map(product => ({ ...product, batches: product.batches?.map(batch => ({ ...batch, quantity: 0 })) || [] }));
 
-        updateOrderTotal([...order.supplies, ...newProducts]);
+        updateOrderTotal([...(order?.supplies || []), ...newProducts]);
     };
 
     const handleQuantityChange = (id: string, batchId: string, newQuantity: number) => {
+        if (!order?.supplies) return;
         const updatedSupplies = order.supplies.map(supply =>
             supply._id === id ? {
                 ...supply,
@@ -71,6 +69,7 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
     };
 
     const handleIncreaseQuantity = (id: string, batchId: string) => {
+        if (!order?.supplies) return;
         const updatedSupplies = order.supplies.map(supply =>
             supply._id === id ? {
                 ...supply,
@@ -83,6 +82,7 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
     };
 
     const handleDecreaseQuantity = (id: string, batchId: string) => {
+        if (!order?.supplies) return;
         const updatedSupplies = order.supplies.map(supply =>
             supply._id === id ? {
                 ...supply,
@@ -95,8 +95,25 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
     };
 
     const handleRemoveFromOrder = (id: string) => {
+        if (!order?.supplies) return;
         const updatedSupplies = order.supplies.filter(supply => supply._id !== id);
         updateOrderTotal(updatedSupplies);
+    };
+
+    const handleProviderChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        const providerId = event.target.value as string;
+        const provider = providers.find(p => p._id === providerId)!;
+
+        // Usar setSelectedProvider para actualizar el estado
+        setSelectedProvider(providerId);
+
+        if (order) {
+            setOrder(prevOrder => prevOrder ? ({
+                ...prevOrder,
+                provider: provider,
+                supplies: [],
+            }) : null);
+        }
     };
 
     return (
@@ -120,7 +137,7 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
                                 <InputLabel>Seleccionar Productos</InputLabel>
                                 <Select
                                     multiple
-                                    value={order.supplies.map(supply => supply._id)}
+                                    value={order?.supplies.map(supply => supply._id)}
                                     onChange={handleProductSelect}
                                     renderValue={(selected) =>
                                         (selected as string[]).map((id: string) =>
@@ -141,7 +158,7 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
                     </>
                 )}
                 <List>
-                    {order.supplies.map(supply => (
+                    {order?.supplies.map(supply => (
                         <ListItem key={supply._id}>
                             <ListItemText primary={supply.name} />
                             {supply.batches && supply.batches.length > 0 && (
@@ -176,7 +193,7 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
                 <Button onClick={onClose} color="primary">
                     Cerrar
                 </Button>
-                <Button onClick={() => onSave(order)} color="secondary">
+                <Button onClick={() => order && onSave(order)} color="secondary">
                     Confirmar Pedido
                 </Button>
             </DialogActions>
@@ -184,4 +201,4 @@ const ProviderOrderDialog: React.FC<ProviderOrderDialogProps> = ({
     );
 };
 
-export default ProviderOrderDialog;
+export default ProviderOrderDialogCreate;

@@ -9,3 +9,13 @@ export interface OrderResponse {
   provider: ProviderResponse
   supplies: SuppliesResponse[]
 }
+
+export interface TransformedOrder {
+  _id: string
+  number: number
+  date: string
+  created_at: string
+  provider: string
+  supplies: string[]
+}
+
