@@ -10,6 +10,7 @@ import { request } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { getRequireMaintenance } from './helper'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<TransformedMachines>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -174,7 +175,7 @@ export default function Machines() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/machines/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/machines/generate-pdf`} />
     </div>
   )
 }

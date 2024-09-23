@@ -7,6 +7,7 @@ import DownloadPdfButton from '../../components/DownloadPdfButton'
 import BatchesCreateDialog from './BatchesCreateDialog'
 import BatchesEditDialog from './BatchesEditDialog'
 import { formatISODateString } from '../../utils/dateUtils'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<FormattedBatch>[] = [
   {
@@ -206,7 +207,7 @@ const Batches = () => {
         onSave={handleSave}
         supplies={supplies}
       />
-      <DownloadPdfButton url="http://localhost:3000/batch/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} />
     </div>
   )
 }

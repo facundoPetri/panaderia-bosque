@@ -6,6 +6,7 @@ import { request } from '../../common/request'
 import { SuppliesCreateData, SuppliesResponse } from '../../interfaces/Supplies'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<SuppliesResponse>[] = [
   {
@@ -168,7 +169,7 @@ export default function Supplies() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/supplies/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/supplies/generate-pdf`} />
     </div>
   )
 }

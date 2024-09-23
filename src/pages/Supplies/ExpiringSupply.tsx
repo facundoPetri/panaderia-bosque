@@ -6,6 +6,7 @@ import { request } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<TransformedBatch>[] = [
   {
@@ -106,7 +107,7 @@ export default function ExpiringSupply() {
           editable={isEditMode}
         />
       )}
-      <DownloadPdfButton url="http://localhost:3000/batch/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} />
     </div>
   )
 }

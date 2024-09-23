@@ -9,6 +9,7 @@ import { formatISODateString } from '../../utils/dateUtils'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { capitalizeFullName } from '../../utils/capitalizeFullName'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<TransformedRecipes>[] = [
   {
@@ -210,7 +211,7 @@ export default function Recipes() {
         onSave={handleCreate}
         supplies={supplies}
       />
-      <DownloadPdfButton url="http://localhost:3000/recipes/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/recipes/generate-pdf`} />
     </div>
   )
 }

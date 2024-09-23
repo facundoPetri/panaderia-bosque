@@ -13,6 +13,7 @@ import {
 import MachinesMaintenanceDialog from './MachinesMaintenanceDialog'
 import { MachinesResponse } from '../../interfaces/Machines'
 import MaintenanceDialogCreate from './MaintenanceDialogCreate'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<any>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -186,7 +187,7 @@ export default function MachinesMaintenance() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/maintenance/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} />
     </div>
   )
 }

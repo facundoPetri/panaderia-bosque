@@ -7,6 +7,7 @@ import { TransformedUser, UsersResponse } from '../../interfaces/Users'
 import { request } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<TransformedUser>[] = [
   {
@@ -168,7 +169,7 @@ export default function Userstable() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/users/generate-pdf" />
+      <DownloadPdfButton url={`${API_BASE_URL}/users/generate-pdf`} />
     </div>
   )
 }
