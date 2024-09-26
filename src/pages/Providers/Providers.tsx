@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable from '../../components/GenericTable'
 import { Column } from '../../components/GenericTable'
 import ProviderDialogEdit from './ProviderDialogEdit'
 import { SuppliesResponse } from '../../interfaces/Supplies'
-import { request } from '../../common/request'
+import { request, requestToast } from '../../common/request'
 import ProviderDialogCreate from './ProviderDialogCreate'
 import {
   ProviderResponse,
@@ -59,9 +61,12 @@ export default function Providers() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/providers/${id}`,
         method: 'DELETE',
+        successMessage: 'Proveedor eliminado',
+        errorMessage: 'Error al eliminar proveedor',
+        pendingMessage: 'Eliminando proveedor...',
       })
       if (res) {
         getProviders()
@@ -115,10 +120,13 @@ export default function Providers() {
 
   const handleSave = async (provider: ProviderResponse) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/providers/${provider._id}`,
         method: 'PATCH',
         data: provider,
+        successMessage: 'Proveedor actualizado',
+        errorMessage: 'Error al actualizar proveedor',
+        pendingMessage: 'Actualizando proveedor...',
       })
       if (res) {
         getProviders()
@@ -131,10 +139,13 @@ export default function Providers() {
 
   const handleCreate = async (provider: ProviderResponse) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: '/providers',
         method: 'POST',
         data: provider,
+        successMessage: 'Proveedor creado',
+        errorMessage: 'Error al crear proveedor',
+        pendingMessage: 'Creando proveedor...',
       })
       if (res) {
         getProviders()
@@ -156,8 +167,11 @@ export default function Providers() {
   }
 
   useEffect(() => {
-    getSupplies()
-    getProviders()
+    toast.promise(Promise.all([getSupplies(), getProviders()]), {
+      pending: 'Cargando proveedores...',
+      success: 'Proveedores cargados',
+      error: 'Error al cargar proveedores',
+    })
   }, [])
 
   return (
@@ -186,6 +200,7 @@ export default function Providers() {
         onSave={handleCreate}
         supplies={supplies}
       />
+      <ToastContainer />
       <DownloadPdfButton url={`${API_BASE_URL}/providers/generate-pdf`} />
     </div>
   )

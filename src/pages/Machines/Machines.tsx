@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import MachineDialogEdit from './MachineDialogEdit'
 import MachineDialogCreate from './MachineDialogCreate'
@@ -6,7 +8,7 @@ import {
   MachinesResponse,
   TransformedMachines,
 } from '../../interfaces/Machines'
-import { request } from '../../common/request'
+import { requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { getRequireMaintenance } from './helper'
@@ -47,9 +49,12 @@ export default function Machines() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/machines/${id}`,
         method: 'DELETE',
+        successMessage: 'Maquinaria eliminada',
+        errorMessage: 'Error al eliminar maquinaria',
+        pendingMessage: 'Eliminando maquinaria...',
       })
       if (res) {
         getMachines()
@@ -77,10 +82,13 @@ export default function Machines() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/machines/${machineMaintenance._id}`,
         method: 'PATCH',
         data,
+        successMessage: 'Maquinaria actualizada',
+        errorMessage: 'Error al actualizar maquinaria',
+        pendingMessage: 'Actualizando maquinaria...',
       })
       if (res) {
         getMachines()
@@ -102,10 +110,13 @@ export default function Machines() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: '/machines',
         method: 'POST',
         data,
+        successMessage: 'Maquinaria creada',
+        errorMessage: 'Error al crear maquinaria',
+        pendingMessage: 'Creando maquinaria...',
       })
       if (res) {
         getMachines()
@@ -133,9 +144,12 @@ export default function Machines() {
 
   const getMachines = async () => {
     try {
-      const res = await request<MachinesResponse[]>({
+      const res = await requestToast<MachinesResponse[]>({
         path: '/machines',
         method: 'GET',
+        successMessage: 'Maquinarias cargadas',
+        errorMessage: 'Error al cargar maquinarias',
+        pendingMessage: 'Cargando maquinarias...',
       })
       if (res) {
         const transformedData = transformUserData(res)
@@ -175,6 +189,7 @@ export default function Machines() {
         editable={isEditMode}
         onSave={handleSave}
       />
+      <ToastContainer />
       <DownloadPdfButton url={`${API_BASE_URL}/machines/generate-pdf`} />
     </div>
   )

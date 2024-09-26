@@ -106,6 +106,8 @@ const useStyles = makeStyles((theme) => ({
     width: '4rem',
     height: '4rem',
     cursor: 'pointer',
+    position: 'fixed',
+    left: '49%',
   },
   topbar: {
     display: 'flex',
