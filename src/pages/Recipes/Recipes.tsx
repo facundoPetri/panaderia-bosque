@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import GenericTable from '../../components/GenericTable'
 import RecipeDialogEdit from './RecipeDialogEdit'
 import RecipeDialogCreate from './RecipeDialogCreate'
 import { Column } from '../../components/GenericTable'
 import { RecipesResponse, TransformedRecipes } from '../../interfaces/Recipes'
-import { request } from '../../common/request'
+import { request, requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { capitalizeFullName } from '../../utils/capitalizeFullName'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { toast } from 'react-toastify';
 
 const columns: Column<TransformedRecipes>[] = [
   {
@@ -61,9 +64,12 @@ export default function Recipes() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/recipes/${id}`,
         method: 'DELETE',
+        successMessage: 'Receta eliminada',
+        errorMessage: 'Error al eliminar receta',
+        pendingMessage: 'Eliminando receta...',
       })
       if (res) {
         getRecipes()
@@ -109,10 +115,13 @@ export default function Recipes() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/recipes/${recipe._id}`,
         method: 'PATCH',
         data,
+        successMessage: 'Receta actualizada',
+        errorMessage: 'Error al actualizar receta',
+        pendingMessage: 'Actualizando receta...',
       })
       if (res) {
         getRecipes()
@@ -135,10 +144,13 @@ export default function Recipes() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: '/recipes',
         method: 'POST',
         data,
+        successMessage: 'Receta creada',
+        errorMessage: 'Error al crear receta',
+        pendingMessage: 'Creando receta...',
       })
       if (res) {
         getRecipes()
@@ -179,8 +191,11 @@ export default function Recipes() {
   }
 
   useEffect(() => {
-    getRecipes()
-    getSupplies()
+    toast.promise(Promise.all([getRecipes(), getSupplies()]), {
+      pending: 'Cargando recetas...',
+      success: 'Recetas cargadas',
+      error: 'Error al cargar recetas',
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -211,6 +226,7 @@ export default function Recipes() {
         onSave={handleCreate}
         supplies={supplies}
       />
+      <ToastContainer />
       <DownloadPdfButton url={`${API_BASE_URL}/recipes/generate-pdf`} />
     </div>
   )
