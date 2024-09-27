@@ -22,6 +22,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from '@material-ui/core'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -112,6 +113,11 @@ const useStyles = makeStyles((theme) => ({
   topbar: {
     display: 'flex',
     justifyContent: 'space-between',
+  },
+  logout: {
+    position: 'fixed',
+    right: 0,
+    marginRight: '1rem',
   },
 }))
 interface LinkItem {
@@ -280,13 +286,15 @@ const SidebarAndTopbar = () => {
             alt="Logo Panaderia Bosque"
             className={classes.logo}
           />
-          <IconButton
-            color="inherit"
-            onClick={() => handleLogout()}
-            edge="start"
-          >
-            <FontAwesomeIcon icon={faPowerOff} color="white" />
-          </IconButton>
+          <Tooltip title="Cerrar sesión">
+            <IconButton
+              color="inherit"
+              onClick={() => handleLogout()}
+              className={classes.logout}
+            >
+              <FontAwesomeIcon icon={faPowerOff} color="white" />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <Drawer
