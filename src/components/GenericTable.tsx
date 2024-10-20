@@ -144,13 +144,31 @@ const GenericTable = <T extends object>({
 
   const descendingComparator = useCallback(
     <T,>(a: T, b: T, orderBy: keyof T) => {
-      if (b[orderBy] < a[orderBy]) {
-        return -1
+      const valueA = a[orderBy];
+      const valueB = b[orderBy];
+
+      const isNumber = (value: any) => !isNaN(Number(value));
+
+      const isDate = (value: any) =>
+        typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+
+      if (isDate(valueA) && isDate(valueB)) {
+        const dateA = new Date((valueA as string).split('/').reverse().join('/'));
+        const dateB = new Date((valueB as string).split('/').reverse().join('/'));
+
+        if (dateB < dateA) return -1;
+        if (dateB > dateA) return 1;
+        return 0;
       }
-      if (b[orderBy] > a[orderBy]) {
-        return 1
+
+      if (isNumber(valueA) && isNumber(valueB)) {
+        return Number(valueB) - Number(valueA);
       }
-      return 0
+
+      if (String(valueB) < String(valueA)) return -1;
+      if (String(valueB) > String(valueA)) return 1;
+
+      return 0;
     },
     []
   )
