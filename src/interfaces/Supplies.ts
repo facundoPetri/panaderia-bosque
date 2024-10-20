@@ -54,3 +54,9 @@ export interface TransformedBatch {
   location: string
   supply_name: string
 }
+export interface SupplyUsage {
+  _id: string
+  quantity: number
+  date_used: string
+  supply: SuppliesResponse
+}

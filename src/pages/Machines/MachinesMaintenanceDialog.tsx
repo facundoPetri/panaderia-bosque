@@ -67,7 +67,6 @@ const MachinesMaintenanceDialog: React.FC<MachinesMaintenanceDialogProps> = ({
     }
   }
 
-  console.log(editedMachineMaintenance)
   return (
     <Dialog
       open={!!selectedMaintenance}
