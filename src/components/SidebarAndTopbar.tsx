@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import clsx from 'clsx'
@@ -136,6 +136,10 @@ const SidebarAndTopbar = () => {
   const handleDrawerOpen = () => {
     setOpen(true)
   }
+useEffect(() => {
+  //cada vez que vaya a la home, expande el sidebar
+  setOpen(true)
+}, [])
 
   const handleDrawerClose = () => {
     setOpen(false)
@@ -277,6 +281,7 @@ const SidebarAndTopbar = () => {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
+            title='Mostrar menu de opciones'
           >
             <FontAwesomeIcon icon={faBars} color="white" />
           </IconButton>
@@ -307,7 +312,7 @@ const SidebarAndTopbar = () => {
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose} title='Ocultar menu'>
             {theme.direction === 'ltr' ? (
               <FontAwesomeIcon icon={faChevronLeft} />
             ) : (
