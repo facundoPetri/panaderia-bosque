@@ -20,7 +20,7 @@ const ProvidersOrdersDialogView: React.FC<ProviderOrderDialogProps> = ({ isOpen,
     const handleSave = () => {
         const updatedOrder = {
             ...order,
-            date: new Date(acquisitionDate),
+            date: acquisitionDate,
         };
         onSave(updatedOrder);
     };
