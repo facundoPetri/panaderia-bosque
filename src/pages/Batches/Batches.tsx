@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { request } from '../../common/request'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import { Batch, BatchCreateData, FormattedBatch } from '../../interfaces/Batch'
 import { SuppliesResponse } from '../../interfaces/Supplies'
@@ -7,6 +8,8 @@ import DownloadPdfButton from '../../components/DownloadPdfButton'
 import BatchesCreateDialog from './BatchesCreateDialog'
 import BatchesEditDialog from './BatchesEditDialog'
 import { formatISODateString } from '../../utils/dateUtils'
+import { API_BASE_URL } from '../../common/commonConsts'
+import { request, requestToast } from '../../common/request'
 
 const columns: Column<FormattedBatch>[] = [
   {
@@ -74,9 +77,12 @@ const Batches = () => {
   }
   const getSupplies = async () => {
     try {
-      const res = await request<SuppliesResponse[]>({
+      const res = await requestToast<SuppliesResponse[]>({
         path: '/supplies',
         method: 'GET',
+        successMessage: 'Lotes cargados',
+        errorMessage: 'Error al cargar lotes',
+        pendingMessage: 'Cargando lotes...',
       })
       if (res) {
         setSupplies(res)
@@ -98,9 +104,12 @@ const Batches = () => {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/batch/${id}`,
         method: 'DELETE',
+        successMessage: 'Lote eliminado',
+        errorMessage: 'Error al eliminar lote',
+        pendingMessage: 'Eliminando lote...',
       })
       if (res) {
         getBatches()
@@ -138,10 +147,13 @@ const Batches = () => {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: '/batch',
         method: 'POST',
         data,
+        successMessage: 'Lote creado',
+        errorMessage: 'Error al crear lote',
+        pendingMessage: 'Creando lote...',
       })
       if (res) {
         getBatches()
@@ -163,10 +175,13 @@ const Batches = () => {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/batch/${batch._id}`,
         method: 'PATCH',
         data,
+        successMessage: 'Lote actualizado',
+        errorMessage: 'Error al actualizar lote',
+        pendingMessage: 'Actualizando lote...',
       })
       if (res) {
         getBatches()
@@ -206,7 +221,8 @@ const Batches = () => {
         onSave={handleSave}
         supplies={supplies}
       />
-      <DownloadPdfButton url="http://localhost:3000/batch/generate-pdf" />
+      <ToastContainer />
+      <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} />
     </div>
   )
 }

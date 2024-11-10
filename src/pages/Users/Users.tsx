@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable from '../../components/GenericTable'
 import { Column } from '../../components/GenericTable'
 import UserDialogCreate from './UserDialogCreate'
 import UserDialogEdit from './UserDialogEdit'
 import { TransformedUser, UsersResponse } from '../../interfaces/Users'
-import { request } from '../../common/request'
+import { requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<TransformedUser>[] = [
   {
@@ -49,9 +52,12 @@ export default function Userstable() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/users/${id}`,
         method: 'DELETE',
+        successMessage: 'Usuario eliminado',
+        errorMessage: 'Error al eliminar usuario',
+        pendingMessage: 'Eliminando usuario...',
       })
       if (res) {
         getUsers()
@@ -73,7 +79,7 @@ export default function Userstable() {
 
   const handleSave = async (user: TransformedUser) => {
     try {
-      const res = await request<UsersResponse[]>({
+      const res = await requestToast<UsersResponse[]>({
         path: `/users/${user._id}`,
         method: 'PATCH',
         data: {
@@ -82,6 +88,9 @@ export default function Userstable() {
           pasword: user.password,
           type: user.type,
         },
+        successMessage: 'Usuario actualizado',
+        errorMessage: 'Error al actualizar usuario',
+        pendingMessage: 'Actualizando usuario...',
       })
       if (res) {
         getUsers()
@@ -96,10 +105,13 @@ export default function Userstable() {
 
   const handleCreate = async (user: any) => {
     try {
-      const res = await request<UsersResponse[]>({
+      const res = await requestToast<UsersResponse[]>({
         path: '/users',
         method: 'POST',
         data: user,
+        successMessage: 'Usuario creado',
+        errorMessage: 'Error al crear usuario',
+        pendingMessage: 'Creando usuario...',
       })
       if (res) {
         getUsers()
@@ -126,9 +138,12 @@ export default function Userstable() {
 
   const getUsers = async () => {
     try {
-      const res = await request<UsersResponse[]>({
+      const res = await requestToast<UsersResponse[]>({
         path: '/users',
         method: 'GET',
+        successMessage: 'Usuarios cargados',
+        errorMessage: 'Error al cargar usuarios',
+        pendingMessage: 'Cargando usuarios...',
       })
       if (res) {
         const transformedData = transformUserData(res)
@@ -168,7 +183,8 @@ export default function Userstable() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/users/generate-pdf" />
+      <ToastContainer />
+      <DownloadPdfButton url={`${API_BASE_URL}/users/generate-pdf`} />
     </div>
   )
 }

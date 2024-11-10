@@ -11,6 +11,8 @@ import {
   Select,
   MenuItem,
   Input,
+  FormControl,
+  InputLabel,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -137,22 +139,27 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           value={formData.name}
           onChange={handleChange}
         />
-        <Select
-          className={classes.select}
-          name="supplies"
-          multiple
-          value={formData.supplies}
-          onChange={handleChange}
-          label="Insumos"
-          input={<Input />}
-          fullWidth
-        >
-          {supplies.map((sup) => (
-            <MenuItem key={sup._id} value={sup._id}>
-              {sup.name}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl fullWidth>
+          <InputLabel id="insumosSelector">Insumos</InputLabel>
+          <Select
+            labelId="insumosSelector"
+            className={classes.select}
+            name="supplies"
+            multiple
+            value={formData.supplies}
+            onChange={handleChange}
+            label="Insumos"
+            input={<Input />}
+            fullWidth
+          >
+            {supplies.map((sup) => (
+              <MenuItem key={sup._id} value={sup._id}>
+                {sup.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <TextField
           margin="dense"
           name="steps"

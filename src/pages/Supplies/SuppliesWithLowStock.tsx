@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
@@ -104,8 +106,11 @@ export default function SuppliesWithLowStock() {
   };
 
   useEffect(() => {
-    getSupplies();
-    getProviders();
+    toast.promise(Promise.all([getSupplies(), getProviders()]), {
+      pending: 'Cargando insumos...',
+      success: 'Insumos cargados',
+      error: 'Error al cargar insumos',
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -132,6 +137,7 @@ export default function SuppliesWithLowStock() {
         providers={providers}
         productsByProvider={productsByProvider}
       />
+      <ToastContainer />
     </div>
   );
 }

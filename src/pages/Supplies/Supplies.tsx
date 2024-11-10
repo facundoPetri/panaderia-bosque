@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import GenericTable, { Column } from '../../components/GenericTable'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
 import SuppliesDialogCreate from './SuppliesDialogCreate'
-import { request } from '../../common/request'
+import { requestToast } from '../../common/request'
 import { SuppliesCreateData, SuppliesResponse } from '../../interfaces/Supplies'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
+import { API_BASE_URL } from '../../common/commonConsts'
 
 const columns: Column<SuppliesResponse>[] = [
   {
@@ -46,9 +49,12 @@ export default function Supplies() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/supplies/${id}`,
         method: 'DELETE',
+        successMessage: 'Insumo eliminado',
+        errorMessage: 'Error al eliminar insumo',
+        pendingMessage: 'Eliminando insumo...'
       })
       if (res) {
         getSupplies()
@@ -70,9 +76,12 @@ export default function Supplies() {
 
   const getSupplies = async () => {
     try {
-      const res = await request<SuppliesResponse[]>({
+      const res = await requestToast<SuppliesResponse[]>({
         path: '/supplies',
         method: 'GET',
+        successMessage: 'Insumos cargados',
+        errorMessage: 'Error al cargar insumos',
+        pendingMessage: 'Cargando insumos...'
       })
       if (res) {
         const formattedSupplies = res.map((supplie) => ({
@@ -103,10 +112,13 @@ export default function Supplies() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/supplies/${supplies._id}`,
         method: 'PATCH',
         data,
+        successMessage: 'Insumo actualizado',
+        errorMessage: 'Error al actualizar insumo',
+        pendingMessage: 'Actualizando insumo...'
       })
       if (res) {
         getSupplies()
@@ -130,10 +142,13 @@ export default function Supplies() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: '/supplies',
         method: 'POST',
         data,
+        successMessage: 'Insumo creado',
+        errorMessage: 'Error al crear insumo',
+        pendingMessage: 'Creando insumo...'
       })
       if (res) {
         getSupplies()
@@ -168,7 +183,8 @@ export default function Supplies() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url="http://localhost:3000/supplies/generate-pdf" />
+      <ToastContainer />
+      <DownloadPdfButton url={`${API_BASE_URL}/supplies/generate-pdf`} />
     </div>
   )
 }

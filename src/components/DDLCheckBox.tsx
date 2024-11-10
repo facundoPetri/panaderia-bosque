@@ -50,14 +50,15 @@ const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, onSelectio
     <Box>
       <Grid container justifyContent="space-between" alignItems="center">
         <Grid item xs={2} style={{ paddingLeft: 10 }}>
+          <h3>Filtrar por:</h3>
           <Autocomplete
             id="checkbox-dropdown"
             options={options}
             getOptionLabel={(option) => option.title}
             onChange={handleOptionChange}
             renderOption={(option, { selected }) => (
-              <Box component="li" display="flex" justifyContent="space-between" alignItems="center">
-                {option.title}
+              <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                <span>{option.title}</span>
                 <Checkbox
                   icon={icon}
                   checkedIcon={checkedIcon}

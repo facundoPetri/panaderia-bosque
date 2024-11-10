@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import clsx from 'clsx'
@@ -22,6 +22,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from '@material-ui/core'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -106,10 +107,17 @@ const useStyles = makeStyles((theme) => ({
     width: '4rem',
     height: '4rem',
     cursor: 'pointer',
+    position: 'fixed',
+    left: '49%',
   },
   topbar: {
     display: 'flex',
     justifyContent: 'space-between',
+  },
+  logout: {
+    position: 'fixed',
+    right: 0,
+    marginRight: '1rem',
   },
 }))
 interface LinkItem {
@@ -128,6 +136,10 @@ const SidebarAndTopbar = () => {
   const handleDrawerOpen = () => {
     setOpen(true)
   }
+useEffect(() => {
+  //cada vez que vaya a la home, expande el sidebar
+  setOpen(true)
+}, [])
 
   const handleDrawerClose = () => {
     setOpen(false)
@@ -269,6 +281,7 @@ const SidebarAndTopbar = () => {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
+            title='Mostrar menu de opciones'
           >
             <FontAwesomeIcon icon={faBars} color="white" />
           </IconButton>
@@ -278,13 +291,15 @@ const SidebarAndTopbar = () => {
             alt="Logo Panaderia Bosque"
             className={classes.logo}
           />
-          <IconButton
-            color="inherit"
-            onClick={() => handleLogout()}
-            edge="start"
-          >
-            <FontAwesomeIcon icon={faPowerOff} color="white" />
-          </IconButton>
+          <Tooltip title="Cerrar sesión">
+            <IconButton
+              color="inherit"
+              onClick={() => handleLogout()}
+              className={classes.logout}
+            >
+              <FontAwesomeIcon icon={faPowerOff} color="white" />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -297,7 +312,7 @@ const SidebarAndTopbar = () => {
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose} title='Ocultar menu'>
             {theme.direction === 'ltr' ? (
               <FontAwesomeIcon icon={faChevronLeft} />
             ) : (
