@@ -91,10 +91,6 @@ export default function OrdersProviders() {
     setSelectedOrder(order)
   }
 
-  const onClose = () => {
-    setSelectedOrder(null)
-  }
-
   const onDelete = (id: string) => {
     console.log(`Eliminando elemento con id: ${id}`)
     // Aquí puedes llamar a tu servicio de eliminación con el id
