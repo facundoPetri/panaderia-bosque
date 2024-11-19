@@ -138,6 +138,7 @@ function Home() {
   }
   const handleCloseDialog = () => {
     setOpenDialog(false)
+    setSelectedRecipe(null)
   }
   const handleOpenDialog = () => {
     setOpenDialog(true)
@@ -337,7 +338,7 @@ function Home() {
               <Select
                 labelId="recetasSelector"
                 name="recipes"
-                value={filterDays}
+                value={selectedRecipe?._id || ''}
                 onChange={(e) =>
                   setSelectedRecipe(
                     recipes.find((r) => r._id === (e.target.value as string)) ||
