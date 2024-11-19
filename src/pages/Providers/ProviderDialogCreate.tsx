@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogActions,
@@ -13,11 +13,13 @@ import {
   Select,
   Input,
   MenuItem,
-} from '@material-ui/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { SuppliesResponse } from '../../interfaces/Supplies';
-import { ProviderResponse } from '../../interfaces/Providers';
+  InputLabel,
+  FormControl,
+} from '@material-ui/core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { SuppliesResponse } from '../../interfaces/Supplies'
+import { ProviderResponse } from '../../interfaces/Providers'
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -65,13 +67,13 @@ const useStyles = makeStyles((theme) => ({
   select: {
     marginTop: '1rem',
   },
-}));
+}))
 
 interface ProviderDialogProps {
-  open: boolean;
-  supplies: SuppliesResponse[];
-  onClose: () => void;
-  onSave: (provider: ProviderResponse) => void;
+  open: boolean
+  supplies: SuppliesResponse[]
+  onClose: () => void
+  onSave: (provider: ProviderResponse) => void
 }
 
 const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
@@ -80,7 +82,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
   onSave,
   supplies,
 }) => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   const [formData, setFormData] = useState<ProviderResponse>({
     _id: '',
@@ -90,14 +92,18 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     estimated_delivery_time: '',
     supplies: [],
     image: '',
-    createdAt: new Date()
-  });
+    createdAt: new Date(),
+  })
   const [avatar, setAvatar] = useState<string | null>(null)
-
-  const handleChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({ ...prevFormData, [name as string]: value }));
-  };
+  const handleChange = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    const { name, value } = event.target
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name as string]: value,
+    }))
+  }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -111,9 +117,9 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
   }
 
   const handleSave = () => {
-    onSave(formData);
-    onClose();
-  };
+    onSave(formData)
+    onClose()
+  }
 
   useEffect(() => {
     if (!open) {
@@ -125,11 +131,11 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         estimated_delivery_time: '',
         supplies: [],
         image: '',
-        createdAt: new Date()
-      });
-      setAvatar(null); // Resetea el avatar si es necesario
+        createdAt: new Date(),
+      })
+      setAvatar(null) // Resetea el avatar si es necesario
     }
-  }, [open]);
+  }, [open])
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -190,7 +196,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         />
         <TextField
           margin="dense"
-          name="deliveryTime"
+          name="estimated_delivery_time"
           label="Tiempo de entrega"
           type="text"
           fullWidth
@@ -198,22 +204,26 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           value={formData.estimated_delivery_time}
           onChange={handleChange}
         />
-        <Select
-          className={classes.select}
-          name="supplies"
-          multiple
-          value={formData.supplies}
-          onChange={handleChange}
-          label="Insumos"
-          input={<Input />}
-          fullWidth
-        >
-          {supplies.map((sup) => (
-            <MenuItem key={sup._id} value={sup._id}>
-              {sup.name}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl fullWidth>
+          <InputLabel id="insumosSelector">Insumos</InputLabel>
+          <Select
+            labelId={'insumosSelector'}
+            className={classes.select}
+            name="supplies"
+            multiple
+            value={formData.supplies}
+            onChange={handleChange}
+            label="Insumos"
+            input={<Input />}
+            fullWidth
+          >
+            {supplies.map((sup) => (
+              <MenuItem key={sup._id} value={sup._id}>
+                {sup.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary" variant="contained">
@@ -224,7 +234,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default ProviderDialogCreate;
+export default ProviderDialogCreate
