@@ -51,7 +51,7 @@ const dropdownOptions = columns
   }));
 
 export default function QualityAndPunctualityReport() {
-  const [selectedReport, setSelectedReport] = useState<QualityAndPunctuality | null>(null);
+  const [, setSelectedReport] = useState<QualityAndPunctuality | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [providers, setProviders] = useState<ProviderResponse[]>([]);
   const [users, setUsers] = useState<UsersResponse[]>([]);
@@ -99,22 +99,19 @@ export default function QualityAndPunctualityReport() {
 
   const onSave = (data: any) => {
     console.log('Datos guardados:', data);
-    // Aquí puedes manejar la lógica para guardar el reporte
     setIsModalOpen(false);
   };
 
   const onAdd = () => {
-    setSelectedReport(null); // Modal vacío para crear un nuevo reporte
+    setSelectedReport(null);
     setIsModalOpen(true);
   };
 
   const onDelete = (id: string) => {
     console.log(`Eliminando reporte con id: ${id}`);
-    // Aquí puedes manejar la lógica de eliminación
   };
 
   useEffect(() => {
-    // Llama a las funciones para cargar datos al montar el componente
     const loadData = async () => {
       await Promise.all([getProviders(), getUsers()]);
     };
@@ -138,8 +135,8 @@ export default function QualityAndPunctualityReport() {
         open={isModalOpen}
         onClose={onClose}
         onSave={onSave}
-        providers={providers} // Proveedores cargados
-        employees={users} // Empleados cargados
+        providers={providers}
+        employees={users}
       />
     </div>
   );
