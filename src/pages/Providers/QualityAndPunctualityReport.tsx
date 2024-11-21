@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
+import QAndPDialog from './QualityAndPunctualityDialog';
+import { ProviderResponse } from '../../interfaces/Providers';
+import { UsersResponse } from '../../interfaces/Users';
+import { request, requestToast } from '../../common/request';
 
 const columns: Column<QualityAndPunctuality>[] = [
-  { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true, },
+  { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
   { id: 'provider', label: 'Proveedor' },
   { id: 'reportDate', label: 'Fecha de informe' },
@@ -27,7 +31,7 @@ const data: QualityAndPunctuality[] = [
     provider: 'Bimbo',
     reportDate: '01/06/2022',
     author: 'Federico Sanchez',
-    deliveredItem: 'Harina'
+    deliveredItem: 'Harina',
   },
   {
     id: '2',
@@ -35,68 +39,84 @@ const data: QualityAndPunctuality[] = [
     provider: 'Ledevit',
     reportDate: '03/06/2022',
     author: 'Gaston Rodriguez',
-    deliveredItem: 'Crema'
+    deliveredItem: 'Crema',
   },
-  {
-    id: '3',
-    name: 'Consulta de calidad y puntualidad de Huevos',
-    provider: 'Ledesma',
-    reportDate: '06/06/2022',
-    author: 'Juan Alvarez',
-    deliveredItem: 'Huevos'
-  },
-  {
-    id: '4',
-    name: 'Consulta de calidad y puntualidad de Manteca',
-    provider: 'Mapricoa',
-    reportDate: '12/06/2022',
-    author: 'Gaston Rodriguez',
-    deliveredItem: 'Manteca'
-  },
-  {
-    id: '5',
-    name: 'Consulta de calidad y puntualidad de Azúcar',
-    provider: 'Merentiel S.A',
-    reportDate: '15/06/2022',
-    author: 'Julian Gomez',
-    deliveredItem: 'Azúcar'
-  },
-  {
-    id: '6',
-    name: 'Consulta de calidad y puntualidad de Levadura en polvo',
-    provider: 'Ramirez y Hnos. S.R.L',
-    reportDate: '20/06/2022',
-    author: 'Juan Alvarez',
-    deliveredItem: 'Levadura'
-  }
+  // Más datos...
 ];
 
 const dropdownOptions = columns
-  .filter(column => !column.hiddenFilter)
-  .map(column => ({
+  .filter((column) => !column.hiddenFilter)
+  .map((column) => ({
     title: column.label,
   }));
 
 export default function QualityAndPunctualityReport() {
-  const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<QualityAndPunctuality | null>(null);
-  //Modal
-  const onView = (productionEfficiencies: QualityAndPunctuality) => {
-    setSelectedProductionEfficiency(productionEfficiencies);
+  const [, setSelectedReport] = useState<QualityAndPunctuality | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [providers, setProviders] = useState<ProviderResponse[]>([]);
+  const [users, setUsers] = useState<UsersResponse[]>([]);
+
+  const getProviders = async () => {
+    try {
+      const res = await request<ProviderResponse[]>({
+        path: '/providers',
+        method: 'GET',
+      });
+      if (res) {
+        setProviders(res);
+      }
+    } catch (error) {
+      console.error('Error al obtener proveedores:', error);
+    }
+  };
+
+  const getUsers = async () => {
+    try {
+      const res = await requestToast<UsersResponse[]>({
+        path: '/users',
+        method: 'GET',
+        successMessage: 'Usuarios cargados',
+        errorMessage: 'Error al cargar usuarios',
+        pendingMessage: 'Cargando usuarios...',
+      });
+      if (res) {
+        setUsers(res);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onView = (report: QualityAndPunctuality) => {
+    setSelectedReport(report);
+    setIsModalOpen(true);
   };
 
   const onClose = () => {
-    setSelectedProductionEfficiency(null);
+    setSelectedReport(null);
+    setIsModalOpen(false);
   };
 
-  const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`);
-    // Aquí puedes llamar a tu servicio de eliminación con el id
+  const onSave = (data: any) => {
+    console.log('Datos guardados:', data);
+    setIsModalOpen(false);
   };
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    setSelectedReport(null);
+    setIsModalOpen(true);
   };
+
+  const onDelete = (id: string) => {
+    console.log(`Eliminando reporte con id: ${id}`);
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([getProviders(), getUsers()]);
+    };
+    loadData();
+  }, []);
 
   return (
     <div style={{ padding: '20px' }}>
@@ -104,12 +124,19 @@ export default function QualityAndPunctualityReport() {
       <GenericTable
         columns={columns}
         data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         nameColumnId="name"
-        nameButton='Crear'
+        nameButton="Crear"
+      />
+      <QAndPDialog
+        open={isModalOpen}
+        onClose={onClose}
+        onSave={onSave}
+        providers={providers}
+        employees={users}
       />
     </div>
   );
