@@ -62,7 +62,6 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
       onSave(editedStockItem)
     }
   }
-
   return (
     <Dialog open={!!selectedSupplies} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{selectedSupplies.name}</DialogTitle>
@@ -77,7 +76,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
           </Grid>
           <Grid item xs={6}>
             <Typography variant="subtitle1">
-              Stock actual: 0 {editedStockItem?.unit}
+              Stock actual: {editedStockItem?.current_stock} {editedStockItem?.unit}
             </Typography>
             <Typography variant="subtitle1">
               Stock mínimo: {editedStockItem?.min_stock} {editedStockItem?.unit}

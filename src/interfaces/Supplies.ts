@@ -10,10 +10,11 @@ export interface SuppliesResponse {
   updatedAt: string
   deletedAt?: string
   batches?: Batch[]
+  current_stock:number
 }
 
 export interface SuppliesCreateData
-  extends Omit<SuppliesResponse, '_id' | 'size'> {
+  extends Omit<SuppliesResponse, '_id' | 'size' | 'current_stock'> {
   image: string
   size: number
 }
