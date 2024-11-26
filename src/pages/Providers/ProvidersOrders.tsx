@@ -5,10 +5,10 @@ import DownloadPdfButton from '../../components/DownloadPdfButton';
 import ProviderOrderDialogCreate from './ProviderOrderDialogCreate';
 import { ProviderResponse } from '../../interfaces/Providers';
 import { OrderResponse, TransformedOrder } from '../../interfaces/Orders';
-import { SuppliesResponse } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import { convertToFullDateString } from '../../utils/dateUtils';
 import OrderDetailsDialog from './OrderDetailsDialog';
+import { SuppliesResponse } from '../../interfaces/Supplies';
 
 const columns: Column<TransformedOrder>[] = [
   { id: '_id', label: 'ID', hiddenColumn: true, sortable: false, hiddenFilter: true },
@@ -22,7 +22,6 @@ export default function ProvidersOrders() {
   const [transfOrders, setTransfOrders] = useState<TransformedOrder[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [providers, setProviders] = useState<ProviderResponse[]>([]);
-  const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
 
@@ -37,10 +36,8 @@ export default function ProvidersOrders() {
       title: column.label,
     }));
 
-  // Open creation modal and initialize empty order
   const onAdd = () => {
     setIsCreateMode(true);
-    setSelectedOrder(null); // Clear selected order to indicate creation mode
   };
 
   const onClose = () => {
@@ -66,32 +63,38 @@ export default function ProvidersOrders() {
     }
   };
 
-  const onSave = async (order: OrderResponse) => {
-    try {
-      if (order._id) {
-        await request<OrderResponse>({ path: `/orders/${order._id}`, method: 'PATCH', data: order });
-      } else {
-        await request<OrderResponse>({ path: '/orders', method: 'POST', data: order });
+  const onSave = async (order: OrderResponse | { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] }) => {
+    if ('supplies' in order && Array.isArray(order.supplies) && 'product' in order.supplies[0]) {
+      // Si el formato es el nuevo, manejamos la creación del pedido
+      const newOrder = order as { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] };
+      try {
+        const orderToSave: Omit<OrderResponse, '_id'> = {
+          number: newOrder.supplies.reduce((sum, item) => sum + item.quantity, 0),
+          date: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          provider: newOrder.provider,
+          supplies: newOrder.supplies.map(item => ({
+            ...item.product,
+            quantity: item.quantity,
+          })),
+        };
+        await request<OrderResponse>({ path: '/orders', method: 'POST', data: orderToSave });
+        getOrders();
+      } catch (error) {
+        console.error('Error al guardar el pedido:', error);
       }
-      getOrders();
-    } catch (error) {
-      console.error('Error al guardar el pedido:', error);
+    } else {
+      // Si es un OrderResponse, podrías implementar alguna acción específica aquí
+      console.error('Formato de pedido no manejado:', order);
     }
     onClose();
   };
+  
 
   const getProviders = async () => {
     try {
       const res = await request<ProviderResponse[]>({ path: '/providers', method: 'GET' });
-      if (res) {
-        setProviders(res);
-        setProductsByProvider(
-          res.reduce((acc, provider) => {
-            acc[provider._id] = provider.supplies;
-            return acc;
-          }, {} as { [provider: string]: SuppliesResponse[] })
-        );
-      }
+      if (res) setProviders(res);
     } catch (error) {
       console.error('Error al obtener proveedores:', error);
     }
@@ -136,11 +139,8 @@ export default function ProvidersOrders() {
         <ProviderOrderDialogCreate
           isOpen={isCreateMode}
           onClose={onClose}
-          order={selectedOrder} // null when creating
-          setOrder={setSelectedOrder}
           onSave={onSave}
           providers={providers}
-          productsByProvider={productsByProvider}
         />
       )}
 

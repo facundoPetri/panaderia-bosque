@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { SuppliesResponse, TransformedSupplies, Batch } from '../../interfaces/Supplies';
 import { request } from '../../common/request';
 import ProviderOrderDialogCreate from '../Providers/ProviderOrderDialogCreate';
 import { ProviderResponse } from '../../interfaces/Providers';
-import { OrderResponse } from '../../interfaces/Orders';
 
 const columns: Column<TransformedSupplies>[] = [
   { id: '_id', label: 'Id', hiddenColumn: true, sortable: false, hiddenFilter: true },
@@ -28,22 +27,40 @@ const dropdownOptions = columns
 export default function SuppliesWithLowStock() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false);
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([]);
-  const [order, setOrder] = useState<OrderResponse | null>(null);
   const [providers, setProviders] = useState<ProviderResponse[]>([]);
-  const [productsByProvider, setProductsByProvider] = useState<{ [provider: string]: SuppliesResponse[] }>({});
 
   const onClose = () => {
     setIsCreateMode(false);
   };
 
   const onAdd = () => {
-    setOrder(null);
     setIsCreateMode(true);
   };
 
-  const handlerSave = (order: OrderResponse) => {
-    console.log('Pedido guardado:', order);
-    onClose();
+  const handlerSave = async (newOrder: { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] }) => {
+    try {
+      const orderToSave = {
+        number: newOrder.supplies.reduce((sum, item) => sum + item.quantity, 0), // Total de productos
+        date: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        provider: newOrder.provider,
+        supplies: newOrder.supplies.map(item => ({
+          ...item.product,
+          quantity: item.quantity, // Cantidad seleccionada por producto
+        })),
+      };
+
+      await request({
+        path: '/orders',
+        method: 'POST',
+        data: orderToSave,
+      });
+      toast.success('Pedido guardado exitosamente');
+      onClose();
+    } catch (error) {
+      console.error('Error al guardar el pedido:', error);
+      toast.error('Error al guardar el pedido');
+    }
   };
 
   const calculatePriority = (currentStock: number, minStock: number, maxStock: number): string => {
@@ -93,12 +110,6 @@ export default function SuppliesWithLowStock() {
       });
       if (res) {
         setProviders(res);
-
-        const providerProducts: { [provider: string]: SuppliesResponse[] } = {};
-        res.forEach(provider => {
-          providerProducts[provider._id] = provider.supplies;
-        });
-        setProductsByProvider(providerProducts);
       }
     } catch (error) {
       console.error('Error al obtener proveedores:', error);
@@ -110,8 +121,7 @@ export default function SuppliesWithLowStock() {
       pending: 'Cargando insumos...',
       success: 'Insumos cargados',
       error: 'Error al cargar insumos',
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
   }, []);
 
   return (
@@ -121,22 +131,21 @@ export default function SuppliesWithLowStock() {
         columns={columns}
         data={supplies}
         dropdownOptions={dropdownOptions}
-        onView={() => { }}
-        onDelete={() => { }}
+        onView={() => {}}
+        onDelete={() => {}}
         onAdd={onAdd}
         nameColumnId="name"
         nameButton={"Hacer Pedido"}
         hiddenButtonModal={false}
       />
-      <ProviderOrderDialogCreate
-        isOpen={isCreateMode}
-        onClose={onClose}
-        order={order}
-        setOrder={setOrder}
-        onSave={handlerSave}
-        providers={providers}
-        productsByProvider={productsByProvider}
-      />
+      {isCreateMode && (
+        <ProviderOrderDialogCreate
+          isOpen={isCreateMode}
+          onClose={onClose}
+          onSave={handlerSave}
+          providers={providers}
+        />
+      )}
       <ToastContainer />
     </div>
   );
