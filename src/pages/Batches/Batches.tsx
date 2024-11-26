@@ -57,6 +57,9 @@ const Batches = () => {
       if (res) {
         const formattedBatches = res.map((batch) => ({
           ...batch,
+          row: `Fila ${Number(batch.row)}`,
+          column: `Columna ${Number(batch.column)}`,
+          batch_number: `Columna ${Number(batch.column)}`,
           supply_id: batch.supply_id?.name || '',
           expiration_date: formatISODateString(batch.expiration_date),
           date_of_entry: formatISODateString(batch.date_of_entry),
