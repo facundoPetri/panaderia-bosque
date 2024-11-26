@@ -91,7 +91,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     phone: '',
     estimated_delivery_time: '',
     supplies: [],
-    image: '',
+    image: undefined,
     createdAt: new Date(),
   })
   const [avatar, setAvatar] = useState<string | null>(null)
@@ -130,7 +130,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         phone: '',
         estimated_delivery_time: '',
         supplies: [],
-        image: '',
+        image: undefined,
         createdAt: new Date(),
       })
       setAvatar(null) // Resetea el avatar si es necesario

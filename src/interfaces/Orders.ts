@@ -3,7 +3,7 @@ import { SuppliesResponse } from './Supplies'
 
 export interface OrderResponse {
   _id: string
-  number: number //es quantity que tiene este nombre
+  number: number
   date: string
   created_at: string
   provider: ProviderResponse
