@@ -1,128 +1,74 @@
 import React, { useState } from 'react';
 import {
     Dialog, DialogActions, DialogContent, DialogTitle,
-    Button, List, ListItem, ListItemText, IconButton, TextField,
-    MenuItem, Select, FormControl, InputLabel
+    Button, List, ListItem, ListItemText, IconButton,
+    MenuItem, Select, FormControl, InputLabel, Checkbox, TextField
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import { OrderResponse } from '../../interfaces/Orders';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ProviderResponse } from '../../interfaces/Providers';
 import { SuppliesResponse } from '../../interfaces/Supplies';
 
 interface ProviderOrderDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    order: OrderResponse | null;
-    setOrder: React.Dispatch<React.SetStateAction<OrderResponse | null>>;
-    onSave: (order: OrderResponse) => void;
+    onSave: (order: { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] }) => void;
     providers: ProviderResponse[];
-    productsByProvider: { [providerId: string]: SuppliesResponse[] };
 }
 
-
 const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
-    isOpen, onClose, order, setOrder, onSave, providers, productsByProvider
+    isOpen, onClose, onSave, providers,
 }) => {
-    const [selectedProvider, setSelectedProvider] = useState<string | null>(order?.provider?._id || null);
-
-    const updateOrderTotal = (supplies: SuppliesResponse[] = []) => {
-        if (!order) return;
-
-        const totalQuantity = supplies.reduce((total, supply) =>
-            total + (supply.batches?.reduce((batchTotal, batch) => batchTotal + batch.quantity, 0) || 0), 0);
-
-        setOrder(prevOrder => prevOrder ? ({
-            ...prevOrder,
-            supplies,
-            number: totalQuantity,
-        }) : null);
-    };
-
-    const handleProductSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const selectedProductIds = event.target.value as string[];
-
-        if (!selectedProvider || !productsByProvider[selectedProvider]) return;
-
-        const selectedProducts = selectedProductIds.map(id =>
-            productsByProvider[selectedProvider].find(product => product._id === id)!
-        );
-
-        const newProducts = selectedProducts.filter(product =>
-            !order?.supplies?.some(existingProduct => existingProduct._id === product._id)
-        ).map(product => ({ ...product, batches: product.batches?.map(batch => ({ ...batch, quantity: 0 })) || [] }));
-
-        updateOrderTotal([...(order?.supplies || []), ...newProducts]);
-    };
-
-    const handleQuantityChange = (id: string, batchId: string, newQuantity: number) => {
-        if (!order?.supplies) return;
-        const updatedSupplies = order.supplies.map(supply =>
-            supply._id === id ? {
-                ...supply,
-                batches: supply.batches?.map(batch =>
-                    batch._id === batchId ? { ...batch, quantity: newQuantity } : batch
-                )
-            } : supply
-        );
-        updateOrderTotal(updatedSupplies);
-    };
-
-    const handleIncreaseQuantity = (id: string, batchId: string) => {
-        if (!order?.supplies) return;
-        const updatedSupplies = order.supplies.map(supply =>
-            supply._id === id ? {
-                ...supply,
-                batches: supply.batches?.map(batch =>
-                    batch._id === batchId ? { ...batch, quantity: batch.quantity + 1 } : batch
-                )
-            } : supply
-        );
-        updateOrderTotal(updatedSupplies);
-    };
-
-    const handleDecreaseQuantity = (id: string, batchId: string) => {
-        if (!order?.supplies) return;
-        const updatedSupplies = order.supplies.map(supply =>
-            supply._id === id ? {
-                ...supply,
-                batches: supply.batches?.map(batch =>
-                    batch._id === batchId && batch.quantity > 0 ? { ...batch, quantity: batch.quantity - 1 } : batch
-                )
-            } : supply
-        );
-        updateOrderTotal(updatedSupplies);
-    };
-
-    const handleRemoveFromOrder = (id: string) => {
-        if (!order?.supplies) return;
-        const updatedSupplies = order.supplies.filter(supply => supply._id !== id);
-        updateOrderTotal(updatedSupplies);
-    };
+    const [selectedProvider, setSelectedProvider] = useState<ProviderResponse | null>(null);
+    const [selectedProducts, setSelectedProducts] = useState<{ product: SuppliesResponse; quantity: number }[]>([]);
 
     const handleProviderChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         const providerId = event.target.value as string;
-        const provider = providers.find(p => p._id === providerId)!;
+        const provider = providers.find(p => p._id === providerId) || null;
+        setSelectedProvider(provider);
+        setSelectedProducts([]); // Limpiar productos al cambiar proveedor
+    };
 
-        // Usar setSelectedProvider para actualizar el estado
-        setSelectedProvider(providerId);
+    const handleProductToggle = (product: SuppliesResponse) => {
+        const existingProduct = selectedProducts.find(p => p.product._id === product._id);
+        if (existingProduct) {
+            // Si ya está seleccionado, lo quitamos
+            setSelectedProducts(prev => prev.filter(p => p.product._id !== product._id));
+        } else {
+            // Si no está seleccionado, lo agregamos con cantidad inicial de 1
+            setSelectedProducts(prev => [...prev, { product, quantity: 1 }]);
+        }
+    };
 
-        if (order) {
-            setOrder(prevOrder => prevOrder ? ({
-                ...prevOrder,
-                provider: provider,
-                supplies: [],
-            }) : null);
+    const handleQuantityChange = (productId: string, quantity: number) => {
+        setSelectedProducts(prev =>
+            prev.map(p =>
+                p.product._id === productId ? { ...p, quantity: Math.max(1, quantity) } : p
+            )
+        );
+    };
+
+    const handleRemoveProduct = (productId: string) => {
+        setSelectedProducts(prev => prev.filter(p => p.product._id !== productId));
+    };
+
+    const handleSave = () => {
+        if (selectedProvider) {
+            onSave({ provider: selectedProvider, supplies: selectedProducts });
+            onClose();
         }
     };
 
     return (
         <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Pedido</DialogTitle>
+            <DialogTitle>Crear Pedido</DialogTitle>
             <DialogContent>
                 <FormControl fullWidth margin="normal">
                     <InputLabel>Seleccionar Proveedor</InputLabel>
-                    <Select value={selectedProvider || ''} onChange={handleProviderChange}>
+                    <Select
+                        value={selectedProvider?._id || ''}
+                        onChange={handleProviderChange}
+                    >
                         {providers.map(provider => (
                             <MenuItem key={provider._id} value={provider._id}>
                                 {provider.name}
@@ -132,69 +78,45 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
                 </FormControl>
                 {selectedProvider && (
                     <>
-                        {productsByProvider[selectedProvider]?.length > 0 ? (
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel>Seleccionar Productos</InputLabel>
-                                <Select
-                                    multiple
-                                    value={order?.supplies.map(supply => supply._id)}
-                                    onChange={handleProductSelect}
-                                    renderValue={(selected) =>
-                                        (selected as string[]).map((id: string) =>
-                                            productsByProvider[selectedProvider].find(p => p._id === id)?.name
-                                        ).join(', ')
-                                    }
-                                >
-                                    {productsByProvider[selectedProvider].map(product => (
-                                        <MenuItem key={product._id} value={product._id}>
-                                            {product.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        ) : (
-                            <InputLabel>No existen productos para este proveedor</InputLabel>
-                        )}
-                    </>
-                )}
-                <List>
-                    {order?.supplies.map(supply => (
-                        <ListItem key={supply._id}>
-                            <ListItemText primary={supply.name} />
-                            {supply.batches && supply.batches.length > 0 && (
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {supply.batches.map((batch, index) => (
-                                        <React.Fragment key={`${batch._id}-${index}`}>
-                                            <TextField
-                                                type="number"
-                                                value={batch.quantity}
-                                                onChange={(e) => handleQuantityChange(supply._id, batch._id, parseInt(e.target.value ?? 0))}
-                                                inputProps={{ min: 0 }}
-                                                style={{ width: '60px', marginRight: '10px' }}
-                                            />
-                                            <IconButton onClick={() => handleIncreaseQuantity(supply._id, batch._id)}>
-                                                <FontAwesomeIcon icon={faPlus} />
-                                            </IconButton>
-                                            <IconButton onClick={() => handleDecreaseQuantity(supply._id, batch._id)}>
-                                                <FontAwesomeIcon icon={faMinus} />
-                                            </IconButton>
-                                        </React.Fragment>
-                                    ))}
-                                    <IconButton onClick={() => handleRemoveFromOrder(supply._id)}>
+                        <FormControl fullWidth margin="normal">
+                            <List style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {selectedProvider.supplies.map(product => (
+                                    <ListItem key={product._id} dense>
+                                        <Checkbox
+                                            checked={selectedProducts.some(p => p.product._id === product._id)}
+                                            onChange={() => handleProductToggle(product)}
+                                        />
+                                        <ListItemText primary={product.name} />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </FormControl>
+                        <List>
+                            {selectedProducts.map(({ product, quantity }) => (
+                                <ListItem key={product._id}>
+                                    <ListItemText primary={product.name} />
+                                    <TextField
+                                        type="number"
+                                        label="Cantidad"
+                                        value={quantity}
+                                        onChange={e => handleQuantityChange(product._id, parseInt(e.target.value, 10) || 1)}
+                                        style={{ width: '100px', marginRight: '10px' }}
+                                    />
+                                    <IconButton onClick={() => handleRemoveProduct(product._id)}>
                                         <FontAwesomeIcon icon={faTrash} />
                                     </IconButton>
-                                </div>
-                            )}
-                        </ListItem>
-                    ))}
-                </List>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </>
+                )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} color="primary">
-                    Cerrar
+                    Cancelar
                 </Button>
-                <Button onClick={() => order && onSave(order)} color="secondary">
-                    Confirmar Pedido
+                <Button onClick={handleSave} color="secondary" disabled={!selectedProvider || selectedProducts.length === 0}>
+                    Guardar
                 </Button>
             </DialogActions>
         </Dialog>
