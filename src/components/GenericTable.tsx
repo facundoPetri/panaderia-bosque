@@ -40,10 +40,10 @@ interface Column<T> {
 interface GenericTableProps<T extends object> {
   columns: Column<T>[]
   data: T[]
-  onView: (row: T) => void
+  onView?: (row: T) => void
   onAdd?: () => void
   onEdit?: (row: T) => void
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
   dropdownOptions: { title: string }[]
   showDropdown?: boolean
   nameColumnId: keyof T
@@ -241,7 +241,7 @@ const GenericTable = <T extends object>({
   const onDeleteConfirm = useCallback(async () => {
     if (selectedRow) {
       const id = selectedRow[columns[0].id]
-      await onDelete(String(id))
+      await onDelete?.(String(id))
       setDeleteDialogOpen(false)
       setSelectedRows([])
       setSelectedRow(null)
@@ -387,7 +387,7 @@ const GenericTable = <T extends object>({
                     >
                       <IconButton
                         aria-label="Ver más"
-                        onClick={() => onView(row)}
+                        onClick={() => onView?.(row)}
                       >
                         <FontAwesomeIcon icon={faSquarePlus} />
                       </IconButton>

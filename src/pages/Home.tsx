@@ -27,6 +27,7 @@ import { request, requestToast } from '../common/request'
 import { formatISODateString } from '../utils/dateUtils'
 import { getSupplyUnit } from '../utils/getSupplyUnit'
 import { RecipesResponse } from '../interfaces/Recipes'
+import { SupplyUsageToSend } from '../common/types'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -90,11 +91,6 @@ const useStyles = makeStyles((theme) => {
     },
   }
 })
-interface SupplyUsageToSend {
-  supply: string
-  quantity: number
-  date_used: string
-}
 const filterDaysOptions = [
   { days: 1, label: 'hoy' },
   { days: 7, label: 'esta semana' },
@@ -327,64 +323,67 @@ function Home() {
           </Box>
         </div>
       </div>
-      <GenericDialog
-        title="Agregar uso de insumo"
-        open={openDialog}
-        handleClose={handleCloseDialog}
-        content={
-          <div>
-            <FormControl fullWidth>
-              <InputLabel id="recetasSelector">Recetas</InputLabel>
-              <Select
-                labelId="recetasSelector"
-                name="recipes"
-                value={selectedRecipe?._id || ''}
-                onChange={(e) =>
-                  setSelectedRecipe(
-                    recipes.find((r) => r._id === (e.target.value as string)) ||
-                      null
-                  )
-                }
-                label="Insumos"
-                input={<Input />}
-                fullWidth
-              >
-                {recipes.map((recipe) => (
-                  <MenuItem key={recipe._id} value={recipe._id}>
-                    {recipe.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {selectedRecipe && (
-              <>
-                {selectedRecipe.supplies.map((supply) => (
-                  <Box className={classes.suppliesWrapper}>
-                    <Typography>{`${supply.name} (${supply.unit})`}</Typography>
-                    <TextField
-                      margin="dense"
-                      label="Cantidad"
-                      type="number"
-                      fullWidth
-                      value={
-                        supplyUsage.find((item) => item.supply === supply._id)
-                          ?.quantity || 0
-                      }
-                      onChange={(e) =>
-                        handleChangeQuantity(e.target.value, supply._id)
-                      }
-                    />
-                  </Box>
-                ))}
-              </>
-            )}
-          </div>
-        }
-        primaryButtonAction={handleConfirm}
-        primaryButtonTitle="Confirmar"
-        secondaryButtonTitle="Cancelar"
-        secondaryButtonAction={handleCancel}
-      />
+      {openDialog && (
+        <GenericDialog
+          title="Agregar uso de insumo"
+          open={openDialog}
+          handleClose={handleCloseDialog}
+          content={
+            <div>
+              <FormControl fullWidth>
+                <InputLabel id="recetasSelector">Recetas</InputLabel>
+                <Select
+                  labelId="recetasSelector"
+                  name="recipes"
+                  value={selectedRecipe?._id || ''}
+                  onChange={(e) =>
+                    setSelectedRecipe(
+                      recipes.find(
+                        (r) => r._id === (e.target.value as string)
+                      ) || null
+                    )
+                  }
+                  label="Insumos"
+                  input={<Input />}
+                  fullWidth
+                >
+                  {recipes.map((recipe) => (
+                    <MenuItem key={recipe._id} value={recipe._id}>
+                      {recipe.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {selectedRecipe && (
+                <>
+                  {selectedRecipe.supplies.map((supply) => (
+                    <Box className={classes.suppliesWrapper} key={supply._id}>
+                      <Typography>{`${supply.name} (${supply.unit})`}</Typography>
+                      <TextField
+                        margin="dense"
+                        label="Cantidad"
+                        type="number"
+                        fullWidth
+                        value={
+                          supplyUsage.find((item) => item.supply === supply._id)
+                            ?.quantity || 0
+                        }
+                        onChange={(e) =>
+                          handleChangeQuantity(e.target.value, supply._id)
+                        }
+                      />
+                    </Box>
+                  ))}
+                </>
+              )}
+            </div>
+          }
+          primaryButtonAction={handleConfirm}
+          primaryButtonTitle="Confirmar"
+          secondaryButtonTitle="Cancelar"
+          secondaryButtonAction={handleCancel}
+        />
+      )}
     </div>
   )
 }
