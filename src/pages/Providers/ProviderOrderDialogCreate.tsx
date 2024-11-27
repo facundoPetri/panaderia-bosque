@@ -12,8 +12,9 @@ import { SuppliesResponse } from '../../interfaces/Supplies';
 interface ProviderOrderDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (order: { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] }) => void;
+    onSave: (order: { provider: ProviderResponse; supplies: { product: string; quantity: number }[] }) => void;
     providers: ProviderResponse[];
+    supplies: SuppliesResponse[];
 }
 
 const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
@@ -54,7 +55,8 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
 
     const handleSave = () => {
         if (selectedProvider) {
-            onSave({ provider: selectedProvider, supplies: selectedProducts });
+            const supplies = selectedProducts.map(({ product, quantity }) => ({ product: product._id, quantity }));
+            onSave({ provider: selectedProvider, supplies });
             onClose();
         }
     };
