@@ -1,5 +1,20 @@
 import { ProviderResponse } from './Providers'
-import { SuppliesResponse } from './Supplies'
+
+interface OrderSupply {
+  supplyId: {
+    _id: string
+    name: string
+  }
+  quantity: number
+  _id: string
+}
+
+export enum OrderState {
+  CREATED = 'Creado',
+  PENDING = 'Pendiente',
+  COMPLETED = 'Completado',
+  CANCELLED = 'Cancelado',
+}
 
 export interface OrderResponse {
   _id: string
@@ -7,7 +22,14 @@ export interface OrderResponse {
   date: string
   created_at: string
   provider: ProviderResponse
-  supplies: SuppliesResponse[]
+  supplies: OrderSupply[]
+  state: OrderState
+}
+
+export interface OrderBody {
+  created_at?: string
+  provider: string
+  supplies: { supplyId: string | null; quantity: number }[]
 }
 
 export interface TransformedOrder {
@@ -17,5 +39,5 @@ export interface TransformedOrder {
   created_at: string
   provider: string
   supplies: string
+  state: OrderState
 }
-

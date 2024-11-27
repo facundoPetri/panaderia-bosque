@@ -1,23 +1,52 @@
-import React from 'react';
-import { OrderResponse } from '../../interfaces/Orders';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
+import React from 'react'
+import { OrderResponse, OrderState } from '../../interfaces/Orders'
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  TextField,
+} from '@material-ui/core'
+import { SuppliesResponse } from '../../interfaces/Supplies'
+import { ca } from 'date-fns/locale'
 
 interface OrderDetailsModalProps {
-  order: OrderResponse | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (order: OrderResponse) => void;
+  order: OrderResponse | null
+  isOpen: boolean
+  onClose: () => void
+  onSave: (order: {
+    id: string
+    state: string
+    cancelled_description?: string
+  }) => void
+  supplies: SuppliesResponse[]
 }
 
-const OrderDetailsDialog: React.FC<OrderDetailsModalProps> = ({ order, isOpen, onClose, onSave }) => {
+const OrderDetailsDialog: React.FC<OrderDetailsModalProps> = ({
+  order,
+  isOpen,
+  onClose,
+  onSave,
+  supplies,
+}) => {
+  const [selectedState, setSelectedState] = React.useState<OrderState>(
+    order?.state ?? OrderState.CREATED
+  )
   const handleSave = () => {
     if (order) {
-      onSave(order);
+      const updatedOrder = {
+        id: order._id,
+        state: selectedState,
+        cancelled_description: '', //TODO: Implementar descripción de cancelación
+      }
+      onSave(updatedOrder)
     }
-  };
+  }
 
   if (!order) {
-    return null; // Don't render the dialog if order is null
+    return null // Don't render the dialog if order is null
   }
 
   return (
@@ -26,31 +55,66 @@ const OrderDetailsDialog: React.FC<OrderDetailsModalProps> = ({ order, isOpen, o
       <DialogContent>
         <TextField
           label="Fecha del pedido"
-          value={new Date(order.date).toLocaleDateString()} // Muestra la fecha en formato legible
+          value={new Date(order.created_at).toLocaleDateString()} // Muestra la fecha en formato legible
           fullWidth
           margin="normal"
-          InputProps={{
-            readOnly: true,
-          }}
+          disabled={true}
         />
         <TextField
           label="Proveedor que entrega"
           value={order.provider.name}
           fullWidth
           margin="normal"
-          InputProps={{
-            readOnly: true,
-          }}
+          disabled={true}
         />
+        {order.supplies.map((item, index) => (
+          <div
+            key={`sup-${index}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '16px',
+            }}
+          >
+            <TextField
+              select
+              label={`Insumo ${index + 1}`}
+              fullWidth
+              value={item.supplyId._id}
+              defaultValue={''}
+              disabled={true}
+            >
+              {supplies.map((supply) => (
+                <MenuItem key={supply._id} value={supply._id}>
+                  {supply.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Cantidad"
+              fullWidth
+              value={item.quantity}
+              disabled={true}
+            />
+          </div>
+        ))}
         <TextField
-          label="Insumos en el pedido"
-          value={order.supplies.map(supply => supply.name).join(', ')} // Convierte la lista de insumos en un string
+          select
+          label="Estado del pedido"
+          value={selectedState}
+          onChange={(e) => {
+            setSelectedState(e.target.value as OrderState)
+          }}
           fullWidth
           margin="normal"
-          InputProps={{
-            readOnly: true,
-          }}
-        />
+        >
+          {Object.values(OrderState).map((state) => (
+            <MenuItem key={state} value={state}>
+              {state}
+            </MenuItem>
+          ))}
+        </TextField>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary" variant="contained">
@@ -61,7 +125,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsModalProps> = ({ order, isOpen, o
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default OrderDetailsDialog;
+export default OrderDetailsDialog

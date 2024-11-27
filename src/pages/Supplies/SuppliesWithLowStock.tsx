@@ -37,7 +37,7 @@ export default function SuppliesWithLowStock() {
     setIsCreateMode(true);
   };
 
-  const handlerSave = async (newOrder: { provider: ProviderResponse; supplies: { product: SuppliesResponse; quantity: number }[] }) => {
+  const handlerSave = async (newOrder: { provider: ProviderResponse; supplies: { product: string; quantity: number }[] }) => {
     try {
       const orderToSave = {
         number: newOrder.supplies.reduce((sum, item) => sum + item.quantity, 0), // Total de productos
@@ -45,7 +45,7 @@ export default function SuppliesWithLowStock() {
         created_at: new Date().toISOString(),
         provider: newOrder.provider,
         supplies: newOrder.supplies.map(item => ({
-          ...item.product,
+          supplyId: item.product,
           quantity: item.quantity, // Cantidad seleccionada por producto
         })),
       };
@@ -63,15 +63,25 @@ export default function SuppliesWithLowStock() {
     }
   };
 
-  const calculatePriority = (currentStock: number, minStock: number, maxStock: number): string => {
-    if (currentStock <= minStock) {
-      return 'Alta';
-    } else if (currentStock > minStock && currentStock < maxStock) {
-      return 'Media';
-    } else {
-      return 'Baja';
+  const calculatePriority = (
+    currentStock: number,
+    minStock: number,
+    maxStock: number
+  ): string => {
+    // Si el stock actual es menor al mínimo, la prioridad es alta
+    if (currentStock < minStock) {
+      return 'Alta'
     }
-  };
+    // Si el stock actual es menor al promedio entre el mínimo y el máximo, la prioridad es media
+    if (currentStock < (minStock + maxStock) / 2) {
+      return 'Media'
+    }
+    // Si el stock actual es menor al máximo, la prioridad es baja
+    if (currentStock < maxStock) {
+      return 'Baja'
+    }
+    return ''
+  }
 
   const getSupplies = async () => {
     try {
@@ -144,6 +154,7 @@ export default function SuppliesWithLowStock() {
           onClose={onClose}
           onSave={handlerSave}
           providers={providers}
+          supplies={supplies}
         />
       )}
       <ToastContainer />
