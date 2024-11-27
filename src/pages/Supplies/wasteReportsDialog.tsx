@@ -15,23 +15,35 @@ import esLocale from "date-fns/locale/es";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { UsersResponse } from "../../interfaces/Users";
+import { WasteFormData, WasteResponse } from "../../interfaces/Waste";
 import { SuppliesResponse } from "../../interfaces/Supplies";
 
 interface WasteEditDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: WasteFormData) => void;
+  onSave: (data: WasteFormData, id?: string) => void;
   users: UsersResponse[];
   supplies: SuppliesResponse[];
+  formData: WasteResponse | null;
 }
 
-interface WasteFormData {
-  reporter: string;
-  involved: string;
-  date: Date | null;
-  reason: string;
-  items: { supply: string; quantity: string }[];
-}
+const mapper = (selected: WasteResponse) => ({
+  reporter: {
+    name: selected.reporter.fullname,
+    id: selected.reporter._id,
+  },
+  involved: {
+    name: selected.responsible?.fullname ?? "",
+    id: selected.responsible?._id ?? "",
+  },
+  date: new Date(selected.date),
+  reason: selected.motive,
+  items: selected.supplies.map((supply) => ({
+    supply: supply.supplyId.name,
+    supplyId: supply.supplyId._id,
+    quantity: supply.quantity.toString(),
+  })),
+})
 
 const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   open,
@@ -39,10 +51,11 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   onSave,
   users,
   supplies,
+  formData: edit,
 }) => {
-  const [formData, setFormData] = useState<WasteFormData>({
-    reporter: "",
-    involved: "",
+  const [formData, setFormData] = useState<WasteFormData>(edit ? mapper(edit) : {
+    reporter: { name: "", id: "" },
+    involved: { name: "", id: "" },
     date: null,
     reason: "",
     items: [],
@@ -50,7 +63,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
 
   const handleFieldChange = (
     field: keyof WasteFormData,
-    value: string | Date | null | { supply: string; quantity: string }[]
+    value: any
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -59,13 +72,13 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
     if (formData.items.length >= 5) return; // Limitar a 5 insumos
     setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { supply: "", quantity: "" }],
+      items: [...prev.items, { supply: "", supplyId: "", quantity: "" }],
     }));
   };
 
   const handleItemChange = (
     index: number,
-    field: keyof { supply: string; quantity: string },
+    field: keyof { supply: string; supplyId: string; quantity: string },
     value: string
   ) => {
     const updatedItems = [...formData.items];
@@ -80,21 +93,24 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   };
 
   const handleSave = () => {
-    onSave(formData);
+    onSave(formData, edit?._id);
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edición de desperdicio</DialogTitle>
+      <DialogTitle>{edit ? 'Edición de desperdicio' : 'Creación de desperdicio'}</DialogTitle>
       <DialogContent>
         <TextField
           select
           label="Empleado que reporta"
           fullWidth
           margin="normal"
-          value={formData.reporter}
-          onChange={(e) => handleFieldChange("reporter", e.target.value)}
+          value={formData.reporter.id}
+          onChange={(e) => {
+            const selectedUser = users.find(user => user._id === e.target.value);
+            handleFieldChange("reporter", { name: selectedUser?.fullname || "", id: e.target.value });
+          }}
         >
           {users.map((user) => (
             <MenuItem key={user._id} value={user._id}>
@@ -107,8 +123,11 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           label="Empleado involucrado"
           fullWidth
           margin="normal"
-          value={formData.involved}
-          onChange={(e) => handleFieldChange("involved", e.target.value)}
+          value={formData.involved.id}
+          onChange={(e) => {
+            const selectedUser = users.find(user => user._id === e.target.value);
+            handleFieldChange("involved", { name: selectedUser?.fullname || "", id: e.target.value });
+          }}
         >
           {users.map((user) => (
             <MenuItem key={user._id} value={user._id}>
@@ -151,8 +170,11 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               select
               label={`Insumo ${index + 1}`}
               fullWidth
-              value={item.supply}
-              onChange={(e) => handleItemChange(index, "supply", e.target.value)}
+              value={item.supplyId}
+              onChange={(e) => {
+                handleItemChange(index, "supplyId", e.target.value)
+              }}
+              disabled={edit !== null}
             >
               {supplies.map((supply) => (
                 <MenuItem key={supply._id} value={supply._id}>
@@ -165,8 +187,9 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               fullWidth
               value={item.quantity}
               onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+              disabled={edit !== null}
             />
-            <IconButton onClick={() => handleRemoveItem(index)}>
+            <IconButton onClick={() => handleRemoveItem(index)} disabled={edit !== null}>
               <FontAwesomeIcon icon={faTrash} />
             </IconButton>
           </div>
@@ -175,7 +198,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           variant="outlined"
           onClick={handleAddItem}
           startIcon={<FontAwesomeIcon icon={faPlus} />}
-          disabled={formData.items.length >= 5}
+          disabled={formData.items.length >= 5 || edit !== null}
         >
           Agregar Insumo
         </Button>
