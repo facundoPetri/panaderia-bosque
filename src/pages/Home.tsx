@@ -226,7 +226,7 @@ function Home() {
         method: 'GET',
       })
       if (res) {
-        setOrders(res)
+        setOrders(res.filter((order)=>order.state === OrderState.PENDING))
       }
     } catch (error) {
       console.error('Error al obtener pedidos:', error)
