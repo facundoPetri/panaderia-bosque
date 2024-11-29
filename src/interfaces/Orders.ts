@@ -19,11 +19,12 @@ export enum OrderState {
 export interface OrderResponse {
   _id: string
   number: number
-  date: string
   created_at: string
   provider: ProviderResponse
   supplies: OrderSupply[]
   state: OrderState
+  received_date?: string
+  cancelled_description?: string
 }
 
 export interface OrderBody {
@@ -35,7 +36,6 @@ export interface OrderBody {
 export interface TransformedOrder {
   _id: string
   number: number
-  date: string
   created_at: string
   provider: string
   supplies: string
