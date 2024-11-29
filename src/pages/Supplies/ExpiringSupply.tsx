@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import GenericTable from '../../components/GenericTable'
 import { Column } from '../../components/GenericTable'
 import { SuppliesResponse, TransformedBatch } from '../../interfaces/Supplies'
-import { request } from '../../common/request'
+import { request, requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { ToastContainer } from 'react-toastify'
 
 const columns: Column<TransformedBatch>[] = [
   {
@@ -59,11 +60,13 @@ export default function ExpiringSupply() {
 
   const getSupplies = async () => {
     try {
-      const res = await request<SuppliesResponse[]>({
+      const res = await requestToast<SuppliesResponse[]>({
         path: '/supplies',
         method: 'GET',
+        successMessage: 'Insumos  cargados',
+        errorMessage: 'Error al cargar insumos',
+        pendingMessage: 'Cargando insumos...'
       })
-
       if (res) {
         setSupplies(res)
         const transformedBatches: TransformedBatch[] = res.flatMap((supply) =>
@@ -75,7 +78,6 @@ export default function ExpiringSupply() {
             quantity: batch.quantity + ' ' + supply.unit,
           }))
         )
-
         setBatches(transformedBatches)
       }
     } catch (error) {
@@ -107,6 +109,7 @@ export default function ExpiringSupply() {
           editable={isEditMode}
         />
       )}
+      <ToastContainer />
       <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} />
     </div>
   )

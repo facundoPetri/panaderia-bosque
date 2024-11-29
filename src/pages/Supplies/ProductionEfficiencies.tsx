@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
+import { ToastContainer } from 'react-toastify';
 
 const columns: Column<ProductionEfficiency>[] = [
-  { id: 'id', label: 'id' , hiddenColumn: true, sortable : false},
+  { id: 'id', label: 'id', hiddenColumn: true, sortable: false },
   { id: 'name', label: 'Nombre' },
-  { id: 'supplies', label: 'Insumos'},
+  { id: 'supplies', label: 'Insumos' },
   { id: 'totalTime', label: 'Tiempo total' },
   { id: 'productionQuantity', label: 'Cantidad en produccion' },
 ];
@@ -17,51 +18,51 @@ interface ProductionEfficiency {
   totalTime: string;
   productionQuantity: string;
 }
-  
-  const data: ProductionEfficiency[] = [
-    {
-      id: '1',
-      name: 'Criollos comunes',
-      supplies: 'Harina, sal, agua, levadura, margarina',
-      totalTime: '300m',
-      productionQuantity: '100u',
-    },
-    {
-      id: '2',
-      name: 'Criollos de hojaldre',
-      supplies: 'Harina, levadura, margarina, sal, agua',
-      totalTime: '300m',
-      productionQuantity: '100u',
-    },
-    {
-      id: '3',
-      name: 'Lemon pie',
-      supplies: 'Limón, manteca, azúcar, huevo, esencia de vainilla, maizena',
-      totalTime: '200m',
-      productionQuantity: '8u',
-    },
-    {
-      id: '4',
-      name: 'Medialunas',
-      supplies: 'Harina leudante, almíbar, azúcar, huevo, esencia de vainilla, miel',
-      totalTime: '100m',
-      productionQuantity: '24u',
-    },
-    {
-      id: '5',
-      name: 'Pan Dulce',
-      supplies: 'Harina, Frutos secos, huevos, levadura',
-      totalTime: '20m',
-      productionQuantity: '3u',
-    },
-    {
-      id: '6',
-      name: 'Pan francés',
-      supplies: 'Harina, agua, sal, levadura',
-      totalTime: '150m',
-      productionQuantity: '10u',
-    },
-  ];   
+
+const data: ProductionEfficiency[] = [
+  {
+    id: '1',
+    name: 'Criollos comunes',
+    supplies: 'Harina, sal, agua, levadura, margarina',
+    totalTime: '300m',
+    productionQuantity: '100u',
+  },
+  {
+    id: '2',
+    name: 'Criollos de hojaldre',
+    supplies: 'Harina, levadura, margarina, sal, agua',
+    totalTime: '300m',
+    productionQuantity: '100u',
+  },
+  {
+    id: '3',
+    name: 'Lemon pie',
+    supplies: 'Limón, manteca, azúcar, huevo, esencia de vainilla, maizena',
+    totalTime: '200m',
+    productionQuantity: '8u',
+  },
+  {
+    id: '4',
+    name: 'Medialunas',
+    supplies: 'Harina leudante, almíbar, azúcar, huevo, esencia de vainilla, miel',
+    totalTime: '100m',
+    productionQuantity: '24u',
+  },
+  {
+    id: '5',
+    name: 'Pan Dulce',
+    supplies: 'Harina, Frutos secos, huevos, levadura',
+    totalTime: '20m',
+    productionQuantity: '3u',
+  },
+  {
+    id: '6',
+    name: 'Pan francés',
+    supplies: 'Harina, agua, sal, levadura',
+    totalTime: '150m',
+    productionQuantity: '10u',
+  },
+];
 
 const dropdownOptions = columns
   .filter(column => !column.hiddenFilter)
@@ -71,7 +72,7 @@ const dropdownOptions = columns
 
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<ProductionEfficiency | null>(null);
-//Modal
+  //Modal
   const onView = (productionEfficiencies: ProductionEfficiency) => {
     setSelectedProductionEfficiency(productionEfficiencies);
   };
@@ -104,6 +105,7 @@ export default function ProductionEfficiencies() {
         nameColumnId="name"
         nameButton='Crear'
       />
+      <ToastContainer />
     </div>
   );
 }

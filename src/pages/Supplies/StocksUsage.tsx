@@ -20,6 +20,7 @@ import GenericDialog from '../../components/GenericDIalog'
 import { RecipesResponse } from '../../interfaces/Recipes'
 import { SupplyUsageToSend } from '../../common/types'
 import { formatISODateString } from '../../utils/dateUtils'
+import { toast, ToastContainer } from 'react-toastify'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -106,9 +107,6 @@ export default function StocksUsage() {
       console.error(error)
     }
   }
-  useEffect(() => {
-    getSuppliesUsageLog()
-  }, [])
 
   const onAdd = () => {
     setOpenDialog(true)
@@ -117,7 +115,7 @@ export default function StocksUsage() {
     return suppliesLog.map((supplyLog) => ({
       ...supplyLog,
       supply: supplyLog.supply.name,
-      date_used:formatISODateString(supplyLog.date_used)
+      date_used: formatISODateString(supplyLog.date_used)
     }))
   }
   const handleCancel = () => {
@@ -159,9 +157,15 @@ export default function StocksUsage() {
       console.error(error)
     }
   }
+
   useEffect(() => {
-    getRecipes()
+    toast.promise(Promise.all([getRecipes(), getSuppliesUsageLog()]), {
+      pending: 'Cargando insumos...',
+      success: 'insumos cargados',
+      error: 'Error al cargar insumos',
+    })
   }, [])
+
   const handleChangeQuantity = (value: string, supplyId: string) => {
     setSupplyUsage((prev) => {
       const existingSupply = prev.find((item) => item.supply === supplyId)
@@ -255,6 +259,7 @@ export default function StocksUsage() {
           secondaryButtonAction={handleCancel}
         />
       )}
+      <ToastContainer />
     </div>
   )
 }

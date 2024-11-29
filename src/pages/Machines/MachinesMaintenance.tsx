@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import GenericTable, { Column } from '../../components/GenericTable'
-import { request } from '../../common/request'
+import { request, requestToast } from '../../common/request'
 import {
   convertToFullDateString,
   formatISODateString,
@@ -14,6 +14,7 @@ import MachinesMaintenanceDialog from './MachinesMaintenanceDialog'
 import { MachinesResponse } from '../../interfaces/Machines'
 import MaintenanceDialogCreate from './MaintenanceDialogCreate'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { toast, ToastContainer } from 'react-toastify'
 
 const columns: Column<any>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -139,10 +140,6 @@ export default function MachinesMaintenance() {
     }
   }
 
-  useEffect(() => {
-    getMaintenances()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
   const getMachines = async () => {
     try {
       const res = await request<MachinesResponse[]>({
@@ -157,10 +154,14 @@ export default function MachinesMaintenance() {
     }
   }
 
-  useEffect(() => {
-    getMachines()
+  useEffect(() => {toast.promise(Promise.all([getMachines(), getMaintenances()]), {
+    success: 'Maquinarias cargadas',
+    error: 'Error al cargar maquinarias',
+    pending: 'Cargando maquinarias...',
+  })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión y mantenimiento de maquinaria</h1>
@@ -188,6 +189,7 @@ export default function MachinesMaintenance() {
         onSave={handleSave}
       />
       <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} />
+      <ToastContainer />
     </div>
   )
 }
