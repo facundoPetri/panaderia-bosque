@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,52 +6,41 @@ import {
   DialogActions,
   Button,
   TextField,
-  IconButton,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { SuppliesCreateData } from '../../interfaces/Supplies'
+import { SuppliesCreateData } from '../../interfaces/Supplies';
+import { validateGeneralNumber, validateSpecificNumber, validateText } from '../../utils/validateData';
 
 const useStyles = makeStyles((theme) => ({
-  imageUploadContainer: {
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: theme.spacing(2),
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.8rem',
+    color: theme.palette.text.secondary,
   },
   imagePreview: {
-    width: 150,
-    height: 150,
+    width: '100%',
+    height: '150px',
     backgroundColor: '#f0f0f0',
-    borderRadius: 4,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
     color: '#999',
-    position: 'relative',
+    marginBottom: theme.spacing(2),
+    overflow: 'hidden',
   },
-  addButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: theme.palette.primary.main,
-    color: 'white',
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
+  image: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'cover',
   },
-  input: {
-    display: 'none',
-  },
-}))
+}));
 
 interface SuppliesDialogCreateProps {
-  open: boolean
-  onClose: () => void
-  onSave: (supplies: SuppliesCreateData) => void
+  open: boolean;
+  onClose: () => void;
+  onSave: (supplies: SuppliesCreateData) => void;
 }
 
 const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
@@ -59,18 +48,32 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
   onClose,
   onSave,
 }) => {
-  const classes = useStyles()
+  const classes = useStyles();
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [minStock, setMinStock] = useState<number | string>('')
-  const [maxStock, setMaxStock] = useState<number | string>('')
-  const [packageSize, setPackageSize] = useState<number | string>('')
-  const [unit, setUnit] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [minStock, setMinStock] = useState<number | string>('');
+  const [maxStock, setMaxStock] = useState<number | string>('');
+  const [packageSize, setPackageSize] = useState('');
+  const [unit, setUnit] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const handleSave = () => {
+    // Validación
+    const isValid =
+      validateText(imageUrl, { required: true }, 'URL de la imagen') &&
+      validateText(name, { required: true, maxLength: 20 }, 'Nombre') &&
+      validateText(description, { required: true, maxLength: 50 }, 'Descripción') &&
+      validateGeneralNumber(Number(minStock), { required: true }, 'Stock mínimo') &&
+      validateGeneralNumber(Number(maxStock), { required: true }, 'Stock máximo') &&
+      validateSpecificNumber(Number(minStock), { min: 1, max: Number(maxStock) }, 'Stock mínimo') &&
+      validateSpecificNumber(Number(maxStock), { min: 1 }, 'Stock máximo') &&
+      validateText(packageSize, { required: true, maxLength: 10 }, 'Tamaño del paquete') &&
+      validateText(unit, { required: true, maxLength: 10 }, 'Unidad de medida');
+
+    if (!isValid) return;
+
+    // Guardar datos si la validación fue exitosa
     const newSupplies: SuppliesCreateData = {
       name,
       updatedAt: new Date().toLocaleDateString(),
@@ -81,71 +84,54 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
       min_stock: Number(minStock),
       max_stock: Number(maxStock),
       image: imageUrl,
-    }
+    };
 
-    onSave(newSupplies)
-    setName('')
-    setDescription('')
-    setMinStock('')
-    setMaxStock('')
-    setPackageSize('')
-    setUnit('')
-    setImageUrl('')
-    setImageFile(null)
-  }
+    onSave(newSupplies);
+    resetFields();
+  };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  const resetFields = () => {
+    setName('');
+    setDescription('');
+    setMinStock('');
+    setMaxStock('');
+    setPackageSize('');
+    setUnit('');
+    setImageUrl('');
+  };
+
+  const handleClose = () => {
+    resetFields();
+    onClose();
+  };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Crear un nuevo insumo</DialogTitle>
       <DialogContent>
-        <div className={classes.imageUploadContainer}>
+        <TextField
+          margin="dense"
+          label="Insertar URL de imagen"
+          type="url"
+          fullWidth
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        {imageUrl && (
           <div className={classes.imagePreview}>
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="Insumo"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <span>Imagen del insumo</span>
-            )}
-            <input
-              accept="image/*"
-              className={classes.input}
-              id="icon-button-file"
-              type="file"
-              onChange={handleImageUpload}
-            />
-            <label htmlFor="icon-button-file">
-              <IconButton className={classes.addButton}>
-                <FontAwesomeIcon
-                  icon={faPlus}
-                  style={{ width: 16, height: 16 }}
-                />
-              </IconButton>
-            </label>
+            <img src={imageUrl} alt="Vista previa" className={classes.image} />
           </div>
-        </div>
-
+        )}
         <TextField
           margin="dense"
           label="Nombre"
           type="text"
           fullWidth
           value={name}
+          inputProps={{ maxLength: 20 }}
           onChange={(e) => setName(e.target.value)}
+          helperText={`${name.length}/20`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -155,7 +141,10 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           multiline
           rows={3}
           value={description}
+          inputProps={{ maxLength: 50 }}
           onChange={(e) => setDescription(e.target.value)}
+          helperText={`${description.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -187,11 +176,14 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           type="text"
           fullWidth
           value={unit}
+          inputProps={{ maxLength: 10 }}
           onChange={(e) => setUnit(e.target.value)}
+          helperText={`${unit.length}/10`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={handleClose} color="secondary">
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary" variant="contained">
@@ -199,7 +191,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default SuppliesDialogCreate
+export default SuppliesDialogCreate;
