@@ -55,7 +55,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
     if (editedUser && editedUser.email) {
       validateEmail(editedUser.email)
     }
-  }, [editedUser?.email])
+  }, [editedUser])
 
   if (!user) return null
 
