@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import GenericTable from '../../components/GenericTable'
-import { Column } from '../../components/GenericTable'
+import GenericTable, { Column } from '../../components/GenericTable'
 import { SuppliesResponse, TransformedBatch } from '../../interfaces/Supplies'
-import { request, requestToast } from '../../common/request'
+import { requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { ToastContainer } from 'react-toastify'
+import { Batch as BatchResponse } from '../../interfaces/Batch'
+import { FilterDaysSelect } from '../../components/FilterDaysSelect'
 
 const columns: Column<TransformedBatch>[] = [
   {
@@ -31,53 +32,44 @@ const dropdownOptions = columns
   }))
 
 export default function ExpiringSupply() {
-  const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
-  const [, setSelectedBatch] = useState<TransformedBatch | null>(null)
-  const [selectedSupplies, setSelectedSupplies] =
-    useState<SuppliesResponse | null>(null)
+  const [selectedBatches, setSelectedBatches] = useState<BatchResponse[]>([])
+  const [selectedSupply, setSelectedSupply] = useState<SuppliesResponse | null>(
+    null
+  )
   const [batches, setBatches] = useState<TransformedBatch[]>([])
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [filterDays, setFilterDays] = useState<number>(30)
 
   const onView = (batch: TransformedBatch) => {
-    setSelectedBatch(batch)
+    const originalBatch = selectedBatches.find((b) => b._id === batch._id)
     setIsEditMode(false)
 
-    const relatedSupply = supplies.find(
-      (supply) => supply.name === batch.supply_name
-    )
-    setSelectedSupplies(relatedSupply || null)
+    setSelectedSupply(originalBatch?.supply_id || null)
   }
 
   const onClose = () => {
-    setSelectedBatch(null)
-    setSelectedSupplies(null)
+    setSelectedSupply(null)
     setIsEditMode(false)
   }
 
-  const onDelete = (id: string) => {
-    // Aquí puedes manejar la lógica para eliminar el lote con el ID proporcionado
-  }
-
-  const getSupplies = async () => {
+  const getBatches = async () => {
     try {
-      const res = await requestToast<SuppliesResponse[]>({
-        path: '/supplies',
+      const res = await requestToast<BatchResponse[]>({
+        path: '/batch?expiring=true&days=' + filterDays,
         method: 'GET',
         successMessage: 'Insumos  cargados',
         errorMessage: 'Error al cargar insumos',
-        pendingMessage: 'Cargando insumos...'
+        pendingMessage: 'Cargando insumos...',
       })
       if (res) {
-        setSupplies(res)
-        const transformedBatches: TransformedBatch[] = res.flatMap((supply) =>
-          (supply.batches || []).map((batch) => ({
-            ...batch,
-            location: 'Fila: ' + batch.row + ', Columna: ' + batch.column,
-            supply_name: supply.name,
-            expiration_date: formatISODateString(batch.expiration_date),
-            quantity: batch.quantity + ' ' + supply.unit,
-          }))
-        )
+        setSelectedBatches(res)
+        const transformedBatches = res.map((batch) => ({
+          ...batch,
+          expiration_date: formatISODateString(batch.expiration_date),
+          supply_name: batch.supply_id?.name ?? 'Sin nombre',
+          location: `Fila ${batch.row}, Columna ${batch.column}`,
+          quantity: `${batch.quantity} ${batch.supply_id?.unit}`,
+        }))
         setBatches(transformedBatches)
       }
     } catch (error) {
@@ -86,25 +78,29 @@ export default function ExpiringSupply() {
   }
 
   useEffect(() => {
-    getSupplies()
+    getBatches()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [filterDays])
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Insumos con vencimiento próximo</h1>
+      <FilterDaysSelect
+        title="Lotes que vencen en los próximos:"
+        value={filterDays}
+        onChange={setFilterDays}
+      />
       <GenericTable
         columns={columns}
         data={batches}
         dropdownOptions={dropdownOptions}
         onView={onView}
-        onDelete={onDelete}
         showDropdown={false}
         nameColumnId="batch_number"
       />
-      {selectedSupplies && (
+      {selectedSupply && (
         <SuppliesDialogEdit
-          selectedSupplies={selectedSupplies}
+          selectedSupplies={selectedSupply}
           onClose={onClose}
           editable={isEditMode}
         />
