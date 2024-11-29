@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GenericTable from '../../components/GenericTable';
 import { Column } from '../../components/GenericTable';
 import { ToastContainer } from 'react-toastify';
+import { RecipesResponse } from '../../interfaces/Recipes';
+import { request } from '../../common/request';
+import ProductionEfficienciesDialog from './ProductionEfficienciesDialog'; // Importa el modal correctamente
 
 const columns: Column<ProductionEfficiency>[] = [
   { id: 'id', label: 'id', hiddenColumn: true, sortable: false },
@@ -72,13 +75,28 @@ const dropdownOptions = columns
 
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<ProductionEfficiency | null>(null);
-  //Modal
-  const onView = (productionEfficiencies: ProductionEfficiency) => {
-    setSelectedProductionEfficiency(productionEfficiencies);
+  const [recipes, setRecipes] = useState<RecipesResponse[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Manejo del estado de apertura del modal
+
+  useEffect(() => {
+    getRecipes(); // Llama a la función para cargar las recetas al montar el componente
+  }, []);
+
+  // Modal: Ver o editar
+  const onView = (productionEfficiency: ProductionEfficiency) => {
+    setSelectedProductionEfficiency(productionEfficiency);
+    setIsDialogOpen(true);
   };
 
   const onClose = () => {
+    setIsDialogOpen(false);
     setSelectedProductionEfficiency(null);
+  };
+
+  const onSave = (data: any) => {
+    console.log('Datos guardados:', data);
+    setIsDialogOpen(false);
+    // Aquí puedes manejar la lógica para guardar los datos en el backend
   };
 
   const onDelete = (id: string) => {
@@ -88,7 +106,22 @@ export default function ProductionEfficiencies() {
 
   const onAdd = () => {
     console.log('Agregando nuevo elemento');
-    // Aquí puedes manejar la lógica de agregar un nuevo elemento
+    setSelectedProductionEfficiency(null);
+    setIsDialogOpen(true);
+  };
+
+  const getRecipes = async () => {
+    try {
+      const res = await request<RecipesResponse[]>({
+        path: '/recipes',
+        method: 'GET',
+      });
+      if (res) {
+        setRecipes(res);
+      }
+    } catch (error) {
+      console.error('Error al cargar recetas:', error);
+    }
   };
 
   return (
@@ -97,14 +130,22 @@ export default function ProductionEfficiencies() {
       <GenericTable
         columns={columns}
         data={data}
-        dropdownOptions={dropdownOptions} // Agrege dropdownOptions
+        dropdownOptions={dropdownOptions} // Agregue dropdownOptions
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         showDropdown={false}
         nameColumnId="name"
-        nameButton='Crear'
+        nameButton="Crear"
       />
+      {isDialogOpen && (
+        <ProductionEfficienciesDialog
+          open={isDialogOpen}
+          onClose={onClose}
+          onSave={onSave}
+          recipes={recipes} // Pasa las recetas cargadas al modal
+        />
+      )}
       <ToastContainer />
     </div>
   );
