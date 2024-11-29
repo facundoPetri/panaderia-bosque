@@ -6,13 +6,16 @@ import { ProviderResponse } from '../../interfaces/Providers'
 import {
   OrderBody,
   OrderResponse,
+  OrderState,
   TransformedOrder,
 } from '../../interfaces/Orders'
-import { request } from '../../common/request'
+import { request, requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
-import OrderDetailsDialog from './OrderDetailsDialog'
-import { SuppliesResponse } from '../../interfaces/Supplies'
 import { useParams } from 'react-router-dom'
+import OrderDetailsDialog, { onSaveOrder } from './OrderDetailsDialog'
+import { toast } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const columns: Column<TransformedOrder>[] = [
   {
@@ -38,14 +41,17 @@ export default function ProvidersOrders() {
   const [transfOrders, setTransfOrders] = useState<TransformedOrder[]>([])
   const [orders, setOrders] = useState<OrderResponse[]>([])
   const [providers, setProviders] = useState<ProviderResponse[]>([])
+
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null)
-  const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
   const { id } = useParams()
+  const [selectedProvider, setSelectedProvider] =
+    useState<ProviderResponse | null>(null)
+  const supplies =
+    providers.find((p) => p._id === selectedProvider?._id)?.supplies || []
 
   useEffect(() => {
     getProviders()
-    getSupplies()
     getOrders()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -81,17 +87,11 @@ export default function ProvidersOrders() {
     const originalOrder = orders.find((order) => order._id === orderView._id)
     if (originalOrder) {
       setSelectedOrder(originalOrder)
+      setSelectedProvider(
+        providers.find((p) => p._id === originalOrder.provider._id) || null
+      )
     } else {
       console.error('No se encontró el pedido original para ver.')
-    }
-  }
-
-  const onDelete = async (id: string) => {
-    try {
-      await request({ path: `/orders/${id}`, method: 'DELETE' })
-      getOrders()
-    } catch (error) {
-      console.error('Error al eliminar el pedido:', error)
     }
   }
 
@@ -99,16 +99,11 @@ export default function ProvidersOrders() {
     provider: ProviderResponse
     supplies: { product: string; quantity: number }[]
   }) => {
-    // Si el formato es el nuevo, manejamos la creación del pedido
-    const newOrder = order as {
-      provider: ProviderResponse
-      supplies: { product: string; quantity: number }[]
-    }
     try {
       const orderToSave: OrderBody = {
         created_at: new Date().toISOString(),
-        provider: newOrder.provider._id,
-        supplies: newOrder.supplies.map((item, i) => ({
+        provider: order.provider._id,
+        supplies: order.supplies.map((item, i) => ({
           supplyId: item.product,
           quantity: item.quantity,
         })),
@@ -120,30 +115,40 @@ export default function ProvidersOrders() {
       })
       getOrders()
     } catch (error) {
-      console.error('Error al guardar el pedido:', error)
+      toast.error(error)
     }
     onClose()
   }
 
-  const onEdit = async (order: {
-    id: string
-    state: string
-    cancelled_description?: string
-  }) => {
+  const onEdit = async (order: onSaveOrder) => {
     try {
-      const res = await request({
-        path: `/orders/${order.id}`,
-        method: 'POST',
-        data: {
-          state: order.state,
-          cancelled_description: order.cancelled_description,
-        },
-      })
-      if (res) {
-        getOrders()
+      let res
+      if (order.state !== OrderState.CREATED) {
+        res = await request({
+          path: `/orders/${order.id}`,
+          method: 'POST',
+          data: {
+            state: order.state,
+            cancelled_description: order.cancelled_description,
+          },
+        })
+      } else {
+        res = await request({
+          path: `/orders/${order.id}`,
+          method: 'PATCH',
+          data: {
+            state: order.state,
+            supplies: order.supplies?.map((item, i) => ({
+              supplyId: item.product,
+              quantity: item.quantity,
+            })),
+          },
+        })
       }
+      if (res) getOrders()
+      onClose()
     } catch (error) {
-      console.error(error)
+      toast.error(error)
     }
   }
 
@@ -159,24 +164,9 @@ export default function ProvidersOrders() {
     }
   }
 
-  const getSupplies = async () => {
-    try {
-      const res = await request<SuppliesResponse[]>({
-        path: '/supplies',
-        method: 'GET',
-      })
-      if (res) {
-        setSupplies(res)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const transformOrder = (order: OrderResponse): TransformedOrder => ({
     _id: order._id,
     number: order.number,
-    date: formatISODateString(order.date),
     created_at: formatISODateString(order.created_at),
     provider: order.provider.name,
     supplies: order.supplies.map((supply) => supply.supplyId.name).join(', '),
@@ -185,9 +175,12 @@ export default function ProvidersOrders() {
 
   const getOrders = async () => {
     try {
-      const res = await request<OrderResponse[]>({
+      const res = await requestToast<OrderResponse[]>({
         path: '/orders',
         method: 'GET',
+        successMessage: 'Pedidos cargados exitosamente',
+        errorMessage: 'Error al cargar los pedidos',
+        pendingMessage: 'Cargando pedidos...',
       })
       if (res) {
         setOrders(res)
@@ -207,7 +200,6 @@ export default function ProvidersOrders() {
         dropdownOptions={dropdownOptions}
         onView={onView}
         onAdd={onAdd}
-        onDelete={onDelete}
         nameColumnId="number"
       />
       <DownloadPdfButton url="http://localhost:3000/orders/generate-pdf" />
@@ -219,6 +211,8 @@ export default function ProvidersOrders() {
           onSave={onSave}
           providers={providers}
           supplies={supplies}
+          selectedProvider={selectedProvider}
+          setSelectedProvider={setSelectedProvider}
         />
       )}
 
@@ -231,6 +225,7 @@ export default function ProvidersOrders() {
           supplies={supplies}
         />
       )}
+      <ToastContainer />
     </div>
   )
 }
