@@ -172,6 +172,7 @@ export default function Providers() {
       success: 'Proveedores cargados',
       error: 'Error al cargar proveedores',
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

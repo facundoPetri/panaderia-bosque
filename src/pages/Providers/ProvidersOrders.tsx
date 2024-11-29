@@ -12,6 +12,7 @@ import { request } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import OrderDetailsDialog from './OrderDetailsDialog'
 import { SuppliesResponse } from '../../interfaces/Supplies'
+import { useParams } from 'react-router-dom'
 
 const columns: Column<TransformedOrder>[] = [
   {
@@ -40,12 +41,26 @@ export default function ProvidersOrders() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null)
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
+  const { id } = useParams()
 
   useEffect(() => {
     getProviders()
     getSupplies()
     getOrders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  useEffect(() => {
+    if (id && orders.length > 0) {
+      const originalOrder = orders.find(
+        (order) => order.number.toString() === id
+      )
+      if (originalOrder) {
+        setSelectedOrder(originalOrder)
+      } else {
+        console.error('No se encontró el pedido original para ver.')
+      }
+    }
+  }, [id, orders])
 
   const dropdownOptions = columns
     .filter((column) => !column.hiddenFilter)

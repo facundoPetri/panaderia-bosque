@@ -132,6 +132,7 @@ export default function SuppliesWithLowStock() {
       success: 'Insumos cargados',
       error: 'Error al cargar insumos',
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

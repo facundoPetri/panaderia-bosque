@@ -10,7 +10,6 @@ import {
   TextField,
 } from '@material-ui/core'
 import { SuppliesResponse } from '../../interfaces/Supplies'
-import { ca } from 'date-fns/locale'
 
 interface OrderDetailsModalProps {
   order: OrderResponse | null

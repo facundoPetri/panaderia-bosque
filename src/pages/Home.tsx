@@ -19,7 +19,7 @@ import {
   CardActions,
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faFileAlt, faHourglassHalf, faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 
 import GenericDialog from '../components/GenericDIalog'
 import { SuppliesResponse, SupplyUsage } from '../interfaces/Supplies'
@@ -28,6 +28,8 @@ import { formatISODateString } from '../utils/dateUtils'
 import { getSupplyUnit } from '../utils/getSupplyUnit'
 import { RecipesResponse } from '../interfaces/Recipes'
 import { SupplyUsageToSend } from '../common/types'
+import { OrderResponse, OrderState } from '../interfaces/Orders'
+import { useNavigate } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -84,11 +86,24 @@ const useStyles = makeStyles((theme) => {
     cardWrappers: {
       display: 'flex',
       marginTop: '1rem',
+      width:'50%',
+      flexWrap:'wrap',
+      gap:'1rem',
+      marginLeft:'2rem'
     },
     card: {
       width: '200px',
-      margin: '0px 1rem',
     },
+    ordersTitle:{
+      textAlign:'center'
+    },
+    verDetalles:{
+      '& span':{
+        display:'block',
+        width:'100%',
+        textAlign:'left'
+      }
+    }
   }
 })
 const filterDaysOptions = [
@@ -97,10 +112,12 @@ const filterDaysOptions = [
 ]
 function Home() {
   const classes = useStyles()
+  const navigate = useNavigate()
   const [openDialog, setOpenDialog] = useState(false)
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
   const [suppliesLog, setSuppliesLog] = useState<SupplyUsage[]>([])
   const [recipes, setRecipes] = useState<RecipesResponse[]>([])
+  const [orders, setOrders] = useState<OrderResponse[]>([])
   const [filterDays, setFilterDays] = useState(1)
   const [selectedRecipe, setSelectedRecipe] = useState<RecipesResponse | null>(
     null
@@ -202,6 +219,34 @@ function Home() {
       }
     })
   }
+  const getOrders = async () => {
+    try {
+      const res = await request<OrderResponse[]>({
+        path: '/orders',
+        method: 'GET',
+      })
+      if (res) {
+        setOrders(res)
+      }
+    } catch (error) {
+      console.error('Error al obtener pedidos:', error)
+    }
+  }
+  useEffect(() => {
+    getOrders()
+  }, [])
+  const getStateIcon = (state:OrderState)=>{
+    switch (state) {
+      case OrderState.CREATED:
+        return <FontAwesomeIcon icon={faFileAlt} size='1x' color='grey' style={{marginLeft:'.5rem'}} />
+      case OrderState.PENDING:
+        return <FontAwesomeIcon icon={faHourglassHalf} size='1x' color='yellow' style={{marginLeft:'.5rem'}} />
+      case OrderState.CANCELLED:
+        return <FontAwesomeIcon icon={faTimesCircle} size='1x' color='red' style={{marginLeft:'.5rem'}} />
+      default:
+        return <FontAwesomeIcon icon={faCheckCircle} size='1x' color='green' style={{marginLeft:'.5rem'}} />
+    }
+  }
   return (
     <div>
       <Typography className={classes.title}>Datos mas relevantes</Typography>
@@ -271,53 +316,28 @@ function Home() {
             })}
           </List>
           <Box className={classes.container}>
-            <Box
-              className={`${classes.headerWrapper} ${classes.bottomWrapper}`}
-            >
-              <Typography>Pedidos a proveedores pendientes</Typography>
+            <Box style={{width:'100%'}}>
+              <Box>
+              <Typography className={classes.ordersTitle}>Pedidos a proveedores pendientes</Typography>
+              </Box>
+              <Box style={{width:'100%',display:'flex',justifyContent:'center'}}>
               <Box className={classes.cardWrappers}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography gutterBottom>10/11/2024</Typography>
-                    <Typography variant="h5" component="div">
-                      Pedido 1
-                    </Typography>
-                    <Typography>Bimbo</Typography>
-                    <Typography variant="body2">Pan de hamburguesa</Typography>
-                    <Typography variant="body2">Pan Lactal</Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Ver pedido</Button>
-                  </CardActions>
-                </Card>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography gutterBottom>10/11/2024</Typography>
-                    <Typography variant="h5" component="div">
-                      Pedido 1
-                    </Typography>
-                    <Typography>Bimbo</Typography>
-                    <Typography variant="body2">Pan de hamburguesa</Typography>
-                    <Typography variant="body2">Pan Lactal</Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Ver pedido</Button>
-                  </CardActions>
-                </Card>{' '}
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography gutterBottom>10/11/2024</Typography>
-                    <Typography variant="h5" component="div">
-                      Pedido 1
-                    </Typography>
-                    <Typography>Bimbo</Typography>
-                    <Typography variant="body2">Pan de hamburguesa</Typography>
-                    <Typography variant="body2">Pan Lactal</Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Ver pedido</Button>
-                  </CardActions>
-                </Card>
+                {orders.map((order) => (
+                  <Card className={classes.card} key={order._id}>
+                    <CardContent>
+                      <Typography gutterBottom>{formatISODateString(order.created_at)}</Typography>
+                      <Typography variant="h5" component="div">
+                        Pedido {order.number}
+                      </Typography>
+                      <Typography>{order.provider.name}</Typography>
+                      <Typography variant="body2">{order.state}{getStateIcon(order.state)}</Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small" onClick={()=>navigate(`/providers/orders/${order.number}`)} fullWidth className={classes.verDetalles}>Ver detalles</Button>
+                    </CardActions>
+                  </Card>
+                ))}
+              </Box>
               </Box>
             </Box>
           </Box>
