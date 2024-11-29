@@ -151,7 +151,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
       <Paper style={style}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center">
-            <Avatar>{user.fullname.charAt(0)}</Avatar>
+            <Avatar>{user?.image ?? user.fullname.charAt(0)}</Avatar>
             <Box ml={2}>
               <Typography variant="h6">{user.fullname}</Typography>
               <Typography variant="subtitle1">{user.type}</Typography>
