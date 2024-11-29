@@ -13,6 +13,7 @@ import {
   Input,
   FormControl,
   InputLabel,
+  FormHelperText,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -138,6 +139,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           fullWidth
           value={formData.name}
           onChange={handleChange}
+          helperText="Nombre de la receta"
         />
         <FormControl fullWidth>
           <InputLabel id="insumosSelector">Insumos</InputLabel>
@@ -158,6 +160,9 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
               </MenuItem>
             ))}
           </Select>
+          <FormHelperText>
+            Seleccione los insumos necesarios para la receta
+          </FormHelperText>
         </FormControl>
 
         <TextField
@@ -182,10 +187,20 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           margin="dense"
           name="standardUnits"
           label="Estandar de unidades por día"
-          type="text"
+          type="number"
           fullWidth
           value={formData.standardUnits}
-          onChange={handleChange}
+          onChange={(e) => {
+            const value = parseInt(e.target.value)
+            if (value > 0 || e.target.value === '') {
+              handleChange(e)
+            }
+          }}
+          inputProps={{
+            min: 1,
+            step: 1,
+          }}
+          helperText="Ingrese un número mayor a 0"
         />
       </DialogContent>
       <DialogActions>

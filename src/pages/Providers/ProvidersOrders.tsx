@@ -14,8 +14,6 @@ import { formatISODateString } from '../../utils/dateUtils'
 import { useParams } from 'react-router-dom'
 import OrderDetailsDialog, { onSaveOrder } from './OrderDetailsDialog'
 import { toast } from 'react-toastify'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
 const columns: Column<TransformedOrder>[] = [
   {
@@ -148,7 +146,9 @@ export default function ProvidersOrders() {
       if (res) getOrders()
       onClose()
     } catch (error) {
-      toast.error(error)
+      if (error instanceof Error)
+        toast.error((error as any).response?.data.message || error.message)
+      else toast.error('An unknown error occurred')
     }
   }
 
@@ -225,7 +225,6 @@ export default function ProvidersOrders() {
           supplies={supplies}
         />
       )}
-      <ToastContainer />
     </div>
   )
 }

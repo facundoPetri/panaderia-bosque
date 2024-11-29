@@ -152,7 +152,17 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           type="number"
           fullWidth
           value={minStock}
-          onChange={(e) => setMinStock(e.target.value)}
+          onChange={(e) => {
+            const value = parseInt(e.target.value)
+            if (value > 0 || e.target.value === '') {
+              setMinStock(value)
+            }
+          }}
+          inputProps={{
+            min: 1,
+            step: 1,
+          }}
+          helperText="Stock mínimo recomendado"
         />
         <TextField
           margin="dense"
@@ -160,7 +170,17 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           type="number"
           fullWidth
           value={maxStock}
-          onChange={(e) => setMaxStock(e.target.value)}
+          onChange={(e) => {
+            const value = parseInt(e.target.value)
+            if (value > 0 || e.target.value === '') {
+              setMaxStock(value)
+            }
+          }}
+          inputProps={{
+            min: 1,
+            step: 1,
+          }}
+          helperText="Stock máximo permitido en almacén"
         />
         <TextField
           margin="dense"
@@ -169,6 +189,10 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           fullWidth
           value={packageSize}
           onChange={(e) => setPackageSize(e.target.value)}
+          inputProps={{
+            min: 1,
+            step: 1,
+          }}
         />
         <TextField
           margin="dense"
