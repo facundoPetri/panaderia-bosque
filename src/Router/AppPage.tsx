@@ -50,6 +50,7 @@ const AppPage = () => {
           <Route path="/users" element={<Users />} />
           <Route path="/providers" element={<Providers />} />
           <Route path="/providers/orders" element={<OrdersProviders />} />
+          <Route path="/providers/orders/:id" element={<OrdersProviders />} />
           <Route
             path="/providers/qualityAndPunctuality"
             element={<QualityAndPunctualityReport />}
