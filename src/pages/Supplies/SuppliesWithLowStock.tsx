@@ -38,6 +38,8 @@ export default function SuppliesWithLowStock() {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [supplies, setSupplies] = useState<TransformedSupplies[]>([])
   const [providers, setProviders] = useState<ProviderResponse[]>([])
+  const [selectedProvider, setSelectedProvider] =
+    useState<ProviderResponse | null>(null)
 
   const onClose = () => {
     setIsCreateMode(false)
@@ -56,7 +58,7 @@ export default function SuppliesWithLowStock() {
         number: newOrder.supplies.reduce((sum, item) => sum + item.quantity, 0), // Total de productos
         date: new Date().toISOString(),
         created_at: new Date().toISOString(),
-        provider: newOrder.provider,
+        provider: newOrder.provider._id,
         supplies: newOrder.supplies.map((item) => ({
           supplyId: item.product,
           quantity: item.quantity, // Cantidad seleccionada por producto
@@ -175,8 +177,8 @@ export default function SuppliesWithLowStock() {
           onSave={handlerSave}
           providers={providers}
           supplies={supplies}
-          selectedProvider={null}
-          setSelectedProvider={() => {}}
+          selectedProvider={selectedProvider}
+          setSelectedProvider={setSelectedProvider}
         />
       )}
       <ToastContainer />
