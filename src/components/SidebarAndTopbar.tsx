@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import clsx from 'clsx'
@@ -33,16 +33,15 @@ import {
   faChevronDown,
   faChevronUp,
   faHouse,
-  faUser,
   faList,
   faBuilding,
   faBlender,
   faEgg,
-  faPowerOff,
 } from '@fortawesome/free-solid-svg-icons'
 
 import logo from '../assets/logo.png'
 import { useAuth } from '../stores/AuthContext'
+import UserDrawer from './UserDrawer'
 
 const drawerWidth = 240
 const useStyles = makeStyles((theme) => ({
@@ -136,10 +135,10 @@ const SidebarAndTopbar = () => {
   const handleDrawerOpen = () => {
     setOpen(true)
   }
-useEffect(() => {
-  //cada vez que vaya a la home, expande el sidebar
-  setOpen(true)
-}, [])
+  useEffect(() => {
+    //cada vez que vaya a la home, expande el sidebar
+    setOpen(true)
+  }, [])
 
   const handleDrawerClose = () => {
     setOpen(false)
@@ -150,11 +149,6 @@ useEffect(() => {
       name: 'Insumos',
       path: '/supplies',
       icon: <FontAwesomeIcon icon={faEgg} />,
-    },
-    {
-      name: 'Usuarios',
-      path: '/users',
-      icon: <FontAwesomeIcon icon={faUser} />,
     },
     {
       name: 'Recetas',
@@ -195,9 +189,6 @@ useEffect(() => {
       path: '/supplies/batches',
     },
   ]
-  const usuariosRoutes: LinkItem[] = [
-    { name: 'Consulta de usuarios', path: '/users' },
-  ]
   const recetasRoutes: LinkItem[] = [
     { name: 'Consulta de recetas', path: '/recipes' },
   ]
@@ -223,8 +214,6 @@ useEffect(() => {
     switch (name) {
       case 'Insumos':
         return insumosRoutes
-      case 'Usuarios':
-        return usuariosRoutes
       case 'Recetas':
         return recetasRoutes
       case 'Proveedores':
@@ -281,25 +270,26 @@ useEffect(() => {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
-            title='Mostrar menu de opciones'
+            title="Mostrar menu de opciones"
           >
             <FontAwesomeIcon icon={faBars} color="white" />
           </IconButton>
-          <img
-            onClick={() => handleNavigatePath('/')}
-            src={logo}
-            alt="Logo Panaderia Bosque"
-            className={classes.logo}
-          />
-          <Tooltip title="Cerrar sesión">
-            <IconButton
-              color="inherit"
-              onClick={() => handleLogout()}
-              className={classes.logout}
-            >
-              <FontAwesomeIcon icon={faPowerOff} color="white" />
-            </IconButton>
+          <Tooltip title="Ir a la página de inicio">
+            <button
+              onClick={() => handleNavigatePath('/')}
+              className={classes.logo}
+              style={{
+                background: `url(${logo}) no-repeat center center`,
+                backgroundSize: 'contain',
+                border: 'none',
+                width: '4rem',
+                height: '4rem',
+                cursor: 'pointer',
+              }}
+              aria-label="Logo Panaderia Bosque"
+            />
           </Tooltip>
+          <UserDrawer handleLogout={handleLogout} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -312,7 +302,7 @@ useEffect(() => {
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose} title='Ocultar menu'>
+          <IconButton onClick={handleDrawerClose} title="Ocultar menu">
             {theme.direction === 'ltr' ? (
               <FontAwesomeIcon icon={faChevronLeft} />
             ) : (

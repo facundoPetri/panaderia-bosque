@@ -38,7 +38,7 @@ export default function ExpiringSupply() {
   )
   const [batches, setBatches] = useState<TransformedBatch[]>([])
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
-  const [filterDays, setFilterDays] = useState<number>(30)
+  const [filterDays, setFilterDays] = useState<number>(7)
 
   const onView = (batch: TransformedBatch) => {
     const originalBatch = selectedBatches.find((b) => b._id === batch._id)
