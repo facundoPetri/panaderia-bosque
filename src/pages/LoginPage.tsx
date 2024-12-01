@@ -49,17 +49,25 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  const handleLogin = async() => {
-    try{
-      const res = await request<AutenticationResponse>({path:'/auth/login',data:{'email': username, 'password': password},method:'POST'})
-      if(res){
-        login(res.access_token)
+  const handleLogin = async () => {
+    try {
+      const res = await request<AutenticationResponse>({
+        path: '/auth/login',
+        data: { email: username, password },
+        method: 'POST',
+      })
+      if (res) {
+        login({
+          access_token: res.access_token,
+          fullname: res.fullname,
+          type: res.type,
+        })
         setError(false)
         navigate('/')
       }
-    }catch(error){
-      if(isAxiosError(error)){
-        setErrorMessage(error.response?.data?.message)
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setErrorMessage(e.response?.data?.message)
       }
     }
   }
@@ -100,10 +108,8 @@ const LoginPage = () => {
           >
             Iniciar sesión
           </Button>
-          {error && errorMessage.length >0 && (
-            <Alert severity="error">
-              {errorMessage}
-            </Alert>
+          {error && errorMessage.length > 0 && (
+            <Alert severity="error">{errorMessage}</Alert>
           )}
         </Box>
       </form>
