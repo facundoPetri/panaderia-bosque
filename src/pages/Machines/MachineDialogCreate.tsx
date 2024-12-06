@@ -42,9 +42,12 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
     setDesiredMaintenanceInterval('')
   }
 
+  const today = new Date()
+  const maxDate = today.toISOString().split('T')[0]
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Crear un registro de la maquinaria</DialogTitle>
+      <DialogTitle>Crear una maquinaria nueva</DialogTitle>
       <DialogContent>
         <TextField
           margin="dense"
@@ -70,14 +73,23 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           InputLabelProps={{ shrink: true }}
           value={acquisitionDate}
           onChange={(e) => setAcquisitionDate(e.target.value)}
+          inputProps={{
+            max: maxDate,
+          }}
         />
         <TextField
           margin="dense"
           label="Mantenimiento deseado"
-          type="text"
+          type="number"
           fullWidth
           value={desiredMaintenanceInterval}
           onChange={(e) => setDesiredMaintenanceInterval(e.target.value)}
+          helperText="Mantenimiento deseado en días"
+          inputProps={{
+            min: 1,
+            max: 365,
+            step: 1,
+          }}
         />
       </DialogContent>
       <DialogActions>
