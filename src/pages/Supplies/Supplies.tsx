@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
 import SuppliesDialogCreate from './SuppliesDialogCreate'
@@ -21,6 +21,7 @@ const columns: Column<SuppliesResponse>[] = [
   { id: 'name', label: 'Nombre' },
   { id: 'updatedAt', label: 'Fecha de última carga', hiddenFilter: true },
   { id: 'description', label: 'Descripción', hiddenFilter: true },
+  // TODO: Agregar usedIn que seria en que recetas se usa
 ]
 
 const dropdownOptions = columns
@@ -54,7 +55,7 @@ export default function Supplies() {
         method: 'DELETE',
         successMessage: 'Insumo eliminado',
         errorMessage: 'Error al eliminar insumo',
-        pendingMessage: 'Eliminando insumo...'
+        pendingMessage: 'Eliminando insumo...',
       })
       if (res) {
         getSupplies()
@@ -81,7 +82,7 @@ export default function Supplies() {
         method: 'GET',
         successMessage: 'Insumos cargados',
         errorMessage: 'Error al cargar insumos',
-        pendingMessage: 'Cargando insumos...'
+        pendingMessage: 'Cargando insumos...',
       })
       if (res) {
         const formattedSupplies = res.map((supplie) => ({
@@ -118,7 +119,7 @@ export default function Supplies() {
         data,
         successMessage: 'Insumo actualizado',
         errorMessage: 'Error al actualizar insumo',
-        pendingMessage: 'Actualizando insumo...'
+        pendingMessage: 'Actualizando insumo...',
       })
       if (res) {
         getSupplies()
@@ -148,7 +149,7 @@ export default function Supplies() {
         data,
         successMessage: 'Insumo creado',
         errorMessage: 'Error al crear insumo',
-        pendingMessage: 'Creando insumo...'
+        pendingMessage: 'Creando insumo...',
       })
       if (res) {
         getSupplies()

@@ -13,6 +13,7 @@ import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { getRequireMaintenance } from './helper'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { Typography } from '@material-ui/core'
 
 const columns: Column<TransformedMachines>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -166,7 +167,10 @@ export default function Machines() {
   }, [])
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Consultar Maquinarias</h1>
+      <h1>Maquinarias</h1>
+      <Typography>
+        Aquí podrás ver y administrar las maquinarias de tu panadería
+      </Typography>
       <GenericTable
         columns={columns}
         data={machines}

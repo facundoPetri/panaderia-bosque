@@ -44,6 +44,9 @@ const MaintenanceDialogCreate: React.FC<MaintenanceDialogCreateProps> = ({
     setMachine('')
   }
 
+  const today = new Date()
+  const maxDate = today.toISOString().split('T')[0]
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Cargar mantenimiento</DialogTitle>
@@ -82,6 +85,10 @@ const MaintenanceDialogCreate: React.FC<MaintenanceDialogCreateProps> = ({
           InputLabelProps={{ shrink: true }}
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          helperText="Fecha en la que se realizó el mantenimiento"
+          inputProps={{
+            max: maxDate,
+          }}
         />
       </DialogContent>
       <DialogActions>
