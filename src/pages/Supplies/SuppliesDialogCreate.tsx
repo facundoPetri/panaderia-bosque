@@ -143,6 +143,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           margin="dense"
           label="Nombre"
           type="text"
+          required
           fullWidth
           value={name}
           inputProps={{ maxLength: 20 }}
@@ -203,6 +204,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           margin="dense"
           label="Tamaño del paquete"
           type="number"
+          required
           fullWidth
           value={packageSize}
           onChange={(e) => setPackageSize(e.target.value)}
@@ -215,6 +217,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           margin="dense"
           label="Unidad de medida"
           type="text"
+          required
           fullWidth
           value={unit}
           inputProps={{ maxLength: 10 }}

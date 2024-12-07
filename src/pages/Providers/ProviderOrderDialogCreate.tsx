@@ -170,13 +170,12 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary" variant="contained">
+        <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
-          color="secondary"
+          color="primary" variant="contained"
           disabled={!selectedProvider || selectedProducts.length === 0}
         >
           Guardar

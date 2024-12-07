@@ -53,6 +53,7 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           margin="dense"
           label="Nombre"
           type="text"
+          required
           fullWidth
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -70,6 +71,7 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           label="Fecha de adquisición"
           type="date"
           fullWidth
+          required
           InputLabelProps={{ shrink: true }}
           value={acquisitionDate}
           onChange={(e) => setAcquisitionDate(e.target.value)}

@@ -170,6 +170,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           label="Nombre"
           type="text"
           fullWidth
+          required
           variant="outlined"
           value={formData.name}
           onChange={handleChange}
@@ -179,6 +180,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           name="email"
           label="Email"
           type="email"
+          required
           fullWidth
           variant="outlined"
           value={formData.email}
@@ -188,6 +190,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           margin="dense"
           name="phone"
           label="Teléfono"
+          required
           type="text"
           fullWidth
           variant="outlined"
@@ -211,6 +214,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
             className={classes.select}
             name="supplies"
             multiple
+            required
             value={formData.supplies}
             onChange={handleChange}
             label="Insumos"
@@ -226,7 +230,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary" variant="contained">
+        <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary" variant="contained">

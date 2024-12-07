@@ -48,7 +48,7 @@ const GenericDialog: FC<GenericDialogProps> = ({
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent className={classes.dialogContent}>{content}</DialogContent>
       <DialogActions>
-        <Button onClick={() => secondaryButtonAction()} color="primary">
+        <Button onClick={() => secondaryButtonAction()} color="secondary">
           {secondaryButtonTitle}
         </Button>
         <Button

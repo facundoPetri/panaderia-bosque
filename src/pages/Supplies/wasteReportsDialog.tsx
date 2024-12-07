@@ -204,7 +204,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
         </Button>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary" variant="outlined">
+        <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary" variant="contained">
