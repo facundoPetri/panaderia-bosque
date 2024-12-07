@@ -5,6 +5,7 @@ import QAndPDialog from './QualityAndPunctualityDialog';
 import { ProviderResponse } from '../../interfaces/Providers';
 import { UsersResponse } from '../../interfaces/Users';
 import { request, requestToast } from '../../common/request';
+import { Typography } from '@material-ui/core';
 
 const columns: Column<QualityAndPunctuality>[] = [
   { id: 'id', label: 'id', hiddenColumn: true, sortable: false, hiddenFilter: true },
@@ -120,7 +121,10 @@ export default function QualityAndPunctualityReport() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Consulta de calidad y puntualidad de la materia prima</h1>
+      <h1>Informes sobre pedidos a proveedor</h1>
+      <Typography>
+        Aquí se evalúa la calidad de los insumos entregados por el proveedor y su puntualidad de entrega.
+      </Typography>
       <GenericTable
         columns={columns}
         data={data}

@@ -18,6 +18,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import { RecipesResponse } from '../../interfaces/Recipes'
 import { SuppliesResponse } from '../../interfaces/Supplies'
+import { formatISODateString } from '../../utils/dateUtils'
 
 const useStyles = makeStyles({
   select: {
@@ -90,8 +91,7 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
         <Typography variant="subtitle1">
           Creado por {recipe.author.fullname}
         </Typography>
-        <Typography variant="body2">El día {recipe.createdAt}</Typography>
-        <Typography variant="body2">{recipe.standardUnits} usos</Typography>
+        <Typography variant="body2">El día {formatISODateString(recipe.createdAt)}</Typography>
         <FormControlLabel
           control={
             <Checkbox
@@ -160,7 +160,7 @@ const RecipeDialogEdit: React.FC<RecipeDialogProps> = ({
           }}
         />
         <Typography variant="body2">
-          Modificado el día {recipe.updatedAt}
+          Modificado el día {formatISODateString(recipe.updatedAt)}
         </Typography>
       </DialogContent>
       <DialogActions>

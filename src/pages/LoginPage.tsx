@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Box, Button, TextField, makeStyles } from '@material-ui/core'
+import { Box, Button, CircularProgress, TextField, makeStyles } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
@@ -44,6 +44,7 @@ const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
@@ -51,6 +52,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
+      setLoading(true)
       const res = await request<AutenticationResponse>({
         path: '/auth/login',
         data: { email: username, password },
@@ -69,6 +71,7 @@ const LoginPage = () => {
       if (isAxiosError(e)) {
         setErrorMessage(e.response?.data?.message)
       }
+    }finally{
     }
   }
   return (
@@ -101,10 +104,11 @@ const LoginPage = () => {
             }}
           />
           <Button
-            disabled={password.length === 0 || username.length === 0}
+            disabled={password.length === 0 || username.length === 0 || loading}
             variant="contained"
             color="primary"
             onClick={() => handleLogin()}
+            endIcon={loading ? <CircularProgress size={20} color='primary' /> : undefined}
           >
             Iniciar sesión
           </Button>

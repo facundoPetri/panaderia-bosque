@@ -126,7 +126,7 @@ export default function ProductionEfficiencies() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Eficiencia de producción</h1>
+      <h1>Rendimiento de producción</h1>
       <GenericTable
         columns={columns}
         data={data}
