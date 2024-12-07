@@ -10,45 +10,9 @@ import {
   InputLabel,
   Select,
   FormControl,
-  Avatar,
-  IconButton,
 } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-
-const useStyles = makeStyles({
-  avatarContainer: {
-    position: 'relative',
-    width: 100,
-    height: 100,
-    margin: '10px auto',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#BEBEBE',
-  },
-  inputFile: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0,
-    cursor: 'pointer',
-  },
-  addIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#00C853',
-    color: '#FFFFFF',
-    borderRadius: '50%',
-    width: 24,
-    height: 24,
-  },
-})
+import { toast } from 'react-toastify'
+import { validateText } from '../../utils/validateData'
 
 interface UserDialogCreateProps {
   open: boolean
@@ -61,53 +25,82 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
   onClose,
   onSave,
 }) => {
-  const classes = useStyles()
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
     password: '',
     confirmPassword: '',
     type: '',
+    avatarUrl: '',
   })
-  const [avatar, setAvatar] = useState<string | null>(null)
+
+  const [charCounts, setCharCounts] = useState({
+    fullname: 0,
+    email: 0,
+    password: 0,
+    confirmPassword: 0,
+  })
 
   useEffect(() => {
     if (!open) {
-      // Limpiar el formulario y el avatar al cerrar el diálogo
       setFormData({
         fullname: '',
         email: '',
         password: '',
         confirmPassword: '',
         type: '',
+        avatarUrl: '',
       })
-      setAvatar(null)
+      setCharCounts({
+        fullname: 0,
+        email: 0,
+        password: 0,
+        confirmPassword: 0,
+      })
     }
   }, [open])
 
-  const handleChange = (
-    e: React.ChangeEvent<{ name?: string; value: unknown }>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<{ name?: string; value: unknown }>) => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name as string]: value })
+    if (name) {
+      setFormData({ ...formData, [name]: value as string })
+      if (name in charCounts) {
+        setCharCounts({ ...charCounts, [name]: (value as string).length })
+      }
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const { fullname, email, password, confirmPassword, avatarUrl, type } = formData
+
+    const isFullnameValid = validateText(fullname, { required: true, maxLength: 30 }, 'Nombre Completo')
+    const isEmailValid = validateText(email, { required: true, maxLength: 50 }, 'Email')
+    const isPasswordValid = validateText(password, { required: true, maxLength: 20 }, 'Contraseña')
+    const isConfirmPasswordValid = validateText(confirmPassword, { required: true, maxLength: 20 }, 'Confirmar Contraseña')
+    const isAvatarUrlValid = validateText(avatarUrl, { required: true }, 'URL de la Imagen')
+
+    if (!type) {
+      toast.error('El tipo de usuario es obligatorio.')
+      return false
+    }
+
+    if (password !== confirmPassword) {
+      toast.error('Las contraseñas no coinciden.')
+      return false
+    }
+
+    return (
+      isFullnameValid &&
+      isEmailValid &&
+      isPasswordValid &&
+      isConfirmPasswordValid &&
+      isAvatarUrlValid
+    )
   }
 
   const handleSave = () => {
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match')
-      return
-    }
-    onSave({ ...formData, avatar })
-  }
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatar(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (validateForm()) {
+      onSave(formData)
     }
   }
 
@@ -115,58 +108,89 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">Crear Usuario</DialogTitle>
       <DialogContent>
-        <div className={classes.avatarContainer}>
-          <Avatar className={classes.avatar} src={avatar || undefined} />
-          <input
-            type="file"
-            accept="image/*"
-            className={classes.inputFile}
-            onChange={handleAvatarChange}
-          />
-          <IconButton className={classes.addIcon}>
-            <FontAwesomeIcon icon={faPlus} style={{ width: 16, height: 16 }} />
-          </IconButton>
-        </div>
         <TextField
           autoFocus
+          margin="dense"
+          name="avatarUrl"
+          label="URL de la Imagen"
+          type="url"
+          fullWidth
+          value={formData.avatarUrl}
+          onChange={handleChange}
+          required
+        />
+        {formData.avatarUrl && (
+          <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+            <img
+              src={formData.avatarUrl}
+              alt="Vista previa"
+              style={{ maxWidth: '100%', maxHeight: '150px' }}
+            />
+          </div>
+        )}
+        <TextField
           margin="dense"
           name="fullname"
           label="Nombre Completo"
           type="text"
           fullWidth
+          inputProps={{ maxLength: 30 }}
           value={formData.fullname}
           onChange={handleChange}
+          required
         />
+        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
+          {charCounts.fullname}/30
+        </div>
         <TextField
           margin="dense"
           name="email"
           label="Email"
           type="email"
           fullWidth
+          inputProps={{ maxLength: 50 }}
           value={formData.email}
           onChange={handleChange}
+          required
         />
+        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
+          {charCounts.email}/50
+        </div>
         <TextField
           margin="dense"
           name="password"
           label="Contraseña"
           type="password"
           fullWidth
+          inputProps={{ maxLength: 20 }}
           value={formData.password}
           onChange={handleChange}
+          required
         />
+        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
+          {charCounts.password}/20
+        </div>
         <TextField
           margin="dense"
           name="confirmPassword"
           label="Confirmar Contraseña"
           type="password"
           fullWidth
+          inputProps={{ maxLength: 20 }}
           value={formData.confirmPassword}
           onChange={handleChange}
+          required
         />
-        <FormControl fullWidth margin="dense">
+        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
+          {charCounts.confirmPassword}/20
+        </div>
+        <FormControl fullWidth margin="dense" required>
           <InputLabel>Tipo de usuario</InputLabel>
-          <Select name="type" value={formData.type} onChange={handleChange}>
+          <Select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+          >
             <MenuItem value="user">Empleado</MenuItem>
             <MenuItem value="admin">Administrador</MenuItem>
             <MenuItem value="master">Maestro Panadero</MenuItem>
@@ -174,7 +198,7 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary" variant="contained">
