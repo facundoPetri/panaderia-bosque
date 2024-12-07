@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -9,29 +9,30 @@ import {
   Grid,
   Typography,
   makeStyles,
-} from '@material-ui/core'
-import { SuppliesResponse } from '../../interfaces/Supplies'
+} from '@material-ui/core';
+import { SuppliesResponse } from '../../interfaces/Supplies';
+import {
+  validateText,
+  validateGeneralNumber,
+  validateSpecificNumber,
+} from '../../utils/validateData'
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
     padding: theme.spacing(2),
   },
-  formControl: {
-    marginBottom: theme.spacing(2),
-    minWidth: 120,
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.8rem',
+    color: theme.palette.text.secondary,
   },
-  productImage: {
-    maxWidth: '100%',
-    maxHeight: '150px',
-    marginBottom: theme.spacing(2),
-  },
-}))
+}));
 
 interface StockModalProps {
-  selectedSupplies: SuppliesResponse | null
-  onClose: () => void
-  editable?: boolean
-  onSave?: (user: any) => void
+  selectedSupplies: SuppliesResponse | null;
+  onClose: () => void;
+  editable?: boolean;
+  onSave?: (supplies: SuppliesResponse) => void;
 }
 
 const SuppliesDialogEdit: React.FC<StockModalProps> = ({
@@ -40,133 +41,140 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
   editable = false,
   onSave,
 }) => {
-  const [editedStockItem, setEditedStockItem] =
-    useState<SuppliesResponse | null>(selectedSupplies)
-  const classes = useStyles()
+  const [editedStockItem, setEditedStockItem] = useState<SuppliesResponse | null>(null);
+  const classes = useStyles();
 
   useEffect(() => {
-    setEditedStockItem(selectedSupplies)
-  }, [selectedSupplies])
+    setEditedStockItem(selectedSupplies);
+  }, [selectedSupplies]);
 
-  if (!selectedSupplies) return null
+  if (!selectedSupplies) return null;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (editedStockItem) {
-      const { name, value } = event.target
-      setEditedStockItem({ ...editedStockItem, [name]: value })
+      const { name, value } = event.target;
+      setEditedStockItem({ ...editedStockItem, [name]: value });
     }
-  }
+  };
+
+  const validateForm = (): boolean => {
+    if (!editedStockItem) return false;
+
+    const { name, description, size, unit, max_stock } = editedStockItem;
+
+    // Validaciones para texto
+    const isNameValid = validateText(name || '', { required: true, maxLength: 20 }, 'Nombre');
+    const isDescriptionValid = validateText(
+      description || '',
+      { required: true, maxLength: 50 },
+      'Descripción'
+    );
+    const isUnitValid = validateText(unit || '', { required: true, maxLength: 10 }, 'Unidad de medida');
+
+    // Validaciones para números
+    const isSizeValid = validateGeneralNumber(Number(size), { required: true }, 'Tamaño del paquete');
+    const isStockValid = validateSpecificNumber(Number(size), { max: max_stock }, 'Tamaño del paquete');
+
+    return isNameValid && isDescriptionValid && isUnitValid && isSizeValid && isStockValid;
+  };
 
   const handleSave = () => {
-    if (onSave && editedStockItem) {
-      onSave(editedStockItem)
+    if (onSave && validateForm() && editedStockItem) {
+      onSave(editedStockItem);
     }
-  }
+  };
+
   return (
     <Dialog open={!!selectedSupplies} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>{selectedSupplies.name}</DialogTitle>
+      <DialogTitle>Editar Insumo</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
-          <Grid item xs={12} style={{ textAlign: 'center' }}>
-            {/* <img
-              src={selectedSupplies.imageUrl}
-              alt={selectedSupplies.name}
-              className={classes.productImage}
-            /> */}
-          </Grid>
-          <Grid item xs={6}>
+          {/* Información de stock */}
+          <Grid item xs={12}>
             <Typography variant="subtitle1">
-              Stock actual: {editedStockItem?.current_stock} {editedStockItem?.unit}
+              <strong>Stock actual:</strong> {selectedSupplies?.current_stock} {selectedSupplies?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              Stock mínimo: {editedStockItem?.min_stock} {editedStockItem?.unit}
+              <strong>Stock mínimo:</strong> {selectedSupplies?.min_stock} {selectedSupplies?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              Stock máximo: {editedStockItem?.max_stock} {editedStockItem?.unit}
+              <strong>Stock máximo:</strong> {selectedSupplies?.max_stock} {selectedSupplies?.unit}
             </Typography>
           </Grid>
-          {/* <Grid item xs={6}>
-            <Typography variant="subtitle1">
-              Lote 1: {selectedSupplies.lot1} kg
-            </Typography>
-            <Typography variant="subtitle1">
-              Lote 2: {selectedSupplies.lot2} kg
-            </Typography>
-            <Typography variant="subtitle1">
-              Próximo lote a vencer: {selectedSupplies.expirationDate}
-            </Typography>
-          </Grid> */}
+
+          {/* Campos de edición */}
           <Grid item xs={12}>
             <TextField
               margin="dense"
               label="Nombre"
               type="text"
               fullWidth
-              name="name"  // Añadido el atributo name
+              name="name"
               value={editedStockItem?.name || ''}
               onChange={handleChange}
               InputProps={{
                 readOnly: !editable,
               }}
+              inputProps={{ maxLength: 20 }}
+              helperText={`${editedStockItem?.name?.length || 0}/20`}
+              FormHelperTextProps={{ className: classes.characterCount }}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              fullWidth
-              name="description"
+              margin="dense"
               label="Descripción"
-              value={editedStockItem?.description || ''}
-              variant="outlined"
+              type="text"
+              fullWidth
               multiline
               rows={3}
+              name="description"
+              value={editedStockItem?.description || ''}
               onChange={handleChange}
               InputProps={{
                 readOnly: !editable,
               }}
+              inputProps={{ maxLength: 50 }}
+              helperText={`${editedStockItem?.description?.length || 0}/50`}
+              FormHelperTextProps={{ className: classes.characterCount }}
             />
           </Grid>
-          {/* <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Usado en"
-              value={selectedSupplies.usedIn}
-              variant="outlined"
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !editable,
-              }}
-            />
-          </Grid> */}
           <Grid item xs={6}>
             <TextField
-              fullWidth
+              margin="dense"
               label="Tamaño del paquete"
-              name="size"  // Añadido el atributo name
+              type="number"
+              fullWidth
+              name="size"
               value={editedStockItem?.size || ''}
-              variant="outlined"
               onChange={handleChange}
               InputProps={{
                 readOnly: !editable,
               }}
+              helperText="Debe ser un número positivo"
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              fullWidth
+              margin="dense"
               label="Unidad de medida"
-              name="unit"  // Añadido el atributo name
+              type="text"
+              fullWidth
+              name="unit"
               value={editedStockItem?.unit || ''}
-              variant="outlined"
               onChange={handleChange}
               InputProps={{
                 readOnly: !editable,
               }}
+              inputProps={{ maxLength: 10 }}
+              helperText={`${editedStockItem?.unit?.length || 0}/10`}
+              FormHelperTextProps={{ className: classes.characterCount }}
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color="secondary">
           Cerrar
         </Button>
         {editable && (
@@ -176,7 +184,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
         )}
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default SuppliesDialogEdit
+export default SuppliesDialogEdit;

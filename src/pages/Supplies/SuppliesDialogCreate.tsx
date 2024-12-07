@@ -58,20 +58,36 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
   const [unit, setUnit] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
-  const handleSave = () => {
-    // Validación
-    const isValid =
-      validateText(imageUrl, { required: true }, 'URL de la imagen') &&
-      validateText(name, { required: true, maxLength: 20 }, 'Nombre') &&
-      validateText(description, { required: true, maxLength: 50 }, 'Descripción') &&
-      validateGeneralNumber(Number(minStock), { required: true }, 'Stock mínimo') &&
-      validateGeneralNumber(Number(maxStock), { required: true }, 'Stock máximo') &&
-      validateSpecificNumber(Number(minStock), { min: 1, max: Number(maxStock) }, 'Stock mínimo') &&
-      validateSpecificNumber(Number(maxStock), { min: 1 }, 'Stock máximo') &&
-      validateText(packageSize, { required: true, maxLength: 10 }, 'Tamaño del paquete') &&
-      validateText(unit, { required: true, maxLength: 10 }, 'Unidad de medida');
+  const validateForm = (): boolean => {
+    const isImageUrlValid = validateText(imageUrl, { required: true }, 'URL de la imagen');
+    const isNameValid = validateText(name, { required: true, maxLength: 20 }, 'Nombre');
+    const isDescriptionValid = validateText(description, { required: true, maxLength: 50 }, 'Descripción');
+    const isMinStockValid = validateGeneralNumber(Number(minStock), { required: true }, 'Stock mínimo');
+    const isMaxStockValid = validateGeneralNumber(Number(maxStock), { required: true }, 'Stock máximo');
+    const isMinStockRangeValid = validateSpecificNumber(
+      Number(minStock),
+      { min: 1, max: Number(maxStock) },
+      'Stock mínimo'
+    );
+    const isMaxStockRangeValid = validateSpecificNumber(Number(maxStock), { min: 1 }, 'Stock máximo');
+    const isPackageSizeValid = validateText(packageSize, { required: true, maxLength: 10 }, 'Tamaño del paquete');
+    const isUnitValid = validateText(unit, { required: true, maxLength: 10 }, 'Unidad de medida');
 
-    if (!isValid) return;
+    return (
+      isImageUrlValid &&
+      isNameValid &&
+      isDescriptionValid &&
+      isMinStockValid &&
+      isMaxStockValid &&
+      isMinStockRangeValid &&
+      isMaxStockRangeValid &&
+      isPackageSizeValid &&
+      isUnitValid
+    );
+  };
+
+  const handleSave = () => {
+    if (!validateForm()) return;
 
     // Guardar datos si la validación fue exitosa
     const newSupplies: SuppliesCreateData = {
@@ -89,6 +105,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
     onSave(newSupplies);
     resetFields();
   };
+
 
   const resetFields = () => {
     setName('');

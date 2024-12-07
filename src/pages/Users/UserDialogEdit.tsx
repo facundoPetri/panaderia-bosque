@@ -9,15 +9,16 @@ import {
   Button,
   IconButton,
   Box,
-  InputAdornment,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { TransformedUser } from '../../interfaces/Users'
+import { toast } from 'react-toastify'
+import { validateText } from '../../utils/validateData'
 
 interface UserModalProps {
   user: TransformedUser | null
@@ -26,111 +27,113 @@ interface UserModalProps {
   onSave?: (user: TransformedUser) => void
 }
 
-const isEmailUnique = async (email: string): Promise<boolean> => {
-  // Simula una llamada a la API que verifica si el email es único
-  const existingEmails = ['existing@example.com', 'user@example.com'] // Ejemplo de correos existentes
-  return !existingEmails.includes(email)
-}
-
 const UserDialogEdit: React.FC<UserModalProps> = ({
   user,
   onClose,
   editable = false,
   onSave,
 }) => {
-  const [editedUser, setEditedUser] = useState<TransformedUser | null>(user)
-  const [passwordError, setPasswordError] = useState<string>('')
-  const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string>('')
-  const [emailError, setEmailError] = useState<string>('')
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+  const [formData, setFormData] = useState<TransformedUser | null>(null)
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [errors, setErrors] = useState({
+    fullname: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    type: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    setEditedUser(user)
-    setConfirmPassword('') // Resetear el estado de confirmPassword cuando el usuario cambia
+    if (user) {
+      setFormData(user)
+      setConfirmPassword('')
+      setErrors({
+        fullname: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        type: '',
+      })
+      setIsSubmitting(false)
+    }
   }, [user])
 
-  useEffect(() => {
-    if (editedUser && editedUser.email) {
-      validateEmail(editedUser.email)
-    }
-  }, [editedUser])
+  const validateForm = (): boolean => {
+    if (!formData) return false
 
-  if (!user) return null
+    const { fullname, email, password, type } = formData
+    let isValid = true
+    const newErrors = {
+      fullname: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      type: '',
+    }
 
-  const validatePassword = (password: string): string => {
-    if (password.length < 8) {
-      return 'La contraseña debe tener al menos 8 caracteres.'
+    if (!validateText(fullname, { required: true, maxLength: 30 }, 'Nombre Completo')) {
+      newErrors.fullname = 'Nombre Completo no válido.'
+      isValid = false
     }
-    if (!/[A-Z]/.test(password)) {
-      return 'La contraseña debe contener al menos una letra mayúscula.'
+
+    if (!validateText(email, { required: true, maxLength: 50 }, 'Email')) {
+      newErrors.email = 'Email no válido.'
+      isValid = false
     }
-    if (!/[a-z]/.test(password)) {
-      return 'La contraseña debe contener al menos una letra minúscula.'
+
+    if (editable && !validateText(password, { required: true, maxLength: 20 }, 'Contraseña')) {
+      newErrors.password = 'Contraseña no válida.'
+      isValid = false
     }
-    if (!/[0-9]/.test(password)) {
-      return 'La contraseña debe contener al menos un número.'
+
+    if (editable && confirmPassword !== password) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden.'
+      isValid = false
     }
-    if (/(\d)\1{2}/.test(password)) {
-      return 'La contraseña no puede contener tres números consecutivos iguales.'
+
+    if (!type) {
+      newErrors.type = 'El tipo de usuario es obligatorio.'
+      isValid = false
     }
-    return ''
+
+    setErrors(newErrors)
+    return isValid
   }
 
-  const validateEmail = async (email: string) => {
-    const isUnique = await isEmailUnique(email)
-    if (!isUnique) {
-      setEmailError('El email ya está en uso.')
-    } else {
-      setEmailError('')
-    }
-  }
-
-  const handleChange = async (
+  const handleChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>
   ) => {
     const { name, value } = event.target
 
-    if (editedUser) {
-      if (name === 'password') {
-        const error = validatePassword(value as string)
-        setPasswordError(error)
-        setEditedUser({ ...editedUser, [name as string]: value })
-      } else if (name === 'confirmPassword') {
+    if (name && formData) {
+      setFormData({ ...formData, [name]: value as string })
+
+      // Reset errors only if not submitting
+      if (!isSubmitting) {
+        setErrors((prev) => ({ ...prev, [name]: '' }))
+      }
+
+      if (name === 'confirmPassword') {
         setConfirmPassword(value as string)
-        if (value !== editedUser.password) {
-          setConfirmPasswordError('Las contraseñas no coinciden.')
-        } else {
-          setConfirmPasswordError('')
+        if (!isSubmitting) {
+          setErrors((prev) => ({ ...prev, confirmPassword: '' }))
         }
-      } else if (name === 'email') {
-        setEditedUser({ ...editedUser, [name as string]: value })
-        await validateEmail(value as string)
-      } else {
-        setEditedUser({ ...editedUser, [name as string]: value })
       }
     }
   }
 
   const handleSave = () => {
-    if (
-      onSave &&
-      editedUser &&
-      !passwordError &&
-      !confirmPasswordError &&
-      !emailError
-    ) {
-      onSave(editedUser)
+    setIsSubmitting(true)
+    if (validateForm() && onSave && formData) {
+      onSave(formData)
+      toast.success('Usuario guardado correctamente.')
     }
   }
 
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword)
-  }
-
-  const handleClickShowConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword)
+  const handleClose = () => {
+    setFormData(null)
+    onClose()
   }
 
   const style = {
@@ -142,21 +145,18 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
     backgroundColor: 'white',
     padding: 20,
   }
-  const handleClose = () => {
-    setEditedUser(null)
-    onClose()
-  }
+
   return (
     <Modal open={!!user} onClose={handleClose}>
       <Paper style={style}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center">
-            <Avatar>{user?.image ?? user.fullname.charAt(0)}</Avatar>
+            <Avatar>{user?.image ?? user?.fullname.charAt(0)}</Avatar>
             <Box ml={2}>
-              <Typography variant="h6">{user.fullname}</Typography>
-              <Typography variant="subtitle1">{user.type}</Typography>
+              <Typography variant="h6">{user?.fullname}</Typography>
+              <Typography variant="subtitle1">{user?.type}</Typography>
               <Typography variant="body2">
-                Usuario creado el {user.createdAt}
+                Usuario creado el {user?.createdAt}
               </Typography>
             </Box>
           </Box>
@@ -172,82 +172,57 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
           label="Nombre Completo"
           type="text"
           fullWidth
-          value={editedUser ? editedUser.fullname : ''}
+          inputProps={{ maxLength: 30 }}
+          value={formData?.fullname || ''}
           onChange={handleChange}
+          error={!!errors.fullname}
+          helperText={errors.fullname}
         />
         <TextField
           fullWidth
           label="Email"
           name="email"
-          value={editedUser ? editedUser.email : ''}
+          value={formData?.email || ''}
           margin="dense"
           onChange={handleChange}
-          error={!!emailError}
-          helperText={emailError}
-          InputProps={{
-            readOnly: !editable,
-          }}
-        />
-        <TextField
-          fullWidth
-          label="Contraseña"
-          name="password"
-          type={showPassword ? 'text' : 'password'}
-          value={editedUser?.password || ''}
-          margin="dense"
-          onChange={handleChange}
-          error={!!passwordError}
-          helperText={passwordError}
-          InputProps={{
-            readOnly: !editable,
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
-                  edge="end"
-                >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+          error={!!errors.email}
+          helperText={errors.email}
         />
         {editable && (
-          <TextField
-            fullWidth
-            label="Confirmar contraseña"
-            name="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
-            value={confirmPassword}
-            margin="dense"
-            onChange={handleChange}
-            error={!!confirmPasswordError}
-            helperText={confirmPasswordError}
-            InputProps={{
-              readOnly: !editable,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle confirm password visibility"
-                    onClick={handleClickShowConfirmPassword}
-                    edge="end"
-                  >
-                    <FontAwesomeIcon
-                      icon={showConfirmPassword ? faEyeSlash : faEye}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+          <>
+            <TextField
+              fullWidth
+              label="Contraseña"
+              name="password"
+              type="password"
+              value={formData?.password || ''}
+              margin="dense"
+              onChange={handleChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              inputProps={{ maxLength: 20 }}
+            />
+            <TextField
+              fullWidth
+              label="Confirmar contraseña"
+              name="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              margin="dense"
+              onChange={handleChange}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+              inputProps={{ maxLength: 20 }}
+            />
+          </>
         )}
         <FormControl fullWidth margin="dense">
           <InputLabel>Tipo de usuario</InputLabel>
           <Select
             name="type"
-            value={editedUser ? editedUser.type : ''}
+            value={formData?.type || ''}
             onChange={handleChange}
+            error={!!errors.type}
           >
             <MenuItem value="user">Empleado</MenuItem>
             <MenuItem value="admin">Administrador</MenuItem>
@@ -263,9 +238,6 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
               variant="contained"
               color="primary"
               onClick={handleSave}
-              disabled={
-                !!passwordError || !!confirmPasswordError || !!emailError
-              }
             >
               Guardar
             </Button>
