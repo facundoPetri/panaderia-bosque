@@ -137,6 +137,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           label="Nombre"
           type="text"
           fullWidth
+          required
           value={formData.name}
           onChange={handleChange}
           helperText="Nombre de la receta"
@@ -144,6 +145,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
         <FormControl fullWidth>
           <InputLabel id="insumosSelector">Insumos</InputLabel>
           <Select
+            required
             labelId="insumosSelector"
             className={classes.select}
             name="supplies"
@@ -168,6 +170,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
         <TextField
           margin="dense"
           name="steps"
+          required
           label="Procedimiento"
           type="text"
           multiline
@@ -208,7 +211,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary" variant="contained">

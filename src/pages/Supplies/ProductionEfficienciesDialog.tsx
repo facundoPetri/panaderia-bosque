@@ -180,7 +180,7 @@ const ProductionEfficienciesDialog: React.FC<ProductionEfficienciesDialogProps> 
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" variant="outlined">
+                <Button onClick={onClose} color="secondary">
                     Cancelar
                 </Button>
                 <Button

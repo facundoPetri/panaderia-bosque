@@ -207,7 +207,7 @@ const Batches = () => {
         onDelete={onDelete}
         onAdd={onAdd}
         onEdit={handleEdit}
-        nameColumnId="_id"
+        nameColumnId="batch_number"
       />
       {isCreateMode && (
         <BatchesCreateDialog

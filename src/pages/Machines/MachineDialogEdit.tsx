@@ -131,7 +131,7 @@ const MachineDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color="secondary">
           Cerrar
         </Button>
         {editable && (

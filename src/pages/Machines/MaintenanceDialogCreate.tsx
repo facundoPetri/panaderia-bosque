@@ -98,6 +98,7 @@ const MaintenanceDialogCreate: React.FC<MaintenanceDialogCreateProps> = ({
         <Button
           onClick={handleSave}
           color="primary"
+          variant='contained'
           disabled={machine === '' || date === ''}
         >
           Crear

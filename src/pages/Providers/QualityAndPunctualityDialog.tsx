@@ -102,10 +102,12 @@ const QAndPDialog: React.FC<ReportModalProps> = ({
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
-                            label="Detalle del insumo"
+                            label="Observaciones"
                             value={supplyDetails}
                             onChange={(e) => setSupplyDetails(e.target.value)}
                             fullWidth
+                            multiline
+                            rows={4}
                             variant="outlined"
                         />
                     </Grid>
@@ -159,7 +161,7 @@ const QAndPDialog: React.FC<ReportModalProps> = ({
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" variant="contained">
+                <Button onClick={onClose} color="secondary">
                     Cerrar
                 </Button>
                 <Button onClick={handleSave} color="primary" variant="contained">
