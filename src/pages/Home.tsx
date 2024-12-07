@@ -17,9 +17,17 @@ import {
   Card,
   CardContent,
   CardActions,
+  Grid,
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckCircle, faFileAlt, faHourglassHalf, faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faCheckCircle,
+  faFileAlt,
+  faHourglassHalf,
+  faPlus,
+  faTimesCircle,
+  faArrowUpRightFromSquare,
+} from '@fortawesome/free-solid-svg-icons'
 
 import GenericDialog from '../components/GenericDIalog'
 import { SuppliesResponse, SupplyUsage } from '../interfaces/Supplies'
@@ -65,6 +73,10 @@ const useStyles = makeStyles((theme) => {
     button: {
       marginLeft: '1rem',
     },
+    shortCutsButton:{
+      width:'100%',
+      height:'200px'
+    },
     header: {
       backgroundColor: theme.palette.primary.main,
     },
@@ -86,24 +98,28 @@ const useStyles = makeStyles((theme) => {
     cardWrappers: {
       display: 'flex',
       marginTop: '1rem',
-      width:'50%',
-      flexWrap:'wrap',
-      gap:'1rem',
-      marginLeft:'2rem'
+      width: '50%',
+      flexWrap: 'wrap',
+      gap: '1rem',
+      marginLeft: '2rem',
+      marginBottom:'1rem'
     },
     card: {
       width: '200px',
     },
-    ordersTitle:{
-      textAlign:'center'
+    ordersTitle: {
+      textAlign: 'center',
     },
-    verDetalles:{
-      '& span':{
-        display:'block',
-        width:'100%',
-        textAlign:'left'
-      }
-    }
+    verDetalles: {
+      '& span': {
+        display: 'block',
+        width: '100%',
+        textAlign: 'left',
+      },
+    },
+    username: {
+      fontWeight: 'bold',
+    },
   }
 })
 const filterDaysOptions = [
@@ -123,6 +139,7 @@ function Home() {
     null
   )
   const [supplyUsage, setSupplyUsage] = useState<SupplyUsageToSend[]>([])
+  const fullname = sessionStorage.getItem('fullname')
   const getSupplies = async () => {
     try {
       const res = await request<SuppliesResponse[]>({
@@ -226,7 +243,7 @@ function Home() {
         method: 'GET',
       })
       if (res) {
-        setOrders(res.filter((order)=>order.state === OrderState.PENDING))
+        setOrders(res.filter((order) => order.state === OrderState.PENDING))
       }
     } catch (error) {
       console.error('Error al obtener pedidos:', error)
@@ -235,20 +252,153 @@ function Home() {
   useEffect(() => {
     getOrders()
   }, [])
-  const getStateIcon = (state:OrderState)=>{
+  const getStateIcon = (state: OrderState) => {
     switch (state) {
       case OrderState.CREATED:
-        return <FontAwesomeIcon icon={faFileAlt} size='1x' color='grey' style={{marginLeft:'.5rem'}} />
+        return (
+          <FontAwesomeIcon
+            icon={faFileAlt}
+            size="1x"
+            color="grey"
+            style={{ marginLeft: '.5rem' }}
+          />
+        )
       case OrderState.PENDING:
-        return <FontAwesomeIcon icon={faHourglassHalf} size='1x' color='yellow' style={{marginLeft:'.5rem'}} />
+        return (
+          <FontAwesomeIcon
+            icon={faHourglassHalf}
+            size="1x"
+            color="yellow"
+            style={{ marginLeft: '.5rem' }}
+          />
+        )
       case OrderState.CANCELLED:
-        return <FontAwesomeIcon icon={faTimesCircle} size='1x' color='red' style={{marginLeft:'.5rem'}} />
+        return (
+          <FontAwesomeIcon
+            icon={faTimesCircle}
+            size="1x"
+            color="red"
+            style={{ marginLeft: '.5rem' }}
+          />
+        )
       default:
-        return <FontAwesomeIcon icon={faCheckCircle} size='1x' color='green' style={{marginLeft:'.5rem'}} />
+        return (
+          <FontAwesomeIcon
+            icon={faCheckCircle}
+            size="1x"
+            color="green"
+            style={{ marginLeft: '.5rem' }}
+          />
+        )
     }
+  }
+  const navigateToView = (path: string) => {
+    navigate(path)
   }
   return (
     <div>
+      <Typography className={classes.title}>
+        Bienvenido <span className={classes.username}>{fullname}</span> , ¿Qué
+        deseas hacer hoy?
+      </Typography>
+      <Grid container spacing={2} style={{padding:'1rem 3rem'}}>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/recipes')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Consultar una receta
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/supplies/lowStock')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Consultar stock de un insumo
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/providers/orders')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Realizar un pedido a proveedor
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/providers/qualityAndPunctuality')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Cargar informe sobre pedido a proveedor
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/supplies/batches')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Cargar un nuevo lote de insumo
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/supplies/inventoryWaste')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Cargar un informe de desperdicio
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/supplies/productionEfficiency')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Cargar un informe de rendimiento de producción
+        </Button>
+        </Grid>
+        <Grid item xs={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.shortCutsButton}
+          onClick={() => navigateToView('/machinery/maintenance')}
+          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+        >
+          Cargar un informe de mantenimiento de maquinaria
+        </Button>
+        </Grid>
+      </Grid>
       <Typography className={classes.title}>Datos mas relevantes</Typography>
       <div className={classes.wrapper}>
         <div className="section1">
@@ -316,28 +466,50 @@ function Home() {
             })}
           </List>
           <Box className={classes.container}>
-            <Box style={{width:'100%'}}>
+            <Box style={{ width: '100%', border: '2px solid #D6C983' }}>
               <Box>
-              <Typography className={classes.ordersTitle}>Pedidos a proveedores pendientes</Typography>
+                <Typography className={classes.ordersTitle}>
+                  Pedidos a proveedores pendientes
+                </Typography>
               </Box>
-              <Box style={{width:'100%',display:'flex',justifyContent:'center'}}>
-              <Box className={classes.cardWrappers}>
-                {orders.map((order) => (
-                  <Card className={classes.card} key={order._id}>
-                    <CardContent>
-                      <Typography gutterBottom>{formatISODateString(order.created_at)}</Typography>
-                      <Typography variant="h5" component="div">
-                        Pedido {order.number}
-                      </Typography>
-                      <Typography>{order.provider.name}</Typography>
-                      <Typography variant="body2">{order.state}{getStateIcon(order.state)}</Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small" onClick={()=>navigate(`/providers/orders/${order.number}`)} fullWidth className={classes.verDetalles}>Ver detalles</Button>
-                    </CardActions>
-                  </Card>
-                ))}
-              </Box>
+              <Box
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <Box className={classes.cardWrappers}>
+                  {orders.map((order) => (
+                    <Card className={classes.card} key={order._id}>
+                      <CardContent>
+                        <Typography gutterBottom>
+                          {formatISODateString(order.created_at)}
+                        </Typography>
+                        <Typography variant="h5" component="div">
+                          Pedido {order.number}
+                        </Typography>
+                        <Typography>{order.provider.name}</Typography>
+                        <Typography variant="body2">
+                          {order.state}
+                          {getStateIcon(order.state)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            navigate(`/providers/orders/${order.number}`)
+                          }
+                          fullWidth
+                          className={classes.verDetalles}
+                        >
+                          Ver detalles
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  ))}
+                </Box>
               </Box>
             </Box>
           </Box>

@@ -25,7 +25,6 @@ const columns: Column<TransformedRecipes>[] = [
   { id: 'name', label: 'Nombre' },
   { id: 'supplies', label: 'Ingredientes', sortable: false },
   { id: 'author', label: 'Autor' },
-  { id: 'standardUnits', label: 'Usos' },
   { id: 'createdAt', label: 'Fecha de creación' },
   { id: 'updatedAt', label: 'Fecha de modificación' },
 ]

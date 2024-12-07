@@ -170,6 +170,8 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           name="steps"
           label="Procedimiento"
           type="text"
+          multiline
+          rows={4}
           fullWidth
           value={formData.steps}
           onChange={handleChange}
@@ -179,6 +181,8 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           name="recommendations"
           label="Recomendaciones"
           type="text"
+          multiline
+          rows={4}
           fullWidth
           value={formData.recommendations}
           onChange={handleChange}

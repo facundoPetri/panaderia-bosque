@@ -135,11 +135,7 @@ const SidebarAndTopbar = () => {
   const handleDrawerOpen = () => {
     setOpen(true)
   }
-  useEffect(() => {
-    //cada vez que vaya a la home, expande el sidebar
-    setOpen(true)
-  }, [])
-
+  
   const handleDrawerClose = () => {
     setOpen(false)
   }
@@ -181,7 +177,7 @@ const SidebarAndTopbar = () => {
     { name: 'Registro de uso de insumos', path: '/supplies/usageLog' },
     { name: 'Desperdicio de inventario', path: '/supplies/inventoryWaste' },
     {
-      name: 'Eficiencia de producción',
+      name: 'Rendimiento de producción',
       path: '/supplies/productionEfficiency',
     },
     {
@@ -199,12 +195,12 @@ const SidebarAndTopbar = () => {
       path: '/providers/orders',
     },
     {
-      name: 'Consulta de calidad y puntualidad de materia prima',
+      name: 'Informes sobre pedido a proveedor',
       path: '/providers/qualityAndPunctuality',
     },
   ]
   const maquinariasRoutes: LinkItem[] = [
-    { name: 'Consulta de maquinarias', path: '/machinery' },
+    { name: 'Consulta de maquinarias y utensillos', path: '/machinery' },
     {
       name: 'Gestión y mantenimiento de maquinarias',
       path: '/machinery/maintenance',
