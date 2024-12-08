@@ -89,7 +89,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     name: '',
     email: '',
     phone: '',
-    estimated_delivery_time: '',
+    estimated_delivery_time: 0,
     supplies: [],
     image: undefined,
     createdAt: new Date(),
@@ -99,9 +99,13 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     event: React.ChangeEvent<{ name?: string; value: unknown }>
   ) => {
     const { name, value } = event.target
+
+    const processedValue =
+      name === 'estimated_delivery_time' ? Number(value) : value
+
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name as string]: value,
+      [name as string]: processedValue,
     }))
   }
 
@@ -128,7 +132,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         name: '',
         email: '',
         phone: '',
-        estimated_delivery_time: '',
+        estimated_delivery_time: 0,
         supplies: [],
         image: undefined,
         createdAt: new Date(),
@@ -201,11 +205,16 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           margin="dense"
           name="estimated_delivery_time"
           label="Tiempo de entrega"
-          type="text"
+          type="number"
           fullWidth
+          helperText="Tiempo estimado de entrega de mercaderia en días"
           variant="outlined"
           value={formData.estimated_delivery_time}
           onChange={handleChange}
+          inputProps={{
+            min: 1,
+            step: 1,
+          }}
         />
         <FormControl fullWidth>
           <InputLabel id="insumosSelector">Insumos</InputLabel>

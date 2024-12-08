@@ -13,6 +13,7 @@ import {
 } from '../../interfaces/Providers'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { Typography } from '@material-ui/core'
 
 const columns: Column<TransformedProvider>[] = [
   {
@@ -123,7 +124,10 @@ export default function Providers() {
       const res = await requestToast<any[]>({
         path: `/providers/${provider._id}`,
         method: 'PATCH',
-        data: provider,
+        data: {
+          ...provider,
+          supplies: provider.supplies.map((supply) => supply._id),
+        },
         successMessage: 'Proveedor actualizado',
         errorMessage: 'Error al actualizar proveedor',
         pendingMessage: 'Actualizando proveedor...',
@@ -172,12 +176,15 @@ export default function Providers() {
       success: 'Proveedores cargados',
       error: 'Error al cargar proveedores',
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Listado de proveedores</h1>
+      <Typography variant="body1">
+        Aquí puedes ver la lista de proveedores y los insumos que suministran.
+      </Typography>
       <GenericTable
         columns={columns}
         data={transformedProvider}

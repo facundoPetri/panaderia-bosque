@@ -115,7 +115,7 @@ export default function StocksUsage() {
     return suppliesLog.map((supplyLog) => ({
       ...supplyLog,
       supply: supplyLog.supply.name,
-      date_used: formatISODateString(supplyLog.date_used)
+      date_used: formatISODateString(supplyLog.date_used),
     }))
   }
   const handleCancel = () => {
@@ -140,7 +140,11 @@ export default function StocksUsage() {
         getSuppliesUsageLog()
       }
     } catch (error) {
-      console.error(error)
+      if (error instanceof Error)
+        toast.error((error as any).response?.data.message || error.message, {
+          autoClose: false,
+        })
+      else console.error('An unknown error occurred')
     }
     handleCancel()
   }
@@ -189,6 +193,11 @@ export default function StocksUsage() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Registro de uso de insumos</h1>
+      <Typography variant="h6">Historial de uso de insumos</Typography>
+      <Typography variant="body1">
+        Los insumos registrados se descontarán del stock disponible, priorizando
+        aquellos con fecha de vencimiento más próxima
+      </Typography>
       <GenericTable
         columns={columns as any}
         data={transformedData() || []}

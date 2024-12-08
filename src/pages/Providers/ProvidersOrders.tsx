@@ -7,6 +7,7 @@ import {
   OrderBody,
   OrderResponse,
   OrderState,
+  OrderStateFilter,
   TransformedOrder,
 } from '../../interfaces/Orders'
 import { request, requestToast } from '../../common/request'
@@ -14,6 +15,7 @@ import { formatISODateString } from '../../utils/dateUtils'
 import { useParams } from 'react-router-dom'
 import OrderDetailsDialog, { onSaveOrder } from './OrderDetailsDialog'
 import { toast } from 'react-toastify'
+import { FilterSelect, orderStateOptions } from '../../components/FilterSelect'
 
 const columns: Column<TransformedOrder>[] = [
   {
@@ -24,7 +26,7 @@ const columns: Column<TransformedOrder>[] = [
     hiddenFilter: true,
   },
   { id: 'number', label: 'Número de Pedido' },
-  { id: 'state', label: 'Estado' },
+  { id: 'state', label: 'Estado', hiddenFilter: true },
   {
     id: 'created_at',
     label: 'Fecha de Creación',
@@ -39,7 +41,9 @@ export default function ProvidersOrders() {
   const [transfOrders, setTransfOrders] = useState<TransformedOrder[]>([])
   const [orders, setOrders] = useState<OrderResponse[]>([])
   const [providers, setProviders] = useState<ProviderResponse[]>([])
-
+  const [selectedState, setSelectedState] = useState<OrderStateFilter>(
+    OrderStateFilter.PENDING
+  )
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null)
   const { id } = useParams()
@@ -50,9 +54,9 @@ export default function ProvidersOrders() {
 
   useEffect(() => {
     getProviders()
-    getOrders()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getOrders(selectedState)
   }, [])
+
   useEffect(() => {
     if (id && orders.length > 0) {
       const originalOrder = orders.find(
@@ -79,6 +83,11 @@ export default function ProvidersOrders() {
   const onClose = () => {
     setIsCreateMode(false)
     setSelectedOrder(null)
+  }
+
+  const handleChangeOrderState = (value: OrderStateFilter) => {
+    setSelectedState(value)
+    getOrders(value)
   }
 
   const onView = (orderView: TransformedOrder) => {
@@ -111,7 +120,7 @@ export default function ProvidersOrders() {
         method: 'POST',
         data: orderToSave,
       })
-      getOrders()
+      getOrders(selectedState)
     } catch (error) {
       toast.error(error)
     }
@@ -143,7 +152,7 @@ export default function ProvidersOrders() {
           },
         })
       }
-      if (res) getOrders()
+      if (res) getOrders(selectedState)
       onClose()
     } catch (error) {
       if (error instanceof Error)
@@ -173,10 +182,11 @@ export default function ProvidersOrders() {
     state: order.state,
   })
 
-  const getOrders = async () => {
+  const getOrders = async (value: OrderStateFilter) => {
     try {
       const res = await requestToast<OrderResponse[]>({
-        path: '/orders',
+        path:
+          value === OrderStateFilter.ALL ? '/orders' : `/orders?state=${value}`,
         method: 'GET',
         successMessage: 'Pedidos cargados exitosamente',
         errorMessage: 'Error al cargar los pedidos',
@@ -194,6 +204,12 @@ export default function ProvidersOrders() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Pedidos a Proveedores</h1>
+      <FilterSelect<OrderStateFilter>
+        value={selectedState}
+        onChange={handleChangeOrderState}
+        options={orderStateOptions}
+        title="Estado del pedido"
+      />
       <GenericTable
         columns={columns}
         data={transfOrders}

@@ -7,7 +7,7 @@ export interface ProviderResponse {
   email: string
   supplies: SuppliesResponse[]
   image?: string
-  estimated_delivery_time?: string
+  estimated_delivery_time: number
   createdAt: Date
   updatedAt?: Date
 }
@@ -19,7 +19,7 @@ export interface TransformedProvider {
   email: string
   supplies: string
   image?: string
-  estimated_delivery_time?: string
+  estimated_delivery_time: number
   createdAt: Date
   updatedAt?: Date
 }
@@ -31,7 +31,7 @@ export interface PostProvider {
   email: string
   supplies: SuppliesResponse[]
   image?: string
-  estimated_delivery_time?: string
+  estimated_delivery_time: number
   createdAt: string
   updatedAt?: Date
 }

@@ -16,6 +16,14 @@ export enum OrderState {
   CANCELLED = 'Cancelado',
 }
 
+export enum OrderStateFilter {
+  ALL = 'Todos',
+  CREATED = 'Creado',
+  PENDING = 'Pendiente',
+  COMPLETED = 'Completado',
+  CANCELLED = 'Cancelado',
+}
+
 export interface OrderResponse {
   _id: string
   number: number

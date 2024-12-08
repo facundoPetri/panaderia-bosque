@@ -19,7 +19,7 @@ const columns: Column<SuppliesResponse>[] = [
     hiddenFilter: true,
   },
   { id: 'name', label: 'Nombre' },
-  { id: 'updatedAt', label: 'Fecha de última carga', hiddenFilter: true },
+  { id: 'createdAt', label: 'Fecha de creación', hiddenFilter: true },
   { id: 'description', label: 'Descripción', hiddenFilter: true },
   // TODO: Agregar usedIn que seria en que recetas se usa
 ]
@@ -87,7 +87,7 @@ export default function Supplies() {
       if (res) {
         const formattedSupplies = res.map((supplie) => ({
           ...supplie,
-          updatedAt: formatISODateString(supplie.updatedAt),
+          createdAt: formatISODateString(supplie.createdAt),
         }))
         setSupplies(formattedSupplies)
       }
