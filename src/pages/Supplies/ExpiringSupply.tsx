@@ -8,7 +8,7 @@ import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { ToastContainer } from 'react-toastify'
 import { Batch as BatchResponse } from '../../interfaces/Batch'
-import { FilterDaysSelect } from '../../components/FilterDaysSelect'
+import { FilterSelect, daysOptions } from '../../components/FilterSelect'
 
 const columns: Column<TransformedBatch>[] = [
   {
@@ -85,10 +85,11 @@ export default function ExpiringSupply() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Insumos con vencimiento próximo</h1>
-      <FilterDaysSelect
+      <FilterSelect<number>
         title="Lotes que vencen en los próximos:"
         value={filterDays}
         onChange={setFilterDays}
+        options={daysOptions}
       />
       <GenericTable
         columns={columns}
