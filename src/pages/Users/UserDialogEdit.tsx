@@ -72,7 +72,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
       type: '',
     }
 
-    if (!validateText(fullname, { required: true, maxLength: 30 }, 'Nombre Completo')) {
+    if (!validateText(fullname, { required: true, maxLength: 50 }, 'Nombre Completo')) {
       newErrors.fullname = 'Nombre Completo no válido.'
       isValid = false
     }
@@ -82,7 +82,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
       isValid = false
     }
 
-    if (editable && !validateText(password, { required: true, maxLength: 20 }, 'Contraseña')) {
+    if (editable && !validateText(password, { required: true, maxLength: 12 }, 'Contraseña')) {
       newErrors.password = 'Contraseña no válida.'
       isValid = false
     }
@@ -172,7 +172,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
           label="Nombre Completo"
           type="text"
           fullWidth
-          inputProps={{ maxLength: 30 }}
+          inputProps={{ maxLength: 50 }}
           value={formData?.fullname || ''}
           onChange={handleChange}
           error={!!errors.fullname}
@@ -200,7 +200,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
               onChange={handleChange}
               error={!!errors.password}
               helperText={errors.password}
-              inputProps={{ maxLength: 20 }}
+              inputProps={{ maxLength: 12 }}
             />
             <TextField
               fullWidth
@@ -212,7 +212,7 @@ const UserDialogEdit: React.FC<UserModalProps> = ({
               onChange={handleChange}
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
-              inputProps={{ maxLength: 20 }}
+              inputProps={{ maxLength: 12 }}
             />
           </>
         )}
