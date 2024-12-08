@@ -186,6 +186,7 @@ export default function Recipes() {
         .map((supply: SuppliesResponse) => supply.name)
         .map((str) => str)
         .join(', '),
+      state: true,
     }))
   }
 

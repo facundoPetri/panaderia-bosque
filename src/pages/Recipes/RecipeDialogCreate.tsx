@@ -6,8 +6,6 @@ import {
   DialogActions,
   TextField,
   Button,
-  IconButton,
-  Avatar,
   Select,
   MenuItem,
   Input,
@@ -16,45 +14,20 @@ import {
   FormHelperText,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { SuppliesResponse } from '../../interfaces/Supplies'
+import { toast } from 'react-toastify'
+import { validateGeneralNumber, validateText } from '../../utils/validateData'
 
-const useStyles = makeStyles({
-  avatarContainer: {
-    position: 'relative',
-    width: 100,
-    height: 100,
-    margin: '10px auto',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#BEBEBE',
-  },
-  inputFile: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0,
-    cursor: 'pointer',
-  },
-  addIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#00C853',
-    color: '#FFFFFF',
-    borderRadius: '50%',
-    width: 24,
-    height: 24,
-  },
+const useStyles = makeStyles((theme) => ({
   select: {
     marginTop: '1rem',
   },
-})
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.8rem',
+    color: theme.palette.text.secondary,
+  },
+}));
 
 interface RecipeDialogCreateProps {
   open: boolean
@@ -76,19 +49,20 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
     steps: '',
     recommendations: '',
     standardUnits: '',
+    avatarUrl: '',
   })
-  const [avatar, setAvatar] = useState<string | null>(null)
+
   useEffect(() => {
     if (!open) {
-      // Limpiar el formulario y el avatar al cerrar el diálogo
+      // Resetear formulario al cerrar el diálogo
       setFormData({
         name: '',
         supplies: [],
         steps: '',
         recommendations: '',
         standardUnits: '',
+        avatarUrl: '',
       })
-      setAvatar(null)
     }
   }, [open])
 
@@ -99,18 +73,40 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
     setFormData({ ...formData, [name as string]: value })
   }
 
-  const handleSave = () => {
-    onSave({ ...formData, avatar })
+  const validateFields = (): boolean => {
+    const validName = validateText(formData.name, {
+      required: true,
+      maxLength: 50,
+    }, 'Nombre')
+
+    const validSupplies = formData.supplies.length > 0
+    if (!validSupplies) {
+      toast.error('Debe seleccionar al menos un insumo.')
+    }
+
+    const validSteps = validateText(formData.steps, {
+      required: true,
+      maxLength: 1000,
+    }, 'Procedimiento')
+
+    const validRecommendations = validateText(formData.recommendations, {
+      maxLength: 500,
+    }, 'Recomendaciones', 'Máximo 500 caracteres permitidos.')
+
+    const validUnits =
+      formData.standardUnits === '' ||
+      validateGeneralNumber(
+        parseInt(formData.standardUnits),
+        { required: false, isNegative: false },
+        'Estandar de unidades diarias',
+      )
+
+    return validName && validSupplies && validSteps && validRecommendations && validUnits
   }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatar(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+  const handleSave = () => {
+    if (validateFields()) {
+      onSave(formData)
     }
   }
 
@@ -118,20 +114,27 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">Crear Receta</DialogTitle>
       <DialogContent>
-        <div className={classes.avatarContainer}>
-          <Avatar className={classes.avatar} src={avatar || undefined} />
-          <input
-            type="file"
-            accept="image/*"
-            className={classes.inputFile}
-            onChange={handleAvatarChange}
-          />
-          <IconButton className={classes.addIcon}>
-            <FontAwesomeIcon icon={faPlus} style={{ width: 16, height: 16 }} />
-          </IconButton>
-        </div>
         <TextField
           autoFocus
+          margin="dense"
+          name="avatarUrl"
+          label="URL de la Imagen"
+          type="url"
+          fullWidth
+          value={formData.avatarUrl}
+          onChange={handleChange}
+          required
+        />
+        {formData.avatarUrl && (
+          <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+            <img
+              src={formData.avatarUrl}
+              alt="Vista previa"
+              style={{ maxWidth: '100%', maxHeight: '150px' }}
+            />
+          </div>
+        )}
+        <TextField
           margin="dense"
           name="name"
           label="Nombre"
@@ -140,7 +143,9 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           required
           value={formData.name}
           onChange={handleChange}
-          helperText="Nombre de la receta"
+          inputProps={{ maxLength: 50 }}
+          helperText={`${formData.name.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <FormControl fullWidth>
           <InputLabel id="insumosSelector">Insumos</InputLabel>
@@ -166,7 +171,6 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
             Seleccione los insumos necesarios para la receta
           </FormHelperText>
         </FormControl>
-
         <TextField
           margin="dense"
           name="steps"
@@ -178,6 +182,9 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           fullWidth
           value={formData.steps}
           onChange={handleChange}
+          inputProps={{ maxLength: 1000 }}
+          helperText={`${formData.steps.length}/1000`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -189,6 +196,9 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
           fullWidth
           value={formData.recommendations}
           onChange={handleChange}
+          inputProps={{ maxLength: 500 }}
+          helperText={`${formData.recommendations.length}/500`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -207,7 +217,7 @@ const RecipeDialogCreate: React.FC<RecipeDialogCreateProps> = ({
             min: 1,
             step: 1,
           }}
-          helperText="Ingrese un número mayor a 0"
+          helperText="Ingrese un número mayor a 0."
         />
       </DialogContent>
       <DialogActions>
