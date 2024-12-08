@@ -73,10 +73,10 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
   const validateForm = (): boolean => {
     const { fullname, email, password, confirmPassword, avatarUrl, type } = formData
 
-    const isFullnameValid = validateText(fullname, { required: true, maxLength: 30 }, 'Nombre Completo')
+    const isFullnameValid = validateText(fullname, { required: true, maxLength: 50 }, 'Nombre Completo')
     const isEmailValid = validateText(email, { required: true, maxLength: 50 }, 'Email')
-    const isPasswordValid = validateText(password, { required: true, maxLength: 20 }, 'Contraseña')
-    const isConfirmPasswordValid = validateText(confirmPassword, { required: true, maxLength: 20 }, 'Confirmar Contraseña')
+    const isPasswordValid = validateText(password, { required: true, maxLength: 12 }, 'Contraseña')
+    const isConfirmPasswordValid = validateText(confirmPassword, { required: true, maxLength: 12 }, 'Confirmar Contraseña')
     const isAvatarUrlValid = validateText(avatarUrl, { required: true }, 'URL de la Imagen')
 
     if (!type) {
@@ -134,13 +134,13 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
           label="Nombre Completo"
           type="text"
           fullWidth
-          inputProps={{ maxLength: 30 }}
+          inputProps={{ maxLength: 50 }}
           value={formData.fullname}
           onChange={handleChange}
           required
         />
         <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
-          {charCounts.fullname}/30
+          {charCounts.fullname}/50
         </div>
         <TextField
           margin="dense"
@@ -162,13 +162,13 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
           label="Contraseña"
           type="password"
           fullWidth
-          inputProps={{ maxLength: 20 }}
+          inputProps={{ maxLength: 12 }}
           value={formData.password}
           onChange={handleChange}
           required
         />
         <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
-          {charCounts.password}/20
+          {charCounts.password}/12
         </div>
         <TextField
           margin="dense"
@@ -176,13 +176,13 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
           label="Confirmar Contraseña"
           type="password"
           fullWidth
-          inputProps={{ maxLength: 20 }}
+          inputProps={{ maxLength: 12 }}
           value={formData.confirmPassword}
           onChange={handleChange}
           required
         />
         <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'gray' }}>
-          {charCounts.confirmPassword}/20
+          {charCounts.confirmPassword}/12
         </div>
         <FormControl fullWidth margin="dense" required>
           <InputLabel>Tipo de usuario</InputLabel>

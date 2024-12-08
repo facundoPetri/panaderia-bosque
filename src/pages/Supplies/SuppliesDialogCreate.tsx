@@ -60,8 +60,8 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
 
   const validateForm = (): boolean => {
     const isImageUrlValid = validateText(imageUrl, { required: true }, 'URL de la imagen');
-    const isNameValid = validateText(name, { required: true, maxLength: 20 }, 'Nombre');
-    const isDescriptionValid = validateText(description, { required: true, maxLength: 50 }, 'Descripción');
+    const isNameValid = validateText(name, { required: true, maxLength: 50 }, 'Nombre');
+    const isDescriptionValid = validateText(description, { required: true, maxLength: 500 }, 'Descripción');
     const isMinStockValid = validateGeneralNumber(Number(minStock), { required: true }, 'Stock mínimo');
     const isMaxStockValid = validateGeneralNumber(Number(maxStock), { required: true }, 'Stock máximo');
     const isMinStockRangeValid = validateSpecificNumber(
@@ -70,8 +70,8 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
       'Stock mínimo'
     );
     const isMaxStockRangeValid = validateSpecificNumber(Number(maxStock), { min: 1 }, 'Stock máximo');
-    const isPackageSizeValid = validateText(packageSize, { required: true, maxLength: 10 }, 'Tamaño del paquete');
-    const isUnitValid = validateText(unit, { required: true, maxLength: 10 }, 'Unidad de medida');
+    const isPackageSizeValid = validateText(packageSize, { required: true, maxLength: 50 }, 'Tamaño del paquete');
+    const isUnitValid = validateText(unit, { required: true, maxLength: 50 }, 'Unidad de medida');
 
     return (
       isImageUrlValid &&
@@ -146,9 +146,9 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           required
           fullWidth
           value={name}
-          inputProps={{ maxLength: 20 }}
+          inputProps={{ maxLength: 50 }}
           onChange={(e) => setName(e.target.value)}
-          helperText={`${name.length}/20`}
+          helperText={`${name.length}/50`}
           FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
@@ -159,9 +159,9 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           multiline
           rows={3}
           value={description}
-          inputProps={{ maxLength: 50 }}
+          inputProps={{ maxLength: 500 }}
           onChange={(e) => setDescription(e.target.value)}
-          helperText={`${description.length}/50`}
+          helperText={`${description.length}/500`}
           FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
@@ -220,7 +220,7 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
           required
           fullWidth
           value={unit}
-          inputProps={{ maxLength: 10 }}
+          inputProps={{ maxLength: 50 }}
           onChange={(e) => setUnit(e.target.value)}
           helperText={`${unit.length}/10`}
           FormHelperTextProps={{ className: classes.characterCount }}

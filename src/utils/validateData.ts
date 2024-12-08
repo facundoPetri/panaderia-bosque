@@ -103,5 +103,19 @@ const validateSpecificNumber = (
   return true;
 };
 
+const isDateRangeValid = (dateInit: Date | null, dateEnd: Date | null): boolean => {
+  if (!dateInit || !dateEnd) {
+    toast.error("Debe seleccionar ambas fechas.");
+    return false;
+  }
+
+  if (dateInit > dateEnd) {
+    toast.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+    return false;
+  }
+
+  return true;
+};
+
 // Exportación de funciones
-export { validateText, validateGeneralNumber, validateSpecificNumber };
+export { validateText, validateGeneralNumber, validateSpecificNumber, isDateRangeValid as validateDate };

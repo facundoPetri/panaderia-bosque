@@ -218,6 +218,7 @@ const Batches = () => {
         />
       )}
       <BatchesEditDialog
+        open={Boolean(selectedBatch)}
         selectedBatch={selectedBatch}
         onClose={onClose}
         editable={isEditMode}

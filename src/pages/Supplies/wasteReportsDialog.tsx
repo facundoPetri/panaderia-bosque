@@ -8,6 +8,7 @@ import {
   Button,
   IconButton,
   MenuItem,
+  Typography,
 } from "@material-ui/core";
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
@@ -43,7 +44,7 @@ const mapper = (selected: WasteResponse) => ({
     supplyId: supply.supplyId._id,
     quantity: supply.quantity.toString(),
   })),
-})
+});
 
 const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   open,
@@ -53,23 +54,25 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   supplies,
   formData: edit,
 }) => {
-  const [formData, setFormData] = useState<WasteFormData>(edit ? mapper(edit) : {
-    reporter: { name: "", id: "" },
-    involved: { name: "", id: "" },
-    date: null,
-    reason: "",
-    items: [],
-  });
+  const [formData, setFormData] = useState<WasteFormData>(
+    edit
+      ? mapper(edit)
+      : {
+          reporter: { name: "", id: "" },
+          involved: { name: "", id: "" },
+          date: null,
+          reason: "",
+          items: [],
+        }
+  );
+  const [reasonChars, setReasonChars] = useState(edit?.motive?.length || 0);
 
-  const handleFieldChange = (
-    field: keyof WasteFormData,
-    value: any
-  ) => {
+  const handleFieldChange = (field: keyof WasteFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddItem = () => {
-    if (formData.items.length >= 5) return; // Limitar a 5 insumos
+    if (formData.items.length >= 5) return;
     setFormData((prev) => ({
       ...prev,
       items: [...prev.items, { supply: "", supplyId: "", quantity: "" }],
@@ -93,13 +96,27 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
   };
 
   const handleSave = () => {
-    onSave(formData, edit?._id);
-    onClose();
+    if (isFormValid()) {
+      onSave(formData, edit?._id);
+      onClose();
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.reporter.id &&
+      formData.involved.id &&
+      formData.date &&
+      formData.reason &&
+      formData.reason.length <= 50 &&
+      formData.items.length > 0 &&
+      formData.items.every((item) => item.supplyId && item.quantity)
+    );
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{edit ? 'Edición de desperdicio' : 'Creación de desperdicio'}</DialogTitle>
+      <DialogTitle>{edit ? "Edición de desperdicio" : "Creación de desperdicio"}</DialogTitle>
       <DialogContent>
         <TextField
           select
@@ -108,9 +125,10 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           margin="normal"
           value={formData.reporter.id}
           onChange={(e) => {
-            const selectedUser = users.find(user => user._id === e.target.value);
+            const selectedUser = users.find((user) => user._id === e.target.value);
             handleFieldChange("reporter", { name: selectedUser?.fullname || "", id: e.target.value });
           }}
+          required
         >
           {users.map((user) => (
             <MenuItem key={user._id} value={user._id}>
@@ -125,9 +143,10 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           margin="normal"
           value={formData.involved.id}
           onChange={(e) => {
-            const selectedUser = users.find(user => user._id === e.target.value);
+            const selectedUser = users.find((user) => user._id === e.target.value);
             handleFieldChange("involved", { name: selectedUser?.fullname || "", id: e.target.value });
           }}
+          required
         >
           {users.map((user) => (
             <MenuItem key={user._id} value={user._id}>
@@ -147,6 +166,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
             KeyboardButtonProps={{
               "aria-label": "change date",
             }}
+            required
           />
         </MuiPickersUtilsProvider>
         <TextField
@@ -154,7 +174,13 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           fullWidth
           margin="normal"
           value={formData.reason}
-          onChange={(e) => handleFieldChange("reason", e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.slice(0, 50);
+            setReasonChars(value.length);
+            handleFieldChange("reason", value);
+          }}
+          helperText={`${reasonChars}/50`}
+          required
         />
         {formData.items.map((item, index) => (
           <div
@@ -172,9 +198,8 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               fullWidth
               value={item.supplyId}
               onChange={(e) => {
-                handleItemChange(index, "supplyId", e.target.value)
+                handleItemChange(index, "supplyId", e.target.value);
               }}
-              disabled={edit !== null}
             >
               {supplies.map((supply) => (
                 <MenuItem key={supply._id} value={supply._id}>
@@ -187,9 +212,8 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               fullWidth
               value={item.quantity}
               onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-              disabled={edit !== null}
             />
-            <IconButton onClick={() => handleRemoveItem(index)} disabled={edit !== null}>
+            <IconButton onClick={() => handleRemoveItem(index)}>
               <FontAwesomeIcon icon={faTrash} />
             </IconButton>
           </div>
@@ -198,7 +222,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
           variant="outlined"
           onClick={handleAddItem}
           startIcon={<FontAwesomeIcon icon={faPlus} />}
-          disabled={formData.items.length >= 5 || edit !== null}
+          disabled={formData.items.length >= 5}
         >
           Agregar Insumo
         </Button>
@@ -207,7 +231,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
         <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
-        <Button onClick={handleSave} color="primary" variant="contained">
+        <Button onClick={handleSave} color="primary" variant="contained" disabled={!isFormValid()}>
           Guardar
         </Button>
       </DialogActions>
