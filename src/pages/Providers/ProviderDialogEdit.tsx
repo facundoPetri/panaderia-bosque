@@ -12,6 +12,7 @@ import {
     MenuItem,
     Input,
     Select,
+    InputLabel,
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -62,7 +63,9 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
     ) => {
         if (editedProvider) {
             const { name, value } = event.target
-            setEditedProvider({ ...editedProvider, [name as string]: value })
+            const processedValue =
+                name === 'estimated_delivery_time' ? Number(value) : value
+            setEditedProvider({ ...editedProvider, [name as string]: processedValue })
         }
     }
 
@@ -137,7 +140,27 @@ const ProviderDialogEdit: React.FC<ProviderDialogEditProps> = ({
                         readOnly: !editable,
                     }}
                 />
+                <TextField
+                    margin="dense"
+                    name="estimated_delivery_time"
+                    label="Tiempo de entrega"
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={editedProvider?.estimated_delivery_time}
+                    helperText="Tiempo estimado de entrega de mercaderia en días"
+                    onChange={handleChange}
+                    InputProps={{
+                        readOnly: !editable,
+                    }}
+                    inputProps={{
+                        min: 1,
+                        step: 1,
+                    }}
+                />
+                <InputLabel id="insumosSelector">Insumos</InputLabel>
                 <Select
+                    labelId={'insumosSelector'}
                     className={classes.select}
                     name="supplies"
                     multiple

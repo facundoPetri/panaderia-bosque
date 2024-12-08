@@ -10,7 +10,7 @@ export interface SuppliesResponse {
   updatedAt: string
   deletedAt?: string
   batches?: Batch[]
-  current_stock:number
+  current_stock: number
 }
 
 export interface SuppliesCreateData
