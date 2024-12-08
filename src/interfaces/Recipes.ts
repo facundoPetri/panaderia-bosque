@@ -9,7 +9,7 @@ export interface RecipesResponse {
   name: string
   recommendations: string
   standardUnits: string
-  state: true
+  state: boolean
   steps: string
   supplies: SuppliesResponse[]
   updatedAt: string
