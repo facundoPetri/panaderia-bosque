@@ -1,102 +1,68 @@
-import { useState, useEffect } from 'react';
-import GenericTable from '../../components/GenericTable';
-import { Column } from '../../components/GenericTable';
-import { ToastContainer } from 'react-toastify';
-import { RecipesResponse } from '../../interfaces/Recipes';
-import { request, requestToast } from '../../common/request';
-import ProductionEfficienciesDialog from './ProductionEfficienciesDialog'; // Importa el modal correctamente
+import { useState, useEffect } from 'react'
+import GenericTable from '../../components/GenericTable'
+import { Column } from '../../components/GenericTable'
+import { ToastContainer } from 'react-toastify'
+import { RecipesResponse } from '../../interfaces/Recipes'
+import { request, requestToast } from '../../common/request'
+import ProductionEfficienciesDialog from './ProductionEfficienciesDialog' // Importa el modal correctamente
+import { MachinesResponse } from '../../interfaces/Machines'
+import { UsersResponse } from '../../interfaces/Users'
 
 const columns: Column<ProductionEfficiency>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
-  { id: 'name', label: 'Nombre' },
-  { id: 'supplies', label: 'Insumos' },
-  { id: 'totalTime', label: 'Tiempo total' },
-  { id: 'productionQuantity', label: 'Cantidad en produccion' },
-];
+  { id: 'number', label: 'Informe' },
+  { id: 'recipe', label: 'Recipe' },
+  { id: 'quantity', label: 'Cantidad' },
+  { id: 'total_time', label: 'Tiempo total' },
+]
 
-interface ProductionEfficiency {
-  _id: string;
-  name: string;
-  supplies: string;
-  totalTime: string;
-  productionQuantity: string;
+export interface ProductionEfficiency {
+  _id: string
+  number: number
+  quantity: number
+  total_time: number
+  final_date: string
+  inital_date: string
+  equipment: MachinesResponse[]
+  recipe: RecipesResponse
+  user: UsersResponse
+  comments:string
 }
 
-const data: ProductionEfficiency[] = [
-  {
-    _id: '1',
-    name: 'Criollos comunes',
-    supplies: 'Harina, sal, agua, levadura, margarina',
-    totalTime: '300m',
-    productionQuantity: '100u',
-  },
-  {
-    _id: '2',
-    name: 'Criollos de hojaldre',
-    supplies: 'Harina, levadura, margarina, sal, agua',
-    totalTime: '300m',
-    productionQuantity: '100u',
-  },
-  {
-    _id: '3',
-    name: 'Lemon pie',
-    supplies: 'Limón, manteca, azúcar, huevo, esencia de vainilla, maizena',
-    totalTime: '200m',
-    productionQuantity: '8u',
-  },
-  {
-    _id: '4',
-    name: 'Medialunas',
-    supplies: 'Harina leudante, almíbar, azúcar, huevo, esencia de vainilla, miel',
-    totalTime: '100m',
-    productionQuantity: '24u',
-  },
-  {
-    _id: '5',
-    name: 'Pan Dulce',
-    supplies: 'Harina, Frutos secos, huevos, levadura',
-    totalTime: '20m',
-    productionQuantity: '3u',
-  },
-  {
-    _id: '6',
-    name: 'Pan francés',
-    supplies: 'Harina, agua, sal, levadura',
-    totalTime: '150m',
-    productionQuantity: '10u',
-  },
-];
-
 const dropdownOptions = columns
-  .filter(column => !column.hiddenFilter)
-  .map(column => ({
+  .filter((column) => !column.hiddenFilter)
+  .map((column) => ({
     title: column.label,
-  }));
+  }))
 
 export default function ProductionEfficiencies() {
-  const [selectedProductionEfficiency, setSelectedProductionEfficiency] = useState<ProductionEfficiency | null>(null);
-  const [recipes, setRecipes] = useState<RecipesResponse[]>([]);
+  const [selectedProductionEfficiency, setSelectedProductionEfficiency] =
+    useState<ProductionEfficiency | null>(null)
+  const [recipes, setRecipes] = useState<RecipesResponse[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [productionLogs, setProductionLogs] = useState<any[]>([])
+  const [transformedProductionLogs, setTransformedProductionLogs] = useState<any[]>([])
 
 
   // Modal: Ver o editar
   const onView = (productionEfficiency: ProductionEfficiency) => {
-    setSelectedProductionEfficiency(productionEfficiency);
-    setIsDialogOpen(true);
-  };
+    const selected = productionLogs.find((r) => r._id === productionEfficiency._id)
+    if (selected) {
+      setSelectedProductionEfficiency(selected)
+    }
+    setIsDialogOpen(true)
+  }
 
   const onClose = () => {
-    setIsDialogOpen(false);
-    setSelectedProductionEfficiency(null);
-  };
-
-  const onSave = async(data: any) => {
+    setIsDialogOpen(false)
+    setSelectedProductionEfficiency(null)
+  }
+  const onSave = async (data: any) => {
     try {
       const res = await requestToast<any[]>({
         path: '/production',
         method: 'POST',
-        data:data,
+        data: data,
         successMessage: 'Informe Creado',
         errorMessage: 'Error al crear',
         pendingMessage: 'Cargando...',
@@ -107,63 +73,67 @@ export default function ProductionEfficiencies() {
     } catch (error) {
       console.error(error)
     }
-    setIsDialogOpen(false);
-  };
+    setIsDialogOpen(false)
+  }
 
   const onDelete = (id: string) => {
-    console.log(`Eliminando elemento con id: ${id}`);
+    console.log(`Eliminando elemento con id: ${id}`)
     // Aquí puedes llamar a tu servicio de eliminación con el id
-  };
+  }
 
   const onAdd = () => {
-    console.log('Agregando nuevo elemento');
-    setSelectedProductionEfficiency(null);
-    setIsDialogOpen(true);
-  };
+    setSelectedProductionEfficiency(null)
+    setIsDialogOpen(true)
+  }
 
   const getRecipes = async () => {
     try {
       const res = await request<RecipesResponse[]>({
         path: '/recipes',
         method: 'GET',
-      });
+      })
       if (res) {
-        setRecipes(res);
+        setRecipes(res)
       }
     } catch (error) {
-      console.error('Error al cargar recetas:', error);
+      console.error('Error al cargar recetas:', error)
     }
-  };
+  }
   const getProduction = async () => {
     try {
       const res = await request<any[]>({
         path: '/production',
         method: 'GET',
-      });
+      })
       if (res) {
-        setProductionLogs(res);
+        const formattedProduction = res.map((production) => ({
+          ...production,
+          recipe:production.recipe.name
+        }))
+        setProductionLogs(res)
+        setTransformedProductionLogs(formattedProduction)
       }
     } catch (error) {
-      console.error('Error al cargar recetas:', error);
+      console.error('Error al cargar recetas:', error)
     }
-  };
+  }
   useEffect(() => {
-    getRecipes();
-    getProduction() 
-  }, []);
+    getRecipes()
+    getProduction()
+  }, [])
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Rendimiento de producción</h1>
       <GenericTable
         columns={columns}
-        data={data}
-        dropdownOptions={dropdownOptions} // Agregue dropdownOptions
+        data={transformedProductionLogs}
+        dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
         onAdd={onAdd}
         showDropdown={false}
-        nameColumnId="name"
+        nameColumnId="_id"
         nameButton="Crear informe"
       />
       {isDialogOpen && (
@@ -171,10 +141,11 @@ export default function ProductionEfficiencies() {
           open={isDialogOpen}
           onClose={onClose}
           onSave={onSave}
-          recipes={recipes} // Pasa las recetas cargadas al modal
+          recipes={recipes}
+          selectedProductionEfficiency={selectedProductionEfficiency}
         />
       )}
       <ToastContainer />
     </div>
-  );
+  )
 }
