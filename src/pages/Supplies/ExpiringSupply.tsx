@@ -107,7 +107,7 @@ export default function ExpiringSupply() {
         />
       )}
       <ToastContainer />
-      <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} />
+      {/* <DownloadPdfButton url={`${API_BASE_URL}/batch/generate-pdf`} /> */}
     </div>
   )
 }

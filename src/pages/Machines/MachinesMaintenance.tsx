@@ -154,11 +154,12 @@ export default function MachinesMaintenance() {
     }
   }
 
-  useEffect(() => {toast.promise(Promise.all([getMachines(), getMaintenances()]), {
-    success: 'Maquinarias cargadas',
-    error: 'Error al cargar maquinarias',
-    pending: 'Cargando maquinarias...',
-  })
+  useEffect(() => {
+    toast.promise(Promise.all([getMachines(), getMaintenances()]), {
+      success: 'Maquinarias cargadas',
+      error: 'Error al cargar maquinarias',
+      pending: 'Cargando maquinarias...',
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -188,7 +189,7 @@ export default function MachinesMaintenance() {
         editable={isEditMode}
         onSave={handleSave}
       />
-      <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} />
+      {/* <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} /> */}
       <ToastContainer />
     </div>
   )
