@@ -58,10 +58,13 @@ const validateGeneralNumber = (
     toast.error(customMessage || `${fieldName} es obligatorio.`);
     return false;
   }
-
-  if (rules.isNegative && value >= 0) {
-    toast.error(customMessage || `${fieldName} debe ser un número negativo.`);
-    return false;
+  switch (rules.isNegative) {
+    case value === 0:
+      toast.error(customMessage || `${fieldName} no puede ser cero`);
+      return false;
+    case value < 0:
+      toast.error(customMessage || `${fieldName} no puede ser negativo`);
+      return false;
   }
 
   return true;

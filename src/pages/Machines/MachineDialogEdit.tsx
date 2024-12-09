@@ -11,10 +11,16 @@ import {
 } from '@material-ui/core'
 import { TransformedMachines } from '../../interfaces/Machines'
 import { formatDateStringBack } from '../../utils/dateUtils'
+import { validateGeneralNumber, validateText } from '../../utils/validateData'
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
     padding: theme.spacing(2),
+  },
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.75rem',
+    color: '#888',
   },
 }))
 
@@ -51,11 +57,25 @@ const MachineDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
     }
   }
 
+  const isValidateForm = (): boolean => {
+    const isNameValid = validateText(editedMachineMaintenance?.name || '', { required: true, maxLength: 50 }, 'Nombre')
+    const isDescriptionValid = validateText(editedMachineMaintenance?.description || '', { maxLength: 500 }, 'Descripción')
+    const isMaintenanceValid = validateGeneralNumber(
+      Number(editedMachineMaintenance?.desired_maintenance || 0),
+      { required: true, isNegative: true },
+      'Mantenimiento deseado'
+    )
+    return isNameValid && isDescriptionValid && isMaintenanceValid
+  }
+
   const handleSave = () => {
+    if (!isValidateForm()) return
+
     if (onSave && editedMachineMaintenance) {
       onSave(editedMachineMaintenance)
     }
   }
+
   return (
     <Dialog
       open={!!machineMaintenance}
@@ -74,22 +94,28 @@ const MachineDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
               value={editedMachineMaintenance?.name || ''}
               variant="outlined"
               onChange={handleChange}
-              InputProps={{
+              inputProps={{
+                maxLength: 50,
                 readOnly: !editable,
               }}
+              helperText={`${editedMachineMaintenance?.name?.length || 0}/50`}
+              FormHelperTextProps={{ className: classes.characterCount }}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Descripcion"
+              label="Descripción"
               name="description"
               value={editedMachineMaintenance?.description || ''}
               variant="outlined"
               onChange={handleChange}
-              InputProps={{
+              inputProps={{
+                maxLength: 500,
                 readOnly: !editable,
               }}
+              helperText={`${editedMachineMaintenance?.description?.length || 0}/500`}
+              FormHelperTextProps={{ className: classes.characterCount }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -100,7 +126,10 @@ const MachineDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
               value={editedMachineMaintenance?.desired_maintenance || ''}
               variant="outlined"
               onChange={handleChange}
-              InputProps={{
+              inputProps={{
+                min: 1,
+                max: 365,
+                step: 1,
                 readOnly: !editable,
               }}
             />
@@ -112,11 +141,7 @@ const MachineDialogEdit: React.FC<MachineMaintenanceModalProps> = ({
                 type="date"
                 label="Fecha del último mantenimiento"
                 name="last_maintenance_date"
-                value={
-                  formatDateStringBack(
-                    editedMachineMaintenance?.last_maintenance_date || ''
-                  ) || ''
-                }
+                value={formatDateStringBack(editedMachineMaintenance?.last_maintenance_date || '')}
                 variant="outlined"
                 onChange={handleChange}
                 InputLabelProps={{
