@@ -6,7 +6,18 @@ import {
   DialogActions,
   Button,
   TextField,
+  makeStyles,
 } from '@material-ui/core'
+import { toast } from 'react-toastify'
+import { validateGeneralNumber, validateText } from '../../utils/validateData'
+
+const useStyles = makeStyles({
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.75rem',
+    color: '#888',
+  },
+})
 
 interface MachineDialogCreateProps {
   open: boolean
@@ -19,21 +30,38 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
   onClose,
   onSave,
 }) => {
+  const classes = useStyles()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [acquisitionDate, setAcquisitionDate] = useState('')
-  const [desiredMaintenanceInterval, setDesiredMaintenanceInterval] =
-    useState('')
+  const [desiredMaintenanceInterval, setDesiredMaintenanceInterval] = useState('')
+
+  const isFormValid = (): boolean => {
+    const isNameValid = validateText(name, { required: true, maxLength: 50 }, 'Nombre')
+    const isDescriptionValid = validateText(description, { maxLength: 500 }, 'Descripción')
+    const isAcquisitionDateValid = acquisitionDate.trim() !== ''
+      ? true
+      : (toast.error('La fecha de adquisición es obligatoria.'), false)
+    const isMaintenanceValid = validateGeneralNumber(
+      Number(desiredMaintenanceInterval),
+      { required: true, isNegative: true },
+      'Mantenimiento deseado'
+    )
+
+    return isNameValid && isDescriptionValid && isAcquisitionDateValid && isMaintenanceValid
+  }
 
   const handleSave = () => {
+    if (!isFormValid()) return
+
     const newMachineMaintenance = {
-      id: Math.random().toString(36).substr(2, 9), // Genera un id aleatorio
+      id: Math.random().toString(36).substr(2, 9),
       name,
       description,
       purcharse_date: acquisitionDate,
-      desired_maintenance: desiredMaintenanceInterval,
-      lastMaintenanceDate: '', // Asumimos que es un nuevo registro, por lo que no tiene última fecha de mantenimiento
-      priority: 'Media', // Puedes cambiar esto según sea necesario
+      desired_maintenance: Number(desiredMaintenanceInterval),
+      lastMaintenanceDate: '',
+      priority: 'Media',
     }
     onSave(newMachineMaintenance)
     setName('')
@@ -41,6 +69,7 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
     setAcquisitionDate('')
     setDesiredMaintenanceInterval('')
   }
+
 
   const today = new Date()
   const maxDate = today.toISOString().split('T')[0]
@@ -56,7 +85,10 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           required
           fullWidth
           value={name}
+          inputProps={{ maxLength: 50 }}
           onChange={(e) => setName(e.target.value)}
+          helperText={`${name.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -64,7 +96,10 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           type="text"
           fullWidth
           value={description}
+          inputProps={{ maxLength: 500 }}
           onChange={(e) => setDescription(e.target.value)}
+          helperText={`${description.length}/500`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
@@ -86,7 +121,7 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           fullWidth
           value={desiredMaintenanceInterval}
           onChange={(e) => setDesiredMaintenanceInterval(e.target.value)}
-          helperText="Mantenimiento deseado en días"
+          helperText="Mantenimiento deseado en días (mínimo 1 día)"
           inputProps={{
             min: 1,
             max: 365,
