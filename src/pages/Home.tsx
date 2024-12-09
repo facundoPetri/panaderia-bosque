@@ -38,6 +38,7 @@ import { RecipesResponse } from '../interfaces/Recipes'
 import { SupplyUsageToSend } from '../common/types'
 import { OrderResponse, OrderState } from '../interfaces/Orders'
 import { useNavigate } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -73,9 +74,9 @@ const useStyles = makeStyles((theme) => {
     button: {
       marginLeft: '1rem',
     },
-    shortCutsButton:{
-      width:'100%',
-      height:'200px'
+    shortCutsButton: {
+      width: '100%',
+      height: '200px',
     },
     header: {
       backgroundColor: theme.palette.primary.main,
@@ -102,7 +103,7 @@ const useStyles = makeStyles((theme) => {
       flexWrap: 'wrap',
       gap: '1rem',
       marginLeft: '2rem',
-      marginBottom:'1rem'
+      marginBottom: '1rem',
     },
     card: {
       width: '200px',
@@ -191,7 +192,12 @@ function Home() {
         getSuppliesUsageLog()
       }
     } catch (error) {
-      console.error(error)
+      toast.error(
+        (error as any).response?.data.message || 'Ocurrió un error!',
+        {
+          autoClose: false,
+        }
+      )
     }
     handleCancel()
   }
@@ -297,106 +303,107 @@ function Home() {
   }
   return (
     <div>
+      <ToastContainer />
       <Typography className={classes.title}>
         Bienvenido <span className={classes.username}>{fullname}</span> , ¿Qué
         deseas hacer hoy?
       </Typography>
-      <Grid container spacing={2} style={{padding:'1rem 3rem'}}>
+      <Grid container spacing={2} style={{ padding: '1rem 3rem' }}>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/recipes')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Consultar una receta
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/recipes')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Consultar una receta
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/supplies/lowStock')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Consultar stock de un insumo
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/supplies/lowStock')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Consultar stock de un insumo
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/providers/orders')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Realizar un pedido a proveedor
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/providers/orders')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Realizar un pedido a proveedor
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/providers/qualityAndPunctuality')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Cargar informe sobre pedido a proveedor
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/providers/qualityAndPunctuality')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Cargar informe sobre pedido a proveedor
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/supplies/batches')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Cargar un nuevo lote de insumo
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/supplies/batches')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Cargar un nuevo lote de insumo
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/supplies/inventoryWaste')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Cargar un informe de desperdicio
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/supplies/inventoryWaste')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Cargar un informe de desperdicio
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/supplies/productionEfficiency')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Cargar un informe de rendimiento de producción
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/supplies/productionEfficiency')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Cargar un informe de rendimiento de producción
+          </Button>
         </Grid>
         <Grid item xs={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          className={classes.shortCutsButton}
-          onClick={() => navigateToView('/machinery/maintenance')}
-          endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
-        >
-          Cargar un informe de mantenimiento de maquinaria
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.shortCutsButton}
+            onClick={() => navigateToView('/machinery/maintenance')}
+            endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
+          >
+            Cargar un informe de mantenimiento de maquinaria
+          </Button>
         </Grid>
       </Grid>
       <Typography className={classes.title}>Datos mas relevantes</Typography>
