@@ -31,12 +31,14 @@ import {
 } from '../../utils/validateData'
 import { requestToast } from '../../common/request'
 import { MachinesResponse } from '../../interfaces/Machines'
+import { ProductionEfficiency } from './ProductionEfficiencies'
 
 interface ProductionEfficienciesDialogProps {
   open: boolean
   onClose: () => void
   onSave: (data: Record<string, any>) => void
   recipes: RecipesResponse[]
+  selectedProductionEfficiency: ProductionEfficiency | null
 }
 
 const useStyles = makeStyles(() => ({
@@ -54,7 +56,7 @@ const useStyles = makeStyles(() => ({
 interface FormDataToSend {
   inital_date: Date
   final_date: Date
-  observations: string
+  comments: string
   quantity: number
   equipment: string[]
   recipe: string
@@ -62,13 +64,13 @@ interface FormDataToSend {
 }
 const ProductionEfficienciesDialog: React.FC<
   ProductionEfficienciesDialogProps
-> = ({ open, onClose, onSave, recipes }) => {
+> = ({ open, onClose, onSave, recipes, selectedProductionEfficiency }) => {
   const classes = useStyles()
 
   const [formData, setFormData] = useState({
     inital_date: new Date(),
     final_date: new Date(),
-    observations: '',
+    comments: '',
     quantity: '',
     equipment: [],
     recipe: recipes[0]?._id || '',
@@ -87,7 +89,7 @@ const ProductionEfficienciesDialog: React.FC<
   const validateForm = (): boolean => {
     const isDateValid = validateDate(formData.inital_date, formData.final_date)
     const isObservations = validateText(
-      formData.observations,
+      formData.comments,
       { maxLength: 500 },
       'Comentarios y observaciones'
     )
@@ -106,10 +108,10 @@ const ProductionEfficienciesDialog: React.FC<
       inital_date: formData.inital_date,
       final_date: formData.final_date,
       quantity: Number(formData.quantity),
-      observations: formData.observations,
+      comments: formData.comments,
       equipment: formData.equipment,
       recipe: formData.recipe,
-      total_time:formData.total_time
+      total_time: formData.total_time,
     }
     onSave(newData)
   }
@@ -135,6 +137,22 @@ const ProductionEfficienciesDialog: React.FC<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (selectedProductionEfficiency) {
+      setFormData({
+        inital_date: new Date(selectedProductionEfficiency.inital_date),
+        final_date: new Date(selectedProductionEfficiency.final_date),
+        comments: selectedProductionEfficiency.comments,
+        quantity: selectedProductionEfficiency.quantity.toString(),
+        recipe: selectedProductionEfficiency.recipe._id,
+        total_time: selectedProductionEfficiency.total_time,
+        //@ts-ignore
+        equipment: selectedProductionEfficiency.equipment.map(
+          (equipment) => equipment._id
+        ),
+      })
+    }
+  }, [selectedProductionEfficiency])
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle disableTypography className={classes.dialogTitle}>
@@ -154,10 +172,7 @@ const ProductionEfficienciesDialog: React.FC<
                 labelId="recipe-select-label"
                 value={formData.recipe}
                 onChange={(e) =>
-                  handleFieldChange('recipe', [
-                    ...formData.equipment,
-                    e.target.value as string,
-                  ])
+                  handleFieldChange('recipe', e.target.value as string)
                 }
                 label="Receta"
               >
@@ -222,10 +237,8 @@ const ProductionEfficienciesDialog: React.FC<
           <Grid item xs={12}>
             <TextField
               label="Comentarios y observaciones"
-              value={formData.observations}
-              onChange={(e) =>
-                handleFieldChange('observations', e.target.value)
-              }
+              value={formData.comments}
+              onChange={(e) => handleFieldChange('comments', e.target.value)}
               fullWidth
               multiline
               rows={3}
@@ -233,7 +246,7 @@ const ProductionEfficienciesDialog: React.FC<
               margin="normal"
             />
             <FormHelperText className={classes.characterCount}>
-              {`${formData.observations.length}/500`}
+              {`${formData.comments.length}/500`}
             </FormHelperText>
           </Grid>
           <Grid item xs={12}>
@@ -271,11 +284,13 @@ const ProductionEfficienciesDialog: React.FC<
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary">
-          Cancelar
+          {selectedProductionEfficiency ? 'Cerrar' : 'Cancelar'}
         </Button>
-        <Button onClick={handleSave} color="primary" variant="contained">
-          Guardar
-        </Button>
+        {!selectedProductionEfficiency && (
+          <Button onClick={handleSave} color="primary" variant="contained">
+            Guardar
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   )
