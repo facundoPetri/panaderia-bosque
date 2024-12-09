@@ -100,7 +100,7 @@ export default function SuppliesWithLowStock() {
   const getSupplies = async () => {
     try {
       const res = await request<SuppliesResponse[]>({
-        path: '/supplies',
+        path: '/supplies?order_by=current_stock',
         method: 'GET',
       })
 

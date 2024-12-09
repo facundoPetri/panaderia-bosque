@@ -78,7 +78,7 @@ export default function Supplies() {
   const getSupplies = async () => {
     try {
       const res = await requestToast<SuppliesResponse[]>({
-        path: '/supplies',
+        path: '/supplies?order_by=name',
         method: 'GET',
         successMessage: 'Insumos cargados',
         errorMessage: 'Error al cargar insumos',
