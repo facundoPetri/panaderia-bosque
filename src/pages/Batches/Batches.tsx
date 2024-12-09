@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import { Batch, BatchCreateData, FormattedBatch } from '../../interfaces/Batch'
@@ -10,6 +10,7 @@ import BatchesEditDialog from './BatchesEditDialog'
 import { formatISODateString } from '../../utils/dateUtils'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { request, requestToast } from '../../common/request'
+import { Typography } from '@material-ui/core'
 
 const columns: Column<FormattedBatch>[] = [
   {
@@ -24,16 +25,16 @@ const columns: Column<FormattedBatch>[] = [
     label: 'Lote',
   },
   {
+    id: 'supply_id',
+    label: 'Insumo',
+  },
+  {
     id: 'row',
     label: 'Fila',
   },
   {
     id: 'column',
     label: 'Columna',
-  },
-  {
-    id: 'supply_id',
-    label: 'Insumo',
   },
 ]
 const dropdownOptions = columns
@@ -59,11 +60,17 @@ const Batches = () => {
           ...batch,
           row: `Fila ${Number(batch.row)}`,
           column: `Columna ${Number(batch.column)}`,
-          batch_number: `Lote número ${Number(batch.column)}`,
+          batch_number: `Lote número ${Number(batch.batch_number)}`,
           supply_id: batch.supply_id?.name || '',
           expiration_date: formatISODateString(batch.expiration_date),
           date_of_entry: formatISODateString(batch.date_of_entry),
         }))
+        const isIncomplete = res.some((batch) => !batch.expiration_date)
+        if (isIncomplete) {
+          toast.warning('Hay lotes sin fecha de vencimiento', {
+            autoClose: false,
+          })
+        }
         setBatches(res)
         setFormatedBatches(formattedBatches)
       }
@@ -199,6 +206,17 @@ const Batches = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Consulta de lotes de insumos</h1>
+      <Typography variant="body2" style={{ marginBottom: '16px' }}>
+        En esta lista se muestran todos los lotes registrados. Para cada lote
+        puedes:
+        <ul>
+          <li>
+            Ver y editar la ubicación (fila y columna) del lote en el almacén
+          </li>
+          <li>Registrar o modificar la fecha de vencimiento</li>
+          <li>Consultar el insumo, cantidad y fecha de ingreso</li>
+        </ul>
+      </Typography>
       <GenericTable
         columns={columns}
         data={formatedBatches}
