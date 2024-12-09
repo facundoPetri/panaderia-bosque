@@ -15,6 +15,7 @@ import { MachinesResponse } from '../../interfaces/Machines'
 import MaintenanceDialogCreate from './MaintenanceDialogCreate'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { toast, ToastContainer } from 'react-toastify'
+import { Typography } from '@material-ui/core'
 
 const columns: Column<any>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -50,9 +51,12 @@ export default function MachinesMaintenance() {
 
   const onDelete = async (id: string) => {
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/maintenance/${id}`,
         method: 'DELETE',
+        successMessage: 'Mantenimiento eliminado',
+        errorMessage: 'Error al eliminar mantenimiento',
+        pendingMessage: 'Eliminando mantenimiento...',
       })
       if (res) {
         getMaintenances()
@@ -78,10 +82,13 @@ export default function MachinesMaintenance() {
     }
 
     try {
-      const res = await request<any[]>({
+      const res = await requestToast<any[]>({
         path: `/maintenance/${machineMaintenance._id}`,
         method: 'PATCH',
         data,
+        successMessage: 'Mantenimiento actualizado',
+        errorMessage: 'Error al actualizar mantenimiento',
+        pendingMessage: 'Actualizando mantenimiento...',
       })
       if (res) {
         getMaintenances()
@@ -156,9 +163,9 @@ export default function MachinesMaintenance() {
 
   useEffect(() => {
     toast.promise(Promise.all([getMachines(), getMaintenances()]), {
-      success: 'Maquinarias cargadas',
-      error: 'Error al cargar maquinarias',
-      pending: 'Cargando maquinarias...',
+      success: 'Mantenimientos cargados',
+      error: 'Error al cargar mantenimientos',
+      pending: 'Cargando mantenimientos...',
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -166,6 +173,10 @@ export default function MachinesMaintenance() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión y mantenimiento de maquinaria</h1>
+      <Typography variant="body1">
+        En esta sección podrás gestionar los mantenimientos de la maquinaria de
+        la panadería.
+      </Typography>
       <GenericTable
         columns={columns}
         data={maintenances}
@@ -177,18 +188,22 @@ export default function MachinesMaintenance() {
         showDropdown={false}
         nameColumnId="_id"
       />
-      <MaintenanceDialogCreate
-        open={isCreateMode}
-        onClose={onClose}
-        onSave={handleCreate}
-        machines={machines}
-      />
-      <MachinesMaintenanceDialog
-        selectedMaintenance={selectedMaintenance}
-        onClose={onClose}
-        editable={isEditMode}
-        onSave={handleSave}
-      />
+      {isCreateMode && (
+        <MaintenanceDialogCreate
+          open={isCreateMode}
+          onClose={onClose}
+          onSave={handleCreate}
+          machines={machines}
+        />
+      )}
+      {isEditMode && (
+        <MachinesMaintenanceDialog
+          selectedMaintenance={selectedMaintenance}
+          onClose={onClose}
+          editable={isEditMode}
+          onSave={handleSave}
+        />
+      )}
       {/* <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} /> */}
       <ToastContainer />
     </div>

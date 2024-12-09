@@ -10,13 +10,12 @@ import {
   OrderStateFilter,
   TransformedOrder,
 } from '../../interfaces/Orders'
-import { request, requestToast } from '../../common/request'
+import { request } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import { useParams } from 'react-router-dom'
 import OrderDetailsDialog, { onSaveOrder } from './OrderDetailsDialog'
-import { toast } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import { FilterSelect, orderStateOptions } from '../../components/FilterSelect'
-import { ToastContainer } from 'react-toastify'
 
 const columns: Column<TransformedOrder>[] = [
   {
@@ -86,6 +85,7 @@ export default function ProvidersOrders() {
 
   const onClose = () => {
     setIsCreateMode(false)
+    setSelectedProvider(null)
     setSelectedOrder(null)
   }
 
@@ -119,15 +119,14 @@ export default function ProvidersOrders() {
           quantity: item.quantity,
         })),
       }
-      await requestToast<OrderResponse>({
+      await request<OrderResponse>({
         path: '/orders',
         method: 'POST',
         data: orderToSave,
-        successMessage: 'Pedido creado exitosamente',
-        errorMessage: 'Error al crear el pedido',
-        pendingMessage: 'Creando pedido...',
       })
-      getOrders(selectedState)
+      setSelectedState(OrderStateFilter.CREATED)
+      getOrders(OrderStateFilter.CREATED)
+      toast.success('Pedido creado correctamente')
     } catch (error) {
       toast.error(error)
     }
@@ -137,37 +136,33 @@ export default function ProvidersOrders() {
   const onEdit = async (order: onSaveOrder) => {
     try {
       let res
-      if (order.state !== OrderState.CREATED) {
-        res = await requestToast({
+      if (order.state !== OrderState.CREATED && order?.supplies?.length === 0) {
+        res = await request({
           path: `/orders/${order.id}`,
           method: 'POST',
           data: {
             state: order.state,
             cancelled_description: order.cancelled_description,
           },
-          successMessage: 'Estado de pedido actualizado exitosamente',
-          errorMessage: 'Error al actualizar el estado del pedido',
-          pendingMessage: 'Actualizando estado del pedido...',
         })
       } else {
-        res = await requestToast({
+        res = await request({
           path: `/orders/${order.id}`,
           method: 'PATCH',
           data: {
             state: order.state,
+            cancelled_description: order.cancelled_description,
             supplies: order.supplies?.map((item, i) => ({
               supplyId: item.product,
               quantity: item.quantity,
             })),
           },
-          successMessage: 'Pedido actualizado exitosamente',
-          errorMessage: 'Error al actualizar el pedido',
-          pendingMessage: 'Actualizando pedido...',
         })
       }
       if (res) {
         setSelectedState(OrderStateFilter.ALL)
         getOrders(OrderStateFilter.ALL)
+        toast.success('Pedido actualizado correctamente')
       }
       onClose()
     } catch (error) {
