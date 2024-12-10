@@ -6,7 +6,6 @@ import {
   DialogTitle,
   Button,
   TextField,
-  Avatar,
   IconButton,
   makeStyles,
   Typography,
@@ -17,9 +16,11 @@ import {
   FormControl,
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { ProviderResponse } from '../../interfaces/Providers'
+import { validateText } from '../../utils/validateData'
+import { toast } from 'react-toastify'
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -28,44 +29,25 @@ const useStyles = makeStyles((theme) => ({
     top: theme.spacing(1),
     color: theme.palette.grey[500],
   },
-  avatarContainer: {
-    position: 'relative',
-    width: 100,
-    height: 100,
-    margin: '10px auto',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#BEBEBE',
-  },
-  inputFile: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0,
-    cursor: 'pointer',
-  },
-  addIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#00C853',
-    color: '#FFFFFF',
-    borderRadius: '50%',
-    width: 24,
-    height: 24,
-  },
-  uploadInput: {
-    display: 'none',
-  },
   modalTitle: {
     marginBottom: theme.spacing(2),
   },
   select: {
     marginTop: '1rem',
+  },
+  characterCount: {
+    textAlign: 'right',
+    fontSize: '0.75rem',
+    color: '#888',
+  },
+  imagePreview: {
+    marginTop: theme.spacing(2),
+    textAlign: 'center',
+  },
+  image: {
+    maxWidth: '100%',
+    maxHeight: 200,
+    borderRadius: theme.spacing(1),
   },
 }))
 
@@ -91,38 +73,39 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     phone: '',
     estimated_delivery_time: 0,
     supplies: [],
-    image: undefined,
+    image: '',
     createdAt: new Date(),
   })
-  const [avatar, setAvatar] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState('')
+
   const handleChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>
   ) => {
     const { name, value } = event.target
+    if (!name) return
 
-    const processedValue =
-      name === 'estimated_delivery_time' ? Number(value) : value
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name as string]: processedValue,
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }))
   }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatar(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
+  const isFormValid = (): boolean => {
+    const isNameValid = validateText(formData.name, { required: true, maxLength: 50 }, 'Nombre')
+    const isEmailValid = validateText(formData.email, { required: true, maxLength: 50 }, 'Email')
+    const isPhoneValid = validateText(formData.phone, { required: true, maxLength: 50 }, 'Teléfono')
+    const isSuppliesValid =
+      formData.supplies.length > 0 ||
+      (toast.error('Debes seleccionar al menos un insumo.'), false)
+
+    return isNameValid && isEmailValid && isPhoneValid && isSuppliesValid
   }
 
   const handleSave = () => {
-    onSave(formData)
-    onClose()
+    if (isFormValid()) {
+      onSave({ ...formData, image: imageUrl })
+      onClose()
+    }
   }
 
   useEffect(() => {
@@ -134,10 +117,10 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         phone: '',
         estimated_delivery_time: 0,
         supplies: [],
-        image: undefined,
+        image: '',
         createdAt: new Date(),
       })
-      setAvatar(null) // Resetea el avatar si es necesario
+      setImageUrl('')
     }
   }, [open])
 
@@ -145,7 +128,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Typography variant="h6" className={classes.modalTitle}>
-          Completa los campos para crear un nuevo proveedor
+          Crear un nuevo proveedor
         </Typography>
         <IconButton
           aria-label="close"
@@ -156,18 +139,19 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        <div className={classes.avatarContainer}>
-          <Avatar className={classes.avatar} src={avatar || undefined} />
-          <input
-            type="file"
-            accept="image/*"
-            className={classes.inputFile}
-            onChange={handleAvatarChange}
-          />
-          <IconButton className={classes.addIcon}>
-            <FontAwesomeIcon icon={faPlus} style={{ width: 16, height: 16 }} />
-          </IconButton>
-        </div>
+        <TextField
+          margin="dense"
+          label="Insertar URL de imagen"
+          type="url"
+          fullWidth
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        {imageUrl && (
+          <div className={classes.imagePreview}>
+            <img src={imageUrl} alt="Vista previa" className={classes.image} />
+          </div>
+        )}
         <TextField
           margin="dense"
           name="name"
@@ -178,48 +162,48 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
           variant="outlined"
           value={formData.name}
           onChange={handleChange}
+          inputProps={{
+            maxLength: 50,
+          }}
+          helperText={`${formData.name.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
           name="email"
           label="Email"
           type="email"
-          required
           fullWidth
+          required
           variant="outlined"
           value={formData.email}
           onChange={handleChange}
+          inputProps={{
+            maxLength: 50,
+          }}
+          helperText={`${formData.email.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <TextField
           margin="dense"
           name="phone"
           label="Teléfono"
-          required
           type="text"
           fullWidth
+          required
           variant="outlined"
           value={formData.phone}
           onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="estimated_delivery_time"
-          label="Tiempo de entrega"
-          type="number"
-          fullWidth
-          helperText="Tiempo estimado de entrega de mercaderia en días"
-          variant="outlined"
-          value={formData.estimated_delivery_time}
-          onChange={handleChange}
           inputProps={{
-            min: 1,
-            step: 1,
+            maxLength: 50,
           }}
+          helperText={`${formData.phone.length}/50`}
+          FormHelperTextProps={{ className: classes.characterCount }}
         />
         <FormControl fullWidth>
           <InputLabel id="insumosSelector">Insumos</InputLabel>
           <Select
-            labelId={'insumosSelector'}
+            labelId="insumosSelector"
             className={classes.select}
             name="supplies"
             multiple
