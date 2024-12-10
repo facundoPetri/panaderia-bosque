@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import GenericTable from '../../components/GenericTable'
 import { Column } from '../../components/GenericTable'
 import { ToastContainer } from 'react-toastify'
@@ -7,6 +7,27 @@ import { request, requestToast } from '../../common/request'
 import ProductionEfficienciesDialog from './ProductionEfficienciesDialog' // Importa el modal correctamente
 import { MachinesResponse } from '../../interfaces/Machines'
 import { UsersResponse } from '../../interfaces/Users'
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@material-ui/core'
+import GenericDialog from '../../components/GenericDIalog'
+import {
+  BarChart,
+  Bar,
+  Rectangle,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 
 const columns: Column<ProductionEfficiency>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -26,7 +47,7 @@ export interface ProductionEfficiency {
   equipment: MachinesResponse[]
   recipe: RecipesResponse
   user: UsersResponse
-  comments:string
+  comments: string
 }
 
 const dropdownOptions = columns
@@ -34,19 +55,34 @@ const dropdownOptions = columns
   .map((column) => ({
     title: column.label,
   }))
-
+interface Data {
+  number: number
+  cantidad: number
+  tiempoTotal: number
+}
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] =
     useState<ProductionEfficiency | null>(null)
   const [recipes, setRecipes] = useState<RecipesResponse[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedRecipe, setSelectedRecipe] = useState<string>(
+    ''
+  )
+  const [openCompareDialog, setOpenCompareDialog] = useState(false)
+  const [showChart, setShowChart] = useState(false)
   const [productionLogs, setProductionLogs] = useState<any[]>([])
-  const [transformedProductionLogs, setTransformedProductionLogs] = useState<any[]>([])
-
-
+  const [data, setData] = useState<Data[]>([])
+  const [selectedItemsToCompare, setSelectedItemsToCompare] = useState<
+    ProductionEfficiency[]
+  >([])
+  const [transformedProductionLogs, setTransformedProductionLogs] = useState<
+    any[]
+  >([])
   // Modal: Ver o editar
   const onView = (productionEfficiency: ProductionEfficiency) => {
-    const selected = productionLogs.find((r) => r._id === productionEfficiency._id)
+    const selected = productionLogs.find(
+      (r) => r._id === productionEfficiency._id
+    )
     if (selected) {
       setSelectedProductionEfficiency(selected)
     }
@@ -108,7 +144,7 @@ export default function ProductionEfficiencies() {
       if (res) {
         const formattedProduction = res.map((production) => ({
           ...production,
-          recipe:production.recipe.name
+          recipe: production.recipe.name,
         }))
         setProductionLogs(res)
         setTransformedProductionLogs(formattedProduction)
@@ -121,7 +157,32 @@ export default function ProductionEfficiencies() {
     getRecipes()
     getProduction()
   }, [])
-
+  const handleOpenCompare = () => {
+    setOpenCompareDialog(true)
+  }
+  const handleCloseCompareDialog = () => {
+    setOpenCompareDialog(false)
+    setData([])
+    setShowChart(false)
+    setSelectedItemsToCompare([])
+    setSelectedRecipe('')
+  }
+  const handleCompare = () => {
+    setShowChart(true)
+    const newData = selectedItemsToCompare.map((production) => ({
+      number: production.number,
+      cantidad: production.quantity,
+      tiempoTotal: production.total_time,
+    }))
+    setData(newData)
+  }
+  const handleBarClick = (item:any,index:number)=>{
+    console.log(item,index)
+    const selectedItem = productionLogs.find((pro)=>pro.number === item.number)
+    if(selectedItem){
+      onView(selectedItem)
+    }
+  }
   return (
     <div style={{ padding: '20px' }}>
       <h1>Rendimiento de producción</h1>
@@ -135,6 +196,16 @@ export default function ProductionEfficiencies() {
         showDropdown={false}
         nameColumnId="_id"
         nameButton="Crear informe"
+        customButton={
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCompare}
+            style={{ marginLeft: '1rem' }}
+          >
+            Comparar informes
+          </Button>
+        }
       />
       {isDialogOpen && (
         <ProductionEfficienciesDialog
@@ -143,6 +214,125 @@ export default function ProductionEfficiencies() {
           onSave={onSave}
           recipes={recipes}
           selectedProductionEfficiency={selectedProductionEfficiency}
+        />
+      )}
+      {openCompareDialog && (
+        <GenericDialog
+          title="Comparar informes"
+          open={openCompareDialog}
+          fullWidth
+          customWidth="lg"
+          handleClose={handleCloseCompareDialog}
+          content={
+            <div>
+              <Typography>Elige una receta</Typography>
+              <FormControl fullWidth variant="outlined" margin="normal">
+                <InputLabel id="recipe-select-label">Receta</InputLabel>
+                <Select
+                  labelId="recipe-select-label"
+                  value={selectedRecipe}
+                  onChange={(e) => setSelectedRecipe(e.target.value as string)}
+                  label="Receta"
+                >
+                  {recipes.map((recipe) => (
+                    <MenuItem key={recipe._id} value={recipe._id}>
+                      {recipe.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography>Elige al menos 2 informes para comparar</Typography>
+              {selectedRecipe &&
+                productionLogs
+                  .filter(
+                    (pro: ProductionEfficiency) =>
+                      pro.recipe._id === selectedRecipe
+                  )
+                  .map((production: ProductionEfficiency) => (
+                    <div
+                      key={production._id}
+                      style={{ display: 'flex', alignItems: 'center' }}
+                    >
+                      <Checkbox
+                        size="small"
+                        checked={
+                          Boolean(
+                            selectedItemsToCompare.find(
+                              (item) => item._id === production._id
+                            )
+                          ) || false
+                        }
+                        onChange={(e, checked) =>
+                          setSelectedItemsToCompare((prev) => {
+                            if (checked) {
+                              return [...prev, production]
+                            }
+                            return [
+                              ...prev.filter(
+                                (item) => item._id !== production._id
+                              ),
+                            ]
+                          })
+                        }
+                      />
+                      <p>Informe {production.number}</p>
+                    </div>
+                  ))}
+              <div style={{ marginBottom: '1rem' }}>
+                {selectedItemsToCompare.length > 1 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleCompare}
+                    style={{ marginLeft: '1rem' }}
+                  >
+                    Comparar
+                  </Button>
+                )}
+              </div>
+              {showChart && data.length > 0 && (
+                <BarChart
+                  width={600}
+                  height={300}
+                  data={data}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey={(entry) => `Informe ${entry.number}`} />
+                  {/* Eje Y para la cantidad */}
+                  <YAxis yAxisId="left" orientation="left" />
+                  {/* Eje Y para el tiempo total */}
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Legend />
+
+                  {/* Barra para la cantidad fabricada */}
+                  <Bar
+                    yAxisId="left"
+                    dataKey="cantidad"
+                    fill="#8884d8"
+                    activeBar={<Rectangle fill="pink" stroke="blue" />}
+                    onClick={handleBarClick}
+                  />
+                  {/* Barra para el tiempo total */}
+                  <Bar
+                    yAxisId="right"
+                    dataKey="tiempoTotal"
+                    fill="#82ca9d"
+                    activeBar={<Rectangle fill="gold" stroke="purple" />}
+                    onClick={handleBarClick}
+                  />
+                </BarChart>
+              )}
+            </div>
+          }
+          primaryButtonTitle="Cerrar"
+          primaryButtonAction={handleCloseCompareDialog}
         />
       )}
       <ToastContainer />

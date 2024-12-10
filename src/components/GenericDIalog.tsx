@@ -12,9 +12,15 @@ import {
 const useStyles = makeStyles((theme) => {
   return {
     dialogContent: {
-        height:'300px',
-        width:'400px'
+      height: '300px',
+      width: '400px',
     },
+    fullWidth:{
+      height: '100%',
+      width: '100%',
+    },
+    dialog:{
+    }
   }
 })
 interface GenericDialogProps {
@@ -23,9 +29,11 @@ interface GenericDialogProps {
   title: string
   content: ReactNode
   primaryButtonTitle: string
-  secondaryButtonTitle: string
+  secondaryButtonTitle?: string
   primaryButtonAction: () => void
-  secondaryButtonAction: () => void
+  secondaryButtonAction?: () => void
+  customWidth?: "md" | "xs" | "sm" | "lg" | "xl"
+  fullWidth?:boolean
 }
 const GenericDialog: FC<GenericDialogProps> = ({
   open,
@@ -36,6 +44,8 @@ const GenericDialog: FC<GenericDialogProps> = ({
   primaryButtonTitle,
   secondaryButtonAction,
   secondaryButtonTitle,
+  customWidth,
+  fullWidth
 }) => {
   const classes = useStyles()
   return (
@@ -43,14 +53,17 @@ const GenericDialog: FC<GenericDialogProps> = ({
       open={open}
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
-      maxWidth="md"
+      maxWidth={customWidth || "md"}
+      className={classes.dialog}
     >
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
-      <DialogContent className={classes.dialogContent}>{content}</DialogContent>
+      <DialogContent className={fullWidth ? classes.fullWidth : classes.dialogContent}>{content}</DialogContent>
       <DialogActions>
-        <Button onClick={() => secondaryButtonAction()} color="secondary">
-          {secondaryButtonTitle}
-        </Button>
+        {secondaryButtonTitle && (
+          <Button onClick={() => secondaryButtonAction?.()} color="secondary">
+            {secondaryButtonTitle}
+          </Button>
+        )}
         <Button
           onClick={() => primaryButtonAction()}
           color="primary"

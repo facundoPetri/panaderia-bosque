@@ -49,6 +49,7 @@ interface GenericTableProps<T extends object> {
   nameColumnId: keyof T
   nameButton?: string
   hiddenButtonModal?: boolean
+  customButton?:React.ReactNode
 }
 
 const useStyles = makeStyles({
@@ -76,6 +77,7 @@ const GenericTable = <T extends object>({
   onEdit,
   onDelete,
   dropdownOptions,
+  customButton,
   showDropdown = true,
   nameColumnId,
   nameButton = 'Agregar',
@@ -320,6 +322,7 @@ const GenericTable = <T extends object>({
             </div>
           </Tooltip>
         )}
+        {customButton}
       </Box>
       <Table aria-label="generic table">
         <TableHead>
