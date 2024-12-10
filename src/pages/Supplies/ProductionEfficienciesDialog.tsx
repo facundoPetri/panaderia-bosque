@@ -156,7 +156,7 @@ const ProductionEfficienciesDialog: React.FC<
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle disableTypography className={classes.dialogTitle}>
-        <h3>Informe de Receta</h3>
+        <h3>Informe {selectedProductionEfficiency ? selectedProductionEfficiency.number : ''}</h3>
         <FontAwesomeIcon
           icon={faTimes}
           onClick={onClose}
