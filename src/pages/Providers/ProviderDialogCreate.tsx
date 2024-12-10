@@ -117,10 +117,10 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         phone: '',
         estimated_delivery_time: 0,
         supplies: [],
-        image: undefined,
+        image: '',
         createdAt: new Date(),
       })
-      setAvatar(null) // Resetea el avatar si es necesario
+      setImageUrl('')
     }
   }, [open])
 
@@ -128,7 +128,7 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Typography variant="h6" className={classes.modalTitle}>
-          Completa los campos para crear un nuevo proveedor
+          Crear un nuevo proveedor
         </Typography>
         <IconButton
           aria-label="close"
@@ -139,9 +139,6 @@ const ProviderDialogCreate: React.FC<ProviderDialogProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        <div className={classes.avatarContainer}>
-          <Avatar className={classes.avatar} src={avatar || undefined} />
-          <input
         <TextField
           margin="dense"
           label="Insertar URL de imagen"
