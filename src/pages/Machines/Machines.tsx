@@ -7,6 +7,7 @@ import MachineDialogCreate from './MachineDialogCreate'
 import {
   MachinesResponse,
   TransformedMachines,
+  MaintenanceFilter,
 } from '../../interfaces/Machines'
 import { requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
@@ -14,6 +15,10 @@ import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { getRequireMaintenance } from './helper'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { Typography } from '@material-ui/core'
+import {
+  FilterSelect,
+  maintainanceNeededOptions,
+} from '../../components/FilterSelect'
 
 const columns: Column<TransformedMachines>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -36,6 +41,9 @@ export default function Machines() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [machines, setMachines] = useState<TransformedMachines[]>([])
+  const [isMaintenanceNeeded, setIsMaintenanceNeeded] =
+    useState<MaintenanceFilter>(MaintenanceFilter.ALL)
+  console.log('🚀 ~ isMaintenanceNeeded:', isMaintenanceNeeded)
 
   const onView = (machineMaintenance: TransformedMachines) => {
     setSelectedMachineMaintenance(machineMaintenance)
@@ -143,10 +151,19 @@ export default function Machines() {
     }))
   }
 
-  const getMachines = async () => {
+  const getMachines = async (filterMaintenanceNeeded?: MaintenanceFilter) => {
+    let path: string
+    if (
+      !filterMaintenanceNeeded ||
+      filterMaintenanceNeeded === MaintenanceFilter.ALL
+    ) {
+      path = '/machines'
+    } else {
+      path = `/machines?require_maintenance=${filterMaintenanceNeeded}`
+    }
     try {
       const res = await requestToast<MachinesResponse[]>({
-        path: '/machines',
+        path,
         method: 'GET',
         successMessage: 'Maquinarias cargadas',
         errorMessage: 'Error al cargar maquinarias',
@@ -162,15 +179,22 @@ export default function Machines() {
   }
 
   useEffect(() => {
-    getMachines()
+    getMachines(isMaintenanceNeeded)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isMaintenanceNeeded])
   return (
     <div style={{ padding: '20px' }}>
       <h1>Maquinarias y Utensilios</h1>
-      <Typography>
-        Aquí podrás ver y administrar las maquinarias y utensillos de tu panadería
+      <Typography style={{ marginBottom: 30 }}>
+        Aquí podrás ver y administrar las maquinarias y Utensilios de tu
+        panadería
       </Typography>
+      <FilterSelect<MaintenanceFilter>
+        value={isMaintenanceNeeded}
+        onChange={setIsMaintenanceNeeded}
+        options={maintainanceNeededOptions}
+        title="¿Requiere mantenimiento?"
+      />
       <GenericTable
         columns={columns}
         data={machines}
