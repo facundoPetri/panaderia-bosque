@@ -1,4 +1,4 @@
-import { Maintenance } from "./Maintenance"
+import { Maintenance } from './Maintenance'
 
 export interface MachinesResponse {
   _id: string
@@ -6,8 +6,8 @@ export interface MachinesResponse {
   description: string
   purcharse_date: string
   desired_maintenance: number
-  maintenance : Maintenance[]
-  require_maintenance:boolean
+  maintenance: Maintenance[]
+  require_maintenance: boolean
 }
 
 export interface TransformedMachines {
@@ -16,6 +16,12 @@ export interface TransformedMachines {
   purcharse_date: string
   desired_maintenance: number
   last_maintenance_date: string
-  description?:string
-  require_maintenance?:string
+  description?: string
+  require_maintenance?: string
+}
+
+export enum MaintenanceFilter {
+  ALL = 'none',
+  YES = 'true',
+  NO = 'false',
 }

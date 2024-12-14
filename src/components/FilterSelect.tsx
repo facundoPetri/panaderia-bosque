@@ -1,6 +1,7 @@
 import { Box, Input, MenuItem, Select, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { OrderStateFilter } from '../interfaces/Orders'
+import { MaintenanceFilter } from '../interfaces/Machines'
 
 const useStyles = makeStyles({
   headerWrapper: {
@@ -44,13 +45,19 @@ export const orderStateOptions: FilterOption<OrderStateFilter>[] = [
   { value: OrderStateFilter.CANCELLED, label: 'Cancelado' },
 ]
 
+export const maintainanceNeededOptions: FilterOption<MaintenanceFilter>[] = [
+  { value: MaintenanceFilter.ALL, label: 'Todos' },
+  { value: MaintenanceFilter.YES, label: 'Si' },
+  { value: MaintenanceFilter.NO, label: 'No' },
+]
+
 export function FilterSelect<T extends string | number>({
   value,
   onChange,
   options,
   title = 'Seleccionar',
   className,
-}: FilterSelectProps<T>) {
+}: Readonly<FilterSelectProps<T>>) {
   const classes = useStyles()
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
