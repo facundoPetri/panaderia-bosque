@@ -136,29 +136,19 @@ export default function ProvidersOrders() {
   const onEdit = async (order: onSaveOrder) => {
     try {
       let res
-      if (order.state !== OrderState.CREATED && order?.supplies?.length === 0) {
-        res = await request({
-          path: `/orders/${order.id}`,
-          method: 'POST',
-          data: {
-            state: order.state,
-            cancelled_description: order.cancelled_description,
-          },
-        })
-      } else {
-        res = await request({
-          path: `/orders/${order.id}`,
-          method: 'PATCH',
-          data: {
-            state: order.state,
-            cancelled_description: order.cancelled_description,
-            supplies: order.supplies?.map((item, i) => ({
-              supplyId: item.product,
-              quantity: item.quantity,
-            })),
-          },
-        })
-      }
+      res = await request({
+        path: `/orders/${order.id}`,
+        method: 'POST',
+        data: {
+          state: order.state,
+          cancelled_description: order.cancelled_description,
+          supplies: order.supplies?.map((item) => ({
+            supplyId: item.product,
+            quantity: item.quantity,
+          })),
+        },
+      })
+
       if (res) {
         setSelectedState(OrderStateFilter.ALL)
         getOrders(OrderStateFilter.ALL)
