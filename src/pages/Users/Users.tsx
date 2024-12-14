@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import GenericTable from '../../components/GenericTable'
-import { Column } from '../../components/GenericTable'
+import GenericTable, { Column } from '../../components/GenericTable'
 import UserDialogCreate from './UserDialogCreate'
 import UserDialogEdit from './UserDialogEdit'
 import { TransformedUser, UsersResponse } from '../../interfaces/Users'
@@ -10,6 +9,7 @@ import { requestToast } from '../../common/request'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { AxiosError } from 'axios'
 
 const columns: Column<TransformedUser>[] = [
   {
@@ -63,7 +63,11 @@ export default function Userstable() {
         getUsers()
       }
     } catch (error) {
-      console.error(error)
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message, { autoClose: false })
+      } else {
+        toast.error('An unknown error occurred')
+      }
     }
     // Aquí puedes llamar a tu servicio de eliminación con el id
   }
@@ -106,7 +110,7 @@ export default function Userstable() {
   const handleCreate = async (user: any) => {
     try {
       const res = await requestToast<UsersResponse[]>({
-        path: '/users',
+        path: '/auth/signup',
         method: 'POST',
         data: user,
         successMessage: 'Usuario creado',
