@@ -109,7 +109,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
 
   return (
     <Dialog open={!!selectedSupplies} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Editar Insumo</DialogTitle>
+      <DialogTitle>{editable ? "Editar " : ""}Insumo</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <Grid container spacing={2}>
           {/* Información de stock */}
