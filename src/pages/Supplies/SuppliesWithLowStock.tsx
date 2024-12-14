@@ -82,19 +82,11 @@ export default function SuppliesWithLowStock() {
     minStock: number,
     maxStock: number
   ): string => {
-    // Si el stock actual es menor al mínimo, la prioridad es alta
-    if (currentStock < minStock) {
-      return 'Alta'
-    }
-    // Si el stock actual es menor al promedio entre el mínimo y el máximo, la prioridad es media
-    if (currentStock < (minStock + maxStock) / 2) {
-      return 'Media'
-    }
-    // Si el stock actual es menor al máximo, la prioridad es baja
-    if (currentStock < maxStock) {
-      return 'Baja'
-    }
-    return ''
+    if (currentStock < minStock) return 'Alta'
+
+    if (currentStock < (minStock + maxStock) / 2) return 'Media'
+
+    return 'Baja'
   }
 
   const getSupplies = async () => {
