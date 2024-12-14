@@ -167,7 +167,7 @@ export default function Machines() {
   }, [])
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Maquinarias y Utensillos</h1>
+      <h1>Maquinarias y Utensilios</h1>
       <Typography>
         Aquí podrás ver y administrar las maquinarias y utensillos de tu panadería
       </Typography>

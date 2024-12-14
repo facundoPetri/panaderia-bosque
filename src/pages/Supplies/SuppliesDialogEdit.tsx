@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   Button,
   Dialog,
@@ -9,8 +9,8 @@ import {
   Grid,
   Typography,
   makeStyles,
-} from '@material-ui/core';
-import { SuppliesResponse } from '../../interfaces/Supplies';
+} from '@material-ui/core'
+import { SuppliesResponse } from '../../interfaces/Supplies'
 import {
   validateText,
   validateGeneralNumber,
@@ -26,13 +26,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.8rem',
     color: theme.palette.text.secondary,
   },
-}));
+}))
 
 interface StockModalProps {
-  selectedSupplies: SuppliesResponse | null;
-  onClose: () => void;
-  editable?: boolean;
-  onSave?: (supplies: SuppliesResponse) => void;
+  selectedSupplies: SuppliesResponse | null
+  onClose: () => void
+  editable?: boolean
+  onSave?: (supplies: SuppliesResponse) => void
 }
 
 const SuppliesDialogEdit: React.FC<StockModalProps> = ({
@@ -41,48 +41,71 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
   editable = false,
   onSave,
 }) => {
-  const [editedStockItem, setEditedStockItem] = useState<SuppliesResponse | null>(null);
-  const classes = useStyles();
+  const [editedStockItem, setEditedStockItem] =
+    useState<SuppliesResponse | null>(null)
+  const classes = useStyles()
 
   useEffect(() => {
-    setEditedStockItem(selectedSupplies);
-  }, [selectedSupplies]);
+    setEditedStockItem(selectedSupplies)
+  }, [selectedSupplies])
 
-  if (!selectedSupplies) return null;
+  if (!selectedSupplies) return null
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (editedStockItem) {
-      const { name, value } = event.target;
-      setEditedStockItem({ ...editedStockItem, [name]: value });
+      const { name, value } = event.target
+      setEditedStockItem({ ...editedStockItem, [name]: value })
     }
-  };
+  }
 
   const validateForm = (): boolean => {
-    if (!editedStockItem) return false;
+    if (!editedStockItem) return false
 
-    const { name, description, size, unit, max_stock } = editedStockItem;
+    const { name, description, size, unit, max_stock } = editedStockItem
 
     // Validaciones para texto
-    const isNameValid = validateText(name || '', { required: true, maxLength: 20 }, 'Nombre');
+    const isNameValid = validateText(
+      name || '',
+      { required: true, maxLength: 20 },
+      'Nombre'
+    )
     const isDescriptionValid = validateText(
       description || '',
       { required: true, maxLength: 50 },
       'Descripción'
-    );
-    const isUnitValid = validateText(unit || '', { required: true, maxLength: 10 }, 'Unidad de medida');
+    )
+    const isUnitValid = validateText(
+      unit || '',
+      { required: true, maxLength: 10 },
+      'Unidad de medida'
+    )
 
     // Validaciones para números
-    const isSizeValid = validateGeneralNumber(Number(size), { required: true }, 'Tamaño del paquete');
-    const isStockValid = validateSpecificNumber(Number(size), { max: max_stock }, 'Tamaño del paquete');
+    const isSizeValid = validateGeneralNumber(
+      Number(size),
+      { required: true },
+      'Tamaño del paquete'
+    )
+    const isStockValid = validateSpecificNumber(
+      Number(size),
+      { max: max_stock },
+      'Tamaño del paquete'
+    )
 
-    return isNameValid && isDescriptionValid && isUnitValid && isSizeValid && isStockValid;
-  };
+    return (
+      isNameValid &&
+      isDescriptionValid &&
+      isUnitValid &&
+      isSizeValid &&
+      isStockValid
+    )
+  }
 
   const handleSave = () => {
     if (onSave && validateForm() && editedStockItem) {
-      onSave(editedStockItem);
+      onSave(editedStockItem)
     }
-  };
+  }
 
   return (
     <Dialog open={!!selectedSupplies} onClose={onClose} fullWidth maxWidth="sm">
@@ -92,13 +115,16 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
           {/* Información de stock */}
           <Grid item xs={12}>
             <Typography variant="subtitle1">
-              <strong>Stock actual:</strong> {selectedSupplies?.current_stock} {selectedSupplies?.unit}
+              <strong>Stock actual:</strong> {selectedSupplies?.current_stock}{' '}
+              {selectedSupplies?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Stock mínimo:</strong> {selectedSupplies?.min_stock} {selectedSupplies?.unit}
+              <strong>Stock mínimo:</strong> {selectedSupplies?.min_stock}{' '}
+              {selectedSupplies?.unit}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Stock máximo:</strong> {selectedSupplies?.max_stock} {selectedSupplies?.unit}
+              <strong>Stock máximo:</strong> {selectedSupplies?.max_stock}{' '}
+              {selectedSupplies?.unit}
             </Typography>
           </Grid>
 
@@ -137,6 +163,38 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
               inputProps={{ maxLength: 50 }}
               helperText={`${editedStockItem?.description?.length || 0}/50`}
               FormHelperTextProps={{ className: classes.characterCount }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              margin="dense"
+              label="Stock mínimo"
+              type="number"
+              fullWidth
+              name="min_stock"
+              value={editedStockItem?.min_stock}
+              onChange={handleChange}
+              inputProps={{
+                min: 1,
+                step: 1,
+              }}
+              helperText="Stock mínimo recomendado"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              margin="dense"
+              label="Stock máximo"
+              type="number"
+              fullWidth
+              name="max_stock"
+              value={editedStockItem?.max_stock}
+              onChange={handleChange}
+              inputProps={{
+                min: 1,
+                step: 1,
+              }}
+              helperText="Stock máximo permitido en almacén"
             />
           </Grid>
           <Grid item xs={6}>
@@ -184,7 +242,7 @@ const SuppliesDialogEdit: React.FC<StockModalProps> = ({
         )}
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default SuppliesDialogEdit;
+export default SuppliesDialogEdit
