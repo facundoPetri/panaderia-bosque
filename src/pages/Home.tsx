@@ -366,7 +366,7 @@ function Home() {
             onClick={() => navigateToView('/supplies/batches')}
             endIcon={<FontAwesomeIcon icon={faArrowUpRightFromSquare} />}
           >
-            Cargar un nuevo lote de insumo
+            Consultar lotes de insumo
           </Button>
         </Grid>
         <Grid item xs={3}>

@@ -134,7 +134,7 @@ const MachineDialogCreate: React.FC<MachineDialogCreateProps> = ({
           Cancelar
         </Button>
         <Button onClick={handleSave} color="primary">
-          Crear
+          Guardar
         </Button>
       </DialogActions>
     </Dialog>

@@ -113,7 +113,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
       formData.items.every((item) => item.supplyId && item.quantity)
     );
   };
-
+console.log(formData)
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{edit ? "Edición de desperdicio" : "Creación de desperdicio"}</DialogTitle>
@@ -208,7 +208,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               ))}
             </TextField>
             <TextField
-              label="Cantidad"
+              label={`Cantidad en ${supplies.find((sup)=>sup._id === item.supplyId)?.unit || ''}`}
               fullWidth
               value={item.quantity}
               onChange={(e) => handleItemChange(index, "quantity", e.target.value)}

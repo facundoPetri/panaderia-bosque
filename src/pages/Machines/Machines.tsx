@@ -184,9 +184,9 @@ export default function Machines() {
   }, [isMaintenanceNeeded])
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Maquinarias y Utensillos</h1>
+      <h1>Maquinarias y utensilios</h1>
       <Typography style={{ marginBottom: 30 }}>
-        Aquí podrás ver y administrar las maquinarias y utensillos de tu
+        Aquí podrás ver y administrar las maquinarias y utensilios de tu
         panadería
       </Typography>
       <FilterSelect<MaintenanceFilter>

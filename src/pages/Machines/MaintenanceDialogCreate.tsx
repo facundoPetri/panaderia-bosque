@@ -101,7 +101,7 @@ const MaintenanceDialogCreate: React.FC<MaintenanceDialogCreateProps> = ({
           variant='contained'
           disabled={machine === '' || date === ''}
         >
-          Crear
+          Guardar
         </Button>
       </DialogActions>
     </Dialog>

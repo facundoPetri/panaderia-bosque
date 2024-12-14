@@ -223,7 +223,6 @@ const Batches = () => {
         dropdownOptions={dropdownOptions}
         onView={onView}
         onDelete={onDelete}
-        onAdd={onAdd}
         onEdit={handleEdit}
         nameColumnId="batch_number"
       />
