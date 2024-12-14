@@ -42,6 +42,7 @@ export default function MachinesMaintenance() {
     setSelectedMaintenance(item)
     setIsEditMode(false)
   }
+  console.log(selectedMaintenance)
 
   const onClose = () => {
     setSelectedMaintenance(null)
@@ -196,14 +197,12 @@ export default function MachinesMaintenance() {
           machines={machines}
         />
       )}
-      {isEditMode && (
-        <MachinesMaintenanceDialog
-          selectedMaintenance={selectedMaintenance}
-          onClose={onClose}
-          editable={isEditMode}
-          onSave={handleSave}
-        />
-      )}
+      <MachinesMaintenanceDialog
+        selectedMaintenance={selectedMaintenance}
+        onClose={onClose}
+        editable={isEditMode}
+        onSave={handleSave}
+      />
       {/* <DownloadPdfButton url={`${API_BASE_URL}/maintenance/generate-pdf`} /> */}
       <ToastContainer />
     </div>

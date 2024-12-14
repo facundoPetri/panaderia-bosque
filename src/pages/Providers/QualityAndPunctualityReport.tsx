@@ -264,7 +264,7 @@ export default function QualityAndPunctualityReport() {
         onAdd={onAdd}
         onEdit={handleEdit}
         nameColumnId="name"
-        nameButton="Crear"
+        nameButton="Agregar"
       />
       {isModalOpen && (
         <QAndPDialog

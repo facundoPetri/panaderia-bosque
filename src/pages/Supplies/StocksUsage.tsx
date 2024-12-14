@@ -115,6 +115,7 @@ export default function StocksUsage() {
       ...supplyLog,
       supply: supplyLog.supply.name,
       date_used: formatISODateString(supplyLog.date_used),
+      quantity:`${supplyLog.quantity} ${supplyLog.supply.unit}`
     }));
   };
 

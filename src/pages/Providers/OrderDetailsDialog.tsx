@@ -310,7 +310,7 @@ const SuppliesList = ({
           ))}
         </TextField>
         <TextField
-          label="Cantidad"
+          label={`Cantidad en ${supplies.find((sup)=>sup._id === item.supplyId)?.unit || ''}`}
           fullWidth
           value={selectedQuantity}
           onChange={handleQuantityChange}
