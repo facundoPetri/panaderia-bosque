@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import SuppliesDialogEdit from './SuppliesDialogEdit'
@@ -9,6 +9,7 @@ import { SuppliesCreateData, SuppliesResponse } from '../../interfaces/Supplies'
 import { formatISODateString } from '../../utils/dateUtils'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
+import { AxiosError } from 'axios'
 
 const columns: Column<SuppliesResponse>[] = [
   {
@@ -155,7 +156,11 @@ export default function Supplies() {
         getSupplies()
       }
     } catch (error) {
-      console.error(error)
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message, { autoClose: false })
+      } else {
+        toast.error('An unknown error occurred')
+      }
     }
     setIsCreateMode(false)
   }

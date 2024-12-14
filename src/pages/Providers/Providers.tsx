@@ -14,6 +14,7 @@ import {
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { Typography } from '@material-ui/core'
+import { AxiosError } from 'axios'
 
 const columns: Column<TransformedProvider>[] = [
   {
@@ -155,7 +156,11 @@ export default function Providers() {
         getProviders()
       }
     } catch (error) {
-      console.error('Error al crear proveedor:', error)
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message, { autoClose: false })
+      } else {
+        toast.error('An unknown error occurred')
+      }
     }
     onClose()
   }
