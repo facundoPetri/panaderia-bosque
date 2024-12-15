@@ -252,7 +252,6 @@ function Home() {
 
     const expiringBatches = batches.filter((batch) => {
       const expirationDate = new Date(batch.expiration_date);
-      console.log(expirationDate, today, nextWeek);
       return expirationDate >= today && expirationDate <= nextWeek;
     });
 

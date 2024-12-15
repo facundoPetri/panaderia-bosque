@@ -46,6 +46,7 @@ export default function Recipes() {
   const [transformedRecipes, setTransformedRecipes] = useState<
     TransformedRecipes[]
   >([])
+  const userType = sessionStorage.getItem('userType')
 
   const onView = (recipe: TransformedRecipes) => {
     const selected = recipes.find((r) => r._id === recipe._id)
@@ -211,6 +212,8 @@ export default function Recipes() {
         onAdd={onAdd}
         onEdit={handleEdit}
         nameColumnId="name"
+        disableCreate={userType === 'user'}
+        disableEdit={userType === 'user'}
       />
 
       <RecipeDialogEdit

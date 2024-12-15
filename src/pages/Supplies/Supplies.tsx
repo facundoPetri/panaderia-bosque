@@ -37,7 +37,7 @@ export default function Supplies() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
-
+  const userType = sessionStorage.getItem('userType')
   const onView = (supplies: SuppliesResponse) => {
     setSelectedSupplies(supplies)
     setIsEditMode(false)
@@ -177,6 +177,8 @@ export default function Supplies() {
         onAdd={onAdd}
         onEdit={handleEdit}
         nameColumnId="name"
+        disableCreate={userType === 'user'}
+        disableEdit={userType === 'user'}
       />
       <SuppliesDialogCreate
         open={isCreateMode}

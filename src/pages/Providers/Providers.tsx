@@ -45,6 +45,7 @@ export default function Providers() {
   const [supplies, setSupplies] = useState<SuppliesResponse[]>([])
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [providers, setProviders] = useState<ProviderResponse[]>([])
+  const userType = sessionStorage.getItem('userType')
   const [transformedProvider, setTransformedProvider] = useState<
     TransformedProvider[]
   >([])
@@ -202,6 +203,8 @@ export default function Providers() {
         onEdit={onEdit}
         onAdd={onAdd}
         nameColumnId="name"
+        disableCreate={userType === 'user'}
+        disableEdit={userType === 'user'}
       />
       <ProviderDialogEdit
         provider={selectedProvider}
