@@ -177,7 +177,6 @@ export default function ProductionEfficiencies() {
     setData(newData)
   }
   const handleBarClick = (item:any,index:number)=>{
-    console.log(item,index)
     const selectedItem = productionLogs.find((pro)=>pro.number === item.number)
     if(selectedItem){
       onView(selectedItem)

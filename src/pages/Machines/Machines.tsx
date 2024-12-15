@@ -43,7 +43,6 @@ export default function Machines() {
   const [machines, setMachines] = useState<TransformedMachines[]>([])
   const [isMaintenanceNeeded, setIsMaintenanceNeeded] =
     useState<MaintenanceFilter>(MaintenanceFilter.ALL)
-  console.log('🚀 ~ isMaintenanceNeeded:', isMaintenanceNeeded)
 
   const onView = (machineMaintenance: TransformedMachines) => {
     setSelectedMachineMaintenance(machineMaintenance)

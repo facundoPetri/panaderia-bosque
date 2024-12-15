@@ -15,6 +15,7 @@ import {
 import { SuppliesResponse } from '../../interfaces/Supplies'
 import { formatISODateString } from '../../utils/dateUtils'
 import { Typography } from '@material-ui/core'
+import { AxiosError } from 'axios'
 
 const columns: Column<WasteReport>[] = [
   {
@@ -68,7 +69,7 @@ export default function WasteReports() {
         method: 'GET',
       })
       if (res) {
-        setSupplies(res)
+        setSupplies(res.filter((supply) => supply.current_stock > 0))
       }
     } catch (error) {
       console.error(error)
@@ -157,7 +158,11 @@ export default function WasteReports() {
         getWastes()
       }
     } catch (error) {
-      console.error('Error al crear desperdicio de inventario:', error)
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message, { autoClose: false })
+      } else {
+        toast.error('An unknown error occurred')
+      }
     }
     onClose()
   }

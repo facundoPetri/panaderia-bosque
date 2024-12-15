@@ -2,6 +2,7 @@ import { Box, Input, MenuItem, Select, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { OrderStateFilter } from '../interfaces/Orders'
 import { MaintenanceFilter } from '../interfaces/Machines'
+import { BatchFilter } from '../interfaces/Supplies'
 
 const useStyles = makeStyles({
   headerWrapper: {
@@ -49,6 +50,11 @@ export const maintainanceNeededOptions: FilterOption<MaintenanceFilter>[] = [
   { value: MaintenanceFilter.ALL, label: 'Todos' },
   { value: MaintenanceFilter.YES, label: 'Si' },
   { value: MaintenanceFilter.NO, label: 'No' },
+]
+
+export const batchExpiredOptions: FilterOption<BatchFilter>[] = [
+  { value: 1, label: 'No asignados' },
+  { value: 0, label: 'Todos' },
 ]
 
 export function FilterSelect<T extends string | number>({

@@ -3,7 +3,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import GenericTable, { Column } from '../../components/GenericTable'
 import { Batch, BatchCreateData, FormattedBatch } from '../../interfaces/Batch'
-import { SuppliesResponse } from '../../interfaces/Supplies'
+import { SuppliesResponse, BatchFilter } from '../../interfaces/Supplies'
 import DownloadPdfButton from '../../components/DownloadPdfButton'
 import BatchesCreateDialog from './BatchesCreateDialog'
 import BatchesEditDialog from './BatchesEditDialog'
@@ -11,6 +11,10 @@ import { formatISODateString } from '../../utils/dateUtils'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { request, requestToast } from '../../common/request'
 import { Typography } from '@material-ui/core'
+import {
+  FilterSelect,
+  batchExpiredOptions,
+} from '../../components/FilterSelect'
 
 const columns: Column<FormattedBatch>[] = [
   {
@@ -49,17 +53,21 @@ const Batches = () => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
-  const getBatches = async () => {
+  const [isExpired, setIsExpired] = useState<BatchFilter>(BatchFilter.ALL)
+
+  const getBatches = async (filterIsExpired: BatchFilter) => {
     try {
       const res = await request<Batch[]>({
-        path: '/batch',
+        path: filterIsExpired ? '/batch?filter_expiring=true' : '/batch',
         method: 'GET',
       })
       if (res) {
         const formattedBatches = res.map((batch) => ({
           ...batch,
-          row: `Fila ${Number(batch.row)}`,
-          column: `Columna ${Number(batch.column)}`,
+          row: batch.row ? `Fila ${Number(batch.row)}` : 'No asignado',
+          column: batch.column
+            ? `Columna ${Number(batch.column)}`
+            : 'No asignado',
           batch_number: `Lote número ${Number(batch.batch_number)}`,
           supply_id: batch.supply_id?.name || '',
           expiration_date: formatISODateString(batch.expiration_date),
@@ -69,6 +77,7 @@ const Batches = () => {
         if (isIncomplete) {
           toast.warning('Hay lotes sin fecha de vencimiento', {
             autoClose: false,
+            toastId: 'incomplete-batches',
           })
         }
         setBatches(res)
@@ -122,22 +131,20 @@ const Batches = () => {
         pendingMessage: 'Eliminando lote...',
       })
       if (res) {
-        getBatches()
+        getBatches(isExpired)
       }
     } catch (error) {
       console.error(error)
     }
   }
 
-  const onAdd = () => {
-    setIsCreateMode(true)
-  }
   useEffect(() => {
     if (supplies.length > 0) {
-      getBatches()
+      getBatches(isExpired)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supplies])
+  }, [supplies, isExpired])
+
   const handleEdit = (batch: any) => {
     const newBatchToEdit = batches.find((b) => b._id === batch._id)
     if (newBatchToEdit) {
@@ -166,7 +173,7 @@ const Batches = () => {
         pendingMessage: 'Creando lote...',
       })
       if (res) {
-        getBatches()
+        getBatches(isExpired)
       }
     } catch (error) {
       console.error(error)
@@ -194,7 +201,7 @@ const Batches = () => {
         pendingMessage: 'Actualizando lote...',
       })
       if (res) {
-        getBatches()
+        getBatches(isExpired)
       }
     } catch (error) {
       console.error(error)
@@ -217,6 +224,12 @@ const Batches = () => {
           <li>Consultar el insumo, cantidad y fecha de ingreso</li>
         </ul>
       </Typography>
+      <FilterSelect<BatchFilter>
+        value={isExpired}
+        onChange={setIsExpired}
+        options={batchExpiredOptions}
+        title="Filtrar por no asignados"
+      />
       <GenericTable
         columns={columns}
         data={formatedBatches}

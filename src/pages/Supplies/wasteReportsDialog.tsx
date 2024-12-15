@@ -113,7 +113,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
       formData.items.every((item) => item.supplyId && item.quantity)
     );
   };
-console.log(formData)
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{edit ? "Edición de desperdicio" : "Creación de desperdicio"}</DialogTitle>
@@ -166,6 +166,7 @@ console.log(formData)
             KeyboardButtonProps={{
               "aria-label": "change date",
             }}
+            disableFuture
             required
           />
         </MuiPickersUtilsProvider>

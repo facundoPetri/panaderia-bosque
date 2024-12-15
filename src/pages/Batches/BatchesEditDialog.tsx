@@ -51,7 +51,7 @@ const BatchesEditDialog: React.FC<BatchesEditDialogProps> = ({
       setBatchNumber(selectedBatch.batch_number);
       setQuantity(selectedBatch.quantity);
       setDateOfEntry(new Date(selectedBatch.date_of_entry));
-      setExpirationDate(new Date(selectedBatch.expiration_date));
+      setExpirationDate(selectedBatch.expiration_date ? new Date(selectedBatch.expiration_date) : null);
       setSupplyId(selectedBatch.supply_id || null);
     }
   }, [selectedBatch]);
@@ -106,7 +106,7 @@ const BatchesEditDialog: React.FC<BatchesEditDialogProps> = ({
             setSupplyId(selectedSupply || null);
           }}
           InputProps={{
-            readOnly: !editable, // Deshabilita el campo si no está en modo edición
+            readOnly: true, // Deshabilita el campo si no está en modo edición
           }}
         >
           {supplies.map((supply) => (
@@ -123,18 +123,18 @@ const BatchesEditDialog: React.FC<BatchesEditDialogProps> = ({
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
           InputProps={{
-            readOnly: !editable, // Deshabilita el campo si no está en modo edición
+            readOnly: true, // Deshabilita el campo si no está en modo edición
           }}
         />
         <TextField
           margin="dense"
-          label="Lote"
+          label="Número de lote"
           type="number"
           fullWidth
           value={batchNumber}
           onChange={(e) => setBatchNumber(Number(e.target.value))}
           InputProps={{
-            readOnly: !editable,
+            readOnly: true,
           }}
         />
         <TextField
@@ -169,7 +169,7 @@ const BatchesEditDialog: React.FC<BatchesEditDialogProps> = ({
             inputVariant="outlined"
             margin="normal"
             InputProps={{
-              readOnly: !editable,
+              readOnly: true,
             }}
           />
           <KeyboardDatePicker

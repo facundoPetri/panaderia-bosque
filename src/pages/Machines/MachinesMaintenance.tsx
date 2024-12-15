@@ -42,7 +42,6 @@ export default function MachinesMaintenance() {
     setSelectedMaintenance(item)
     setIsEditMode(false)
   }
-  console.log(selectedMaintenance)
 
   const onClose = () => {
     setSelectedMaintenance(null)
