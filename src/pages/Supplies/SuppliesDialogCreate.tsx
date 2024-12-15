@@ -59,7 +59,6 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
   const [imageUrl, setImageUrl] = useState('');
 
   const validateForm = (): boolean => {
-    const isImageUrlValid = validateText(imageUrl, { required: true }, 'URL de la imagen');
     const isNameValid = validateText(name, { required: true, maxLength: 50 }, 'Nombre');
     const isDescriptionValid = validateText(description, { required: true, maxLength: 500 }, 'Descripción');
     const isMinStockValid = validateGeneralNumber(Number(minStock), { required: true }, 'Stock mínimo');
@@ -74,7 +73,6 @@ const SuppliesDialogCreate: React.FC<SuppliesDialogCreateProps> = ({
     const isUnitValid = validateText(unit, { required: true, maxLength: 50 }, 'Unidad de medida');
 
     return (
-      isImageUrlValid &&
       isNameValid &&
       isDescriptionValid &&
       isMinStockValid &&

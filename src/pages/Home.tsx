@@ -269,7 +269,7 @@ function Home() {
         </div>
       );
 
-      toast.warn(message, {
+      toast.error(message, {
         autoClose: false,
         style: { whiteSpace: 'pre-line' },
       });
