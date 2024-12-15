@@ -49,7 +49,7 @@ interface GenericTableProps<T extends object> {
   nameColumnId: keyof T
   nameButton?: string
   hiddenButtonModal?: boolean
-  customButton?:React.ReactNode
+  customButton?: React.ReactNode
 }
 
 const useStyles = makeStyles({

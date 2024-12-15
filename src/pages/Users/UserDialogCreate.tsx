@@ -71,13 +71,12 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
   }
 
   const validateForm = (): boolean => {
-    const { fullname, email, password, confirmPassword, avatarUrl, type } = formData
+    const { fullname, email, password, confirmPassword, type } = formData
 
     const isFullnameValid = validateText(fullname, { required: true, maxLength: 50 }, 'Nombre Completo')
     const isEmailValid = validateText(email, { required: true, maxLength: 50 }, 'Email')
     const isPasswordValid = validateText(password, { required: true, maxLength: 12 }, 'Contraseña')
     const isConfirmPasswordValid = validateText(confirmPassword, { required: true, maxLength: 12 }, 'Confirmar Contraseña')
-    const isAvatarUrlValid = validateText(avatarUrl, { required: true }, 'URL de la Imagen')
 
     if (!type) {
       toast.error('El tipo de usuario es obligatorio.')
@@ -93,8 +92,7 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
       isFullnameValid &&
       isEmailValid &&
       isPasswordValid &&
-      isConfirmPasswordValid &&
-      isAvatarUrlValid
+      isConfirmPasswordValid
     )
   }
 
@@ -117,7 +115,6 @@ const UserDialogCreate: React.FC<UserDialogCreateProps> = ({
           fullWidth
           value={formData.avatarUrl}
           onChange={handleChange}
-          required
         />
         {formData.avatarUrl && (
           <div style={{ textAlign: 'center', marginBottom: '10px' }}>
