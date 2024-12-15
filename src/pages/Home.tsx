@@ -231,7 +231,7 @@ function Home() {
           <br />
           {lowStockSupplies.map((supply) => (
             <div key={supply._id}>
-              {supply.name} (Stock actual: {supply.current_stock})
+              {supply.name} (Stock actual: {supply.current_stock + ' ' +supply.unit.toUpperCase()})
             </div>
           ))}
         </div>
@@ -262,7 +262,7 @@ function Home() {
           <br />
           {expiringBatches.map((batch) => (
             <div key={batch._id}>
-              {batch.supply_name} (Vence el: {formatISODateString(batch.expiration_date)})
+              {batch.supply_name}, Lote: {batch.batch_number} (Vence el: {formatISODateString(batch.expiration_date)})
             </div>
           ))}
         </div>
