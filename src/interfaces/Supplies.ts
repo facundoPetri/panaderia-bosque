@@ -61,3 +61,8 @@ export interface SupplyUsage {
   date_used: string
   supply: SuppliesResponse
 }
+
+export enum BatchFilter {
+  ALL = 0,
+  EXPIRED = 1,
+}
