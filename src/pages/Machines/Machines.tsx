@@ -41,6 +41,7 @@ export default function Machines() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [machines, setMachines] = useState<TransformedMachines[]>([])
+  const userType = sessionStorage.getItem('userType')
   const [isMaintenanceNeeded, setIsMaintenanceNeeded] =
     useState<MaintenanceFilter>(MaintenanceFilter.ALL)
 
@@ -204,6 +205,8 @@ export default function Machines() {
         onEdit={handleEdit}
         showDropdown={false}
         nameColumnId="name"
+        disableCreate={userType === 'user'}
+        disableEdit={userType === 'user'}
       />
       <MachineDialogCreate
         open={isCreateMode}

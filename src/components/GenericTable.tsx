@@ -50,6 +50,8 @@ interface GenericTableProps<T extends object> {
   nameButton?: string
   hiddenButtonModal?: boolean
   customButton?: React.ReactNode
+  disableEdit?: boolean
+  disableCreate?: boolean
 }
 
 const useStyles = makeStyles({
@@ -78,6 +80,8 @@ const GenericTable = <T extends object>({
   onDelete,
   dropdownOptions,
   customButton,
+  disableEdit,
+  disableCreate,
   showDropdown = true,
   nameColumnId,
   nameButton = 'Agregar',
@@ -146,31 +150,35 @@ const GenericTable = <T extends object>({
 
   const descendingComparator = useCallback(
     <T,>(a: T, b: T, orderBy: keyof T) => {
-      const valueA = a[orderBy];
-      const valueB = b[orderBy];
+      const valueA = a[orderBy]
+      const valueB = b[orderBy]
 
-      const isNumber = (value: any) => !isNaN(Number(value));
+      const isNumber = (value: any) => !isNaN(Number(value))
 
       const isDate = (value: any) =>
-        typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+        typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)
 
       if (isDate(valueA) && isDate(valueB)) {
-        const dateA = new Date((valueA as string).split('/').reverse().join('/'));
-        const dateB = new Date((valueB as string).split('/').reverse().join('/'));
+        const dateA = new Date(
+          (valueA as string).split('/').reverse().join('/')
+        )
+        const dateB = new Date(
+          (valueB as string).split('/').reverse().join('/')
+        )
 
-        if (dateB < dateA) return -1;
-        if (dateB > dateA) return 1;
-        return 0;
+        if (dateB < dateA) return -1
+        if (dateB > dateA) return 1
+        return 0
       }
 
       if (isNumber(valueA) && isNumber(valueB)) {
-        return Number(valueB) - Number(valueA);
+        return Number(valueB) - Number(valueA)
       }
 
-      if (String(valueB) < String(valueA)) return -1;
-      if (String(valueB) > String(valueA)) return 1;
+      if (String(valueB) < String(valueA)) return -1
+      if (String(valueB) > String(valueA)) return 1
 
-      return 0;
+      return 0
     },
     []
   )
@@ -270,20 +278,33 @@ const GenericTable = <T extends object>({
       )}
       <Box className={classes.buttonContainer}>
         {onAdd && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onAdd}
-            startIcon={<FontAwesomeIcon icon={faSquarePlus} />}
-            style={{ marginRight: '10px' }}
-            disabled={selectedRows.length > 0}
+          <Tooltip
+            title={disableCreate ? 'No tenes permisos' : ''}
+            placement="top"
+            classes={{ tooltip: classes.tooltip }}
+            arrow
           >
-            {nameButton}
-          </Button>
+            <div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={onAdd}
+                startIcon={<FontAwesomeIcon icon={faSquarePlus} />}
+                style={{ marginRight: '10px' }}
+                disabled={selectedRows.length > 0 || disableCreate}
+              >
+                {nameButton}
+              </Button>
+            </div>
+          </Tooltip>
         )}
         {onEdit && (
           <Tooltip
-            title="Selecciona un elemento en la tabla para editar"
+            title={
+              disableEdit
+                ? 'No tenes permisos'
+                : 'Selecciona un elemento en la tabla para editar'
+            }
             placement="top"
             classes={{ tooltip: classes.tooltip }}
             arrow
@@ -293,7 +314,7 @@ const GenericTable = <T extends object>({
                 variant="contained"
                 color="default"
                 onClick={handleEditClick}
-                disabled={selectedRows.length !== 1}
+                disabled={selectedRows.length !== 1 || disableEdit}
                 startIcon={<FontAwesomeIcon icon={faEdit} />}
                 style={{ marginRight: '10px' }}
               >
@@ -304,7 +325,11 @@ const GenericTable = <T extends object>({
         )}
         {onEdit && (
           <Tooltip
-            title="Selecciona un elemento en la tabla para eliminar"
+          title={
+            disableEdit
+              ? 'No tenes permisos'
+              : 'Selecciona un elemento en la tabla para editar'
+          }
             placement="top"
             classes={{ tooltip: classes.tooltip }}
             arrow
@@ -314,7 +339,7 @@ const GenericTable = <T extends object>({
                 variant="contained"
                 color="secondary"
                 onClick={onDeleteClick}
-                disabled={selectedRows.length !== 1}
+                disabled={selectedRows.length !== 1 || disableEdit}
                 startIcon={<FontAwesomeIcon icon={faTrashAlt} />}
               >
                 Eliminar
