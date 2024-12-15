@@ -42,13 +42,10 @@ const BatchesEditDialog: React.FC<BatchesEditDialogProps> = ({
   const [quantity, setQuantity] = useState(0);
   const [dateOfEntry, setDateOfEntry] = useState<Date | null>(null);
   const [expirationDate, setExpirationDate] = useState<Date | null>(null);
-  console.log("🚀 ~ expirationDate:", expirationDate)
   const [supplyId, setSupplyId] = useState<SuppliesResponse | null>(null);
 
   useEffect(() => {
     if (selectedBatch) {
-      console.log("🚀 ~ selectedBatch.expiration_date:", selectedBatch.expiration_date)
-
       setRow(selectedBatch.row);
       setColumn(selectedBatch.column);
       setBatchNumber(selectedBatch.batch_number);
