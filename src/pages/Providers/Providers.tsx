@@ -168,7 +168,6 @@ export default function Providers() {
   }
 
   const transformData = (data: ProviderResponse[]): TransformedProvider[] => {
-    console.log('🚀 ~ data:', data)
     return data.map((provider) => ({
       ...provider,
       createdAt: formatISODateString(provider.createdAt.toString()),
