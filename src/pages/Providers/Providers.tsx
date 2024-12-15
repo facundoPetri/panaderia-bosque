@@ -15,6 +15,7 @@ import DownloadPdfButton from '../../components/DownloadPdfButton'
 import { API_BASE_URL } from '../../common/commonConsts'
 import { Typography } from '@material-ui/core'
 import { AxiosError } from 'axios'
+import { formatISODateString } from '../../utils/dateUtils'
 
 const columns: Column<TransformedProvider>[] = [
   {
@@ -24,6 +25,7 @@ const columns: Column<TransformedProvider>[] = [
     sortable: false,
     hiddenFilter: true,
   },
+  { id: 'createdAt', label: 'Fecha de creación', hiddenFilter: true },
   { id: 'name', label: 'Nombre' },
   { id: 'phone', label: 'Telefono', sortable: false, hiddenFilter: true },
   { id: 'email', label: 'Email', hiddenFilter: true },
@@ -166,8 +168,10 @@ export default function Providers() {
   }
 
   const transformData = (data: ProviderResponse[]): TransformedProvider[] => {
+    console.log('🚀 ~ data:', data)
     return data.map((provider) => ({
       ...provider,
+      createdAt: formatISODateString(provider.createdAt.toString()),
       supplies: provider.supplies
         .map((supply: SuppliesResponse) => supply.name)
         .map((str) => str)

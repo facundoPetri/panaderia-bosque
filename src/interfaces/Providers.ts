@@ -20,7 +20,7 @@ export interface TransformedProvider {
   supplies: string
   image?: string
   estimated_delivery_time: number
-  createdAt: Date
+  createdAt: string
   updatedAt?: Date
 }
 
