@@ -30,7 +30,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import GenericDialog from '../components/GenericDIalog'
-import { SuppliesResponse, SupplyUsage } from '../interfaces/Supplies'
+import { SuppliesResponse, SupplyUsage, TransformedBatch } from '../interfaces/Supplies'
 import { request, requestToast } from '../common/request'
 import { formatISODateString } from '../utils/dateUtils'
 import { getSupplyUnit } from '../utils/getSupplyUnit'
@@ -39,6 +39,7 @@ import { SupplyUsageToSend } from '../common/types'
 import { OrderResponse, OrderState } from '../interfaces/Orders'
 import { useNavigate } from 'react-router-dom'
 import { toast, ToastContainer } from 'react-toastify'
+import { Batch as BatchResponse } from '../interfaces/Batch'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -140,6 +141,8 @@ function Home() {
     null
   )
   const [supplyUsage, setSupplyUsage] = useState<SupplyUsageToSend[]>([])
+  const [hasShownToast, setHasShownToast] = useState(false);
+  const [batches, setBatches] = useState<TransformedBatch[]>([])
   const fullname = sessionStorage.getItem('fullname')
   const getSupplies = async () => {
     try {
@@ -214,14 +217,84 @@ function Home() {
       console.error(error)
     }
   }
-  useEffect(() => {
-    getSupplies()
-    getRecipes()
-  }, [])
-  useEffect(() => {
-    getSuppliesUsageLog()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterDays])
+  const checkLowStockSupplies = () => {
+    if (hasShownToast) return;
+
+    const lowStockSupplies = supplies.filter(
+      (supply) => supply?.current_stock < supply?.min_stock
+    );
+
+    if (lowStockSupplies.length > 0) {
+      const message = (
+        <div>
+          <strong>Insumos con stock crítico:</strong>
+          <br />
+          {lowStockSupplies.map((supply) => (
+            <div key={supply._id}>
+              {supply.name} (Stock actual: {supply.current_stock})
+            </div>
+          ))}
+        </div>
+      );
+
+      toast.error(message, {
+        autoClose: false,
+        style: { whiteSpace: 'pre-line' },
+      });
+
+      setHasShownToast(true);
+    }
+  };
+  const showExpiringBatchesToast = () => {
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+
+    const expiringBatches = batches.filter((batch) => {
+      const expirationDate = new Date(batch.expiration_date);
+      console.log(expirationDate, today, nextWeek);
+      return expirationDate >= today && expirationDate <= nextWeek;
+    });
+
+    if (expiringBatches.length > 0) {
+      const message = (
+        <div>
+          <strong>Insumos próximos a vencer:</strong>
+          <br />
+          {expiringBatches.map((batch) => (
+            <div key={batch._id}>
+              {batch.supply_name} (Vence el: {formatISODateString(batch.expiration_date)})
+            </div>
+          ))}
+        </div>
+      );
+
+      toast.warn(message, {
+        autoClose: false,
+        style: { whiteSpace: 'pre-line' },
+      });
+    }
+  };
+  const getBatches = async () => {
+    try {
+      const res = await request<BatchResponse[]>({
+        path: '/batch?expiring=true&days=7',
+        method: 'GET',
+      })
+      if (res) {
+        const transformedBatches = res.map((batch) => ({
+          ...batch,
+          expiration_date: batch.expiration_date,
+          supply_name: batch.supply_id?.name ?? 'Sin nombre',
+          location: `Fila ${batch.row}, Columna ${batch.column}`,
+          quantity: `${batch.quantity} ${batch.supply_id?.unit}`,
+        }))
+        setBatches(transformedBatches)
+      }
+    } catch (error) {
+      console.error('Error al obtener los insumos:', error)
+    }
+  }
   const handleChangeQuantity = (value: string, supplyId: string) => {
     setSupplyUsage((prev) => {
       const existingSupply = prev.find((item) => item.supply === supplyId)
@@ -255,9 +328,6 @@ function Home() {
       console.error('Error al obtener pedidos:', error)
     }
   }
-  useEffect(() => {
-    getOrders()
-  }, [])
   const getStateIcon = (state: OrderState) => {
     switch (state) {
       case OrderState.CREATED:
@@ -301,6 +371,29 @@ function Home() {
   const navigateToView = (path: string) => {
     navigate(path)
   }
+  useEffect(() => {
+    getSupplies();
+    getRecipes();
+    getOrders();
+    getSuppliesUsageLog();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterDays]);
+  useEffect(() => {
+    if (supplies.length > 0) checkLowStockSupplies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supplies]);
+  useEffect(() => {
+    if (supplies.length > 0) {
+      getBatches()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supplies])
+  useEffect(() => {
+    if (batches.length > 0) {
+      showExpiringBatchesToast();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batches]);
   return (
     <div>
       <ToastContainer />
