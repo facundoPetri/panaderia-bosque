@@ -143,7 +143,6 @@ function Home() {
   const [supplyUsage, setSupplyUsage] = useState<SupplyUsageToSend[]>([])
   const [hasShownToast, setHasShownToast] = useState(false);
   const [batches, setBatches] = useState<TransformedBatch[]>([])
-  const [selectedBatches, setSelectedBatches] = useState<BatchResponse[]>([])
   const fullname = sessionStorage.getItem('fullname')
   const getSupplies = async () => {
     try {
@@ -246,17 +245,46 @@ function Home() {
       setHasShownToast(true);
     }
   };
+  const showExpiringBatchesToast = () => {
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+
+    const expiringBatches = batches.filter((batch) => {
+      const expirationDate = new Date(batch.expiration_date);
+      console.log(expirationDate, today, nextWeek);
+      return expirationDate >= today && expirationDate <= nextWeek;
+    });
+
+    if (expiringBatches.length > 0) {
+      const message = (
+        <div>
+          <strong>Insumos próximos a vencer:</strong>
+          <br />
+          {expiringBatches.map((batch) => (
+            <div key={batch._id}>
+              {batch.supply_name} (Vence el: {formatISODateString(batch.expiration_date)})
+            </div>
+          ))}
+        </div>
+      );
+
+      toast.warn(message, {
+        autoClose: false,
+        style: { whiteSpace: 'pre-line' },
+      });
+    }
+  };
   const getBatches = async () => {
     try {
-      const res = await  request<BatchResponse[]>({
-        path: '/batch?expiring=true&days=' + filterDays,
+      const res = await request<BatchResponse[]>({
+        path: '/batch?expiring=true&days=7',
         method: 'GET',
       })
       if (res) {
-        setSelectedBatches(res)
         const transformedBatches = res.map((batch) => ({
           ...batch,
-          expiration_date: formatISODateString(batch.expiration_date),
+          expiration_date: batch.expiration_date,
           supply_name: batch.supply_id?.name ?? 'Sin nombre',
           location: `Fila ${batch.row}, Columna ${batch.column}`,
           quantity: `${batch.quantity} ${batch.supply_id?.unit}`,
@@ -267,42 +295,6 @@ function Home() {
       console.error('Error al obtener los insumos:', error)
     }
   }
-  // NUEVO estado para controlar si la alerta ya se mostró
-const [hasShownExpiringToast, setHasShownExpiringToast] = useState(false);
-
-// Nueva función para revisar insumos próximos a vencer
-const checkExpiringSupplies = () => {
-  if (hasShownExpiringToast) return; // Evita mostrar la alerta más de una vez
-
-  const expiringSupplies = batches.filter((batch) => {
-    const today = new Date();
-    const expirationDate = new Date(batch.expiration_date);
-    const timeDifference = (expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-    return timeDifference > 0 && timeDifference <= 7; // Insumos que vencen en <= 7 días
-  });
-
-  if (expiringSupplies.length > 0) {
-    const message = (
-      <div>
-        <strong>Insumos próximos a vencer:</strong>
-        <br />
-        {expiringSupplies.map((batch) => (
-          <div key={batch._id}>
-            {batch.supply_name} (Vence el: {formatISODateString(batch.expiration_date)})
-          </div>
-        ))}
-      </div>
-    );
-
-    toast.warn(message, {
-      autoClose: false,
-      style: { whiteSpace: 'pre-line' },
-    });
-
-    setHasShownExpiringToast(true); // Evita re-mostrar la alerta
-  }
-};
-
   const handleChangeQuantity = (value: string, supplyId: string) => {
     setSupplyUsage((prev) => {
       const existingSupply = prev.find((item) => item.supply === supplyId)
@@ -384,16 +376,24 @@ const checkExpiringSupplies = () => {
     getRecipes();
     getOrders();
     getSuppliesUsageLog();
-    getBatches()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterDays]);
-
   useEffect(() => {
-    checkExpiringSupplies();
     if (supplies.length > 0) checkLowStockSupplies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplies]);
-
+  useEffect(() => {
+    if (supplies.length > 0) {
+      getBatches()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supplies])
+  useEffect(() => {
+    if (batches.length > 0) {
+      showExpiringBatchesToast();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batches]);
   return (
     <div>
       <ToastContainer />
