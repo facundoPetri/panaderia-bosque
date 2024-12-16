@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import GenericTable from '../../components/GenericTable'
 import { Column } from '../../components/GenericTable'
 import { ToastContainer } from 'react-toastify'
@@ -28,6 +28,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { useReactToPrint } from 'react-to-print'
+import { formatISODateString } from '../../utils/dateUtils'
+import logo from '../../assets/logo.png'
 
 const columns: Column<ProductionEfficiency>[] = [
   { id: '_id', label: 'id', hiddenColumn: true, sortable: false },
@@ -63,11 +66,10 @@ interface Data {
 export default function ProductionEfficiencies() {
   const [selectedProductionEfficiency, setSelectedProductionEfficiency] =
     useState<ProductionEfficiency | null>(null)
+  const contentRef = useRef<any>(null)
   const [recipes, setRecipes] = useState<RecipesResponse[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedRecipe, setSelectedRecipe] = useState<string>(
-    ''
-  )
+  const [selectedRecipe, setSelectedRecipe] = useState<string>('')
   const [openCompareDialog, setOpenCompareDialog] = useState(false)
   const [showChart, setShowChart] = useState(false)
   const [productionLogs, setProductionLogs] = useState<any[]>([])
@@ -93,6 +95,9 @@ export default function ProductionEfficiencies() {
     setIsDialogOpen(false)
     setSelectedProductionEfficiency(null)
   }
+  const reactToPrintFn = useReactToPrint({
+    contentRef,
+  })
   const onSave = async (data: any) => {
     try {
       const res = await requestToast<any[]>({
@@ -176,9 +181,11 @@ export default function ProductionEfficiencies() {
     }))
     setData(newData)
   }
-  const handleBarClick = (item:any,index:number)=>{
-    const selectedItem = productionLogs.find((pro)=>pro.number === item.number)
-    if(selectedItem){
+  const handleBarClick = (item: any, index: number) => {
+    const selectedItem = productionLogs.find(
+      (pro) => pro.number === item.number
+    )
+    if (selectedItem) {
       onView(selectedItem)
     }
   }
@@ -223,7 +230,10 @@ export default function ProductionEfficiencies() {
           customWidth="lg"
           handleClose={handleCloseCompareDialog}
           content={
-            <div>
+            <div ref={contentRef} style={{ marginLeft: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <img src={logo} width={'100'} height={'100'} />
+              </div>
               <Typography>Elige una receta</Typography>
               <FormControl fullWidth variant="outlined" margin="normal">
                 <InputLabel id="recipe-select-label">Receta</InputLabel>
@@ -283,50 +293,66 @@ export default function ProductionEfficiencies() {
                     variant="contained"
                     color="primary"
                     onClick={handleCompare}
-                    style={{ marginLeft: '1rem' }}
+                    style={{
+                      marginLeft: '1rem',
+                    }}
                   >
                     Comparar
                   </Button>
                 )}
               </div>
               {showChart && data.length > 0 && (
-                <BarChart
-                  width={600}
-                  height={300}
-                  data={data}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey={(entry) => `Informe ${entry.number}`} />
-                  {/* Eje Y para la cantidad */}
-                  <YAxis yAxisId="left" orientation="left" />
-                  {/* Eje Y para el tiempo total */}
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Legend />
+                <>
+                  <BarChart
+                    width={600}
+                    height={300}
+                    data={data}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey={(entry) => `Informe ${entry.number}`} />
+                    {/* Eje Y para la cantidad */}
+                    <YAxis yAxisId="left" orientation="left" />
+                    {/* Eje Y para el tiempo total */}
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
 
-                  {/* Barra para la cantidad fabricada */}
-                  <Bar
-                    yAxisId="left"
-                    dataKey="cantidad"
-                    fill="#8884d8"
-                    activeBar={<Rectangle fill="pink" stroke="blue" />}
-                    onClick={handleBarClick}
-                  />
-                  {/* Barra para el tiempo total */}
-                  <Bar
-                    yAxisId="right"
-                    dataKey="tiempoTotal"
-                    fill="#82ca9d"
-                    activeBar={<Rectangle fill="gold" stroke="purple" />}
-                    onClick={handleBarClick}
-                  />
-                </BarChart>
+                    {/* Barra para la cantidad fabricada */}
+                    <Bar
+                      yAxisId="left"
+                      dataKey="cantidad"
+                      fill="#8884d8"
+                      activeBar={<Rectangle fill="pink" stroke="blue" />}
+                      onClick={handleBarClick}
+                    />
+                    {/* Barra para el tiempo total */}
+                    <Bar
+                      yAxisId="right"
+                      dataKey="tiempoTotal"
+                      fill="#82ca9d"
+                      activeBar={<Rectangle fill="gold" stroke="purple" />}
+                      onClick={handleBarClick}
+                    />
+                  </BarChart>
+                  <Typography style={{ color: 'grey', textAlign: 'center' }}>
+                    Gráfico generado el{' '}
+                    {formatISODateString(new Date().toString())}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => reactToPrintFn()}
+                    color="primary"
+                    style={{ marginLeft: '1rem' }}
+                  >
+                    Guardar gráfico
+                  </Button>
+                </>
               )}
             </div>
           }

@@ -209,7 +209,7 @@ const WasteReportDialog: React.FC<WasteEditDialogProps> = ({
               ))}
             </TextField>
             <TextField
-              label={`Cantidad en ${supplies.find((sup)=>sup._id === item.supplyId)?.unit || ''}`}
+              label={`Cantidad en ${supplies.find((sup)=>sup._id === item.supplyId)?.unit?.toUpperCase() || ''}`}
               fullWidth
               value={item.quantity}
               onChange={(e) => handleItemChange(index, "quantity", e.target.value)}

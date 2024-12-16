@@ -15,6 +15,7 @@ import {
   InputLabel,
   Checkbox,
   TextField,
+  Grid,
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -41,6 +42,7 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
   providers,
   selectedProvider,
   setSelectedProvider,
+  supplies,
 }) => {
   const [selectedProducts, setSelectedProducts] = useState<
     { product: SuppliesResponse; quantity: number }[]
@@ -138,28 +140,34 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
             <List>
               {selectedProducts.map(({ product, quantity }) => (
                 <ListItem key={product._id}>
-                  <TextField
-                    value={product.name}
-                    fullWidth
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    size="small"
-                    style={{ marginTop: '6px', marginRight: '20px' }}
-                  />
-                  <TextField
-                    type="number"
-                    label="Cantidad"
-                    value={quantity}
-                    onChange={(e) =>
-                      handleQuantityChange(
-                        product._id,
-                        parseInt(e.target.value, 10) || 1
-                      )
-                    }
-                    style={{ width: '100px', marginRight: '10px' }}
-                  />
+                  <Grid container>
+                    <Grid item xs={8}>
+                      <TextField
+                        value={product.name}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        size="small"
+                        style={{ marginTop: '6px', marginRight: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        type="number"
+                        label={`Cantidad en ${product.unit.toUpperCase()}`}
+                        value={quantity}
+                        onChange={(e) =>
+                          handleQuantityChange(
+                            product._id,
+                            parseInt(e.target.value, 10) || 1
+                          )
+                        }
+                        style={{ margin: '0rem 1rem' }}
+                      />
+                    </Grid>
+                  </Grid>
                   <IconButton onClick={() => handleRemoveProduct(product._id)}>
                     <FontAwesomeIcon icon={faTrash} />
                   </IconButton>
@@ -175,7 +183,8 @@ const ProviderOrderDialogCreate: React.FC<ProviderOrderDialogProps> = ({
         </Button>
         <Button
           onClick={handleSave}
-          color="primary" variant="contained"
+          color="primary"
+          variant="contained"
           disabled={!selectedProvider || selectedProducts.length === 0}
         >
           Guardar
